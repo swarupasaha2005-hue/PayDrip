@@ -25,25 +25,30 @@ export default function Sidebar() {
     <aside className="sidebar">
       {/* Logo */}
       <div style={{ display:'flex', alignItems:'center', gap:10, padding:'4px 6px 20px', borderBottom:'1px solid var(--border)', marginBottom:8 }}>
-        <div style={{ width:36, height:36, borderRadius:12, background:'linear-gradient(135deg,#B8A8FF,#F8BBD0)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+        <div style={{ width:36, height:36, borderRadius:12, background:'var(--logo-grad)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
           <Droplets size={18} color="white" />
         </div>
         <div>
           <div style={{ fontWeight:800, fontSize:15, color:'var(--text)', letterSpacing:'-0.3px' }}>PayDrip</div>
-          <div style={{ fontSize:10, color:'var(--text-3)', fontWeight:500 }}>STELLAR TESTNET</div>
+          <div style={{ fontSize:10, color:'var(--text-2)', opacity:0.6, fontWeight:500 }}>STELLAR TESTNET</div>
         </div>
       </div>
 
       {/* Nav */}
-      <div style={{ display:'flex', flexDirection:'column', gap:2, flex:1 }}>
+      <div style={{ display:'flex', flexDirection:'column', gap:4, flex:1 }}>
         {navItems.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+            style={({ isActive }) => ({
+              background: isActive ? 'var(--nav-active)' : 'transparent',
+              color: isActive ? 'var(--primary-dark)' : 'var(--text-2)',
+              borderColor: isActive ? 'var(--primary)' : 'transparent'
+            })}
           >
-            <Icon size={17} />
-            <span className="nav-label">{label}</span>
+            <Icon size={17} strokeWidth={isActive ? 2.5 : 2} />
+            <span className="nav-label" style={{ fontWeight: isActive ? 700 : 500 }}>{label}</span>
           </NavLink>
         ))}
       </div>

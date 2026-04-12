@@ -10,9 +10,9 @@ const features = [
 ];
 
 const GENDERS = [
-  { id: 'female', label: 'Female', emo: '🌸', desc: 'Soft & Elegant Pastel Theme' },
-  { id: 'male',   label: 'Male',   emo: '🕶️', desc: 'Bold & Structured Dark Theme' },
-  { id: 'other',  label: 'Others', emo: '🌈', desc: 'Balanced & Modern Neutral Theme' }
+  { id: 'female', label: 'Female' },
+  { id: 'male',   label: 'Male' },
+  { id: 'other',  label: 'Others' }
 ];
 
 export default function Onboarding() {
@@ -34,14 +34,14 @@ export default function Onboarding() {
         <div className="fade-up" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:64, maxWidth:960, width:'100%', alignItems:'center' }}>
           <div>
             <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:32 }}>
-              <div style={{ width:44, height:44, borderRadius:14, background:'linear-gradient(135deg,var(--primary),var(--primary-dark))', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <div style={{ width:44, height:44, borderRadius:14, background:'var(--logo-grad)', display:'flex', alignItems:'center', justifyContent:'center' }}>
                 <Droplets size={22} color="white" />
               </div>
               <span style={{ fontWeight:800, fontSize:20, color:'var(--text)' }}>PayDrip</span>
             </div>
             <h1 style={{ fontSize:48, fontWeight:800, lineHeight:1.1, color:'var(--text)', marginBottom:20 }}>
               Automate your<br />
-              <span style={{ background:'linear-gradient(135deg,var(--primary),var(--primary-dark))', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>
+              <span style={{ background:'var(--logo-grad)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>
                 payments
               </span><br />
               effortlessly
@@ -73,15 +73,15 @@ export default function Onboarding() {
 
   return (
     <div style={{ minHeight:'100vh', background:'var(--bg)', display:'flex', alignItems:'center', justifyContent:'center', padding:32 }}>
-      <div className="card fade-up" style={{ maxWidth:480, width:'100%', padding:40, textAlign:'center' }}>
+      <div className="card fade-up" style={{ maxWidth:440, width:'100%', padding:40, textAlign:'center' }}>
         <div style={{ margin:'0 auto 24px', width:56, height:56, borderRadius:'50%', background:'var(--surface-2)', display:'flex', alignItems:'center', justifyContent:'center' }}>
           <User size={24} color="var(--primary)" />
         </div>
-        <h2 style={{ fontSize:28, fontWeight:800, marginBottom:8 }}>Personalize Experience</h2>
-        <p style={{ color:'var(--text-2)', fontSize:15, marginBottom:32 }}>Tell us a bit about yourself to tailor the UI theme.</p>
+        <h2 style={{ fontSize:26, fontWeight:800, marginBottom:8 }}>Setup Profile</h2>
+        <p style={{ color:'var(--text-2)', fontSize:14, marginBottom:32 }}>Tailor your dashboard experience.</p>
 
         <div style={{ textAlign:'left', marginBottom:28 }}>
-          <label style={{ fontSize:13, fontWeight:700, color:'var(--text-3)', marginBottom:8, display:'block', textTransform:'uppercase', letterSpacing:0.5 }}>Your Name</label>
+          <label style={{ fontSize:12, fontWeight:700, color:'var(--text-2)', opacity:0.6, marginBottom:8, display:'block', textTransform:'uppercase', letterSpacing:0.5 }}>Display Name</label>
           <input 
             value={name} onChange={e => setName(e.target.value)} 
             placeholder="e.g. Alex" style={fieldStyle}
@@ -89,25 +89,21 @@ export default function Onboarding() {
         </div>
 
         <div style={{ textAlign:'left', marginBottom:36 }}>
-          <label style={{ fontSize:13, fontWeight:700, color:'var(--text-3)', marginBottom:12, display:'block', textTransform:'uppercase', letterSpacing:0.5 }}>Select UI Theme</label>
-          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+          <label style={{ fontSize:12, fontWeight:700, color:'var(--text-2)', opacity:0.6, marginBottom:12, display:'block', textTransform:'uppercase', letterSpacing:0.5 }}>UI Aesthetics</label>
+          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
             {GENDERS.map(g => (
               <div 
                 key={g.id} 
                 onClick={() => setGender(g.id)}
                 className={`card ${gender === g.id ? 'active-theme' : ''}`}
                 style={{ 
-                  display:'flex', alignItems:'center', gap:14, padding:'14px 18px', cursor:'pointer',
-                  border: gender === g.id ? '2px solid var(--primary)' : '2px solid transparent',
+                  display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px 20px', cursor:'pointer',
+                  border: gender === g.id ? '2px solid var(--primary)' : '2px solid var(--border)',
                   background: gender === g.id ? 'var(--surface-2)' : 'var(--surface)',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s', borderRadius:14
                 }}
               >
-                <span style={{ fontSize:24 }}>{g.emo}</span>
-                <div style={{ flex:1 }}>
-                  <div style={{ fontWeight:700, fontSize:15 }}>{g.label}</div>
-                  <div style={{ fontSize:11, color:'var(--text-3)' }}>{g.desc}</div>
-                </div>
+                <div style={{ fontWeight:700, fontSize:15, color:'var(--text)' }}>{g.label}</div>
                 {gender === g.id && <Check size={18} color="var(--primary)" />}
               </div>
             ))}
@@ -118,10 +114,15 @@ export default function Onboarding() {
           onClick={() => navigate('/dashboard')}
           disabled={!canContinue}
           className="btn btn-primary"
-          style={{ width:'100%', padding:'18px', fontSize:16, borderRadius:16, opacity: canContinue ? 1 : 0.5 }}
+          style={{ width:'100%', padding:'18px', fontSize:15, borderRadius:16, opacity: canContinue ? 1 : 0.5 }}
         >
-          Explore PayDrip <Sparkles size={16} />
+          Explore Dashboard <Sparkles size={14} style={{ marginLeft:6 }} />
         </button>
+      </div>
+    </div>
+  );
+}
+
       </div>
     </div>
   );

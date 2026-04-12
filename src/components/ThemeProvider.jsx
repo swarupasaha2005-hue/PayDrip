@@ -9,15 +9,18 @@ const THEMES = {
     '--bg': '#FDFCFE',
     '--surface': '#FFFFFF',
     '--surface-2': '#F5F3FF',
-    '--border': 'rgba(203, 194, 245, 0.3)',
+    '--border': 'rgba(203, 194, 245, 0.4)',
     '--text': '#2E1065',
     '--text-2': '#6D28D9',
     '--shadow-md': '0 8px 30px rgba(203, 194, 245, 0.15)',
-    '--card-grad': 'linear-gradient(135deg, #D1DAFF 0%, #E7D0F5 100%)'
+    '--card-grad': 'linear-gradient(135deg, #D1DAFF 0%, #E7D0F5 100%)',
+    '--logo-grad': 'linear-gradient(135deg, #CBC2F5 0%, #E7D0F5 100%)',
+    '--nav-active': '#F5F3FF',
+    '--btn-hover': '#B8A8FF'
   },
   male: {
-    '--primary': '#5B5B5B',
-    '--primary-dark': '#333333',
+    '--primary': '#1C1917',
+    '--primary-dark': '#000000',
     '--accent': '#A8A29E',
     '--bg': '#F5F5F4',
     '--surface': '#FFFFFF',
@@ -26,7 +29,10 @@ const THEMES = {
     '--text': '#1C1917',
     '--text-2': '#44403C',
     '--shadow-md': '0 10px 25px rgba(0, 0, 0, 0.08)',
-    '--card-grad': 'linear-gradient(135deg, #44403C 0%, #1C1917 100%)'
+    '--card-grad': 'linear-gradient(135deg, #44403C 0%, #1C1917 100%)',
+    '--logo-grad': 'linear-gradient(135deg, #44403C 0%, #1C1917 100%)',
+    '--nav-active': '#E7E5E4',
+    '--btn-hover': '#333333'
   },
   other: {
     '--primary': '#0D9488',
@@ -39,7 +45,10 @@ const THEMES = {
     '--text': '#0F172A',
     '--text-2': '#475569',
     '--shadow-md': '0 8px 25px rgba(13, 148, 136, 0.12)',
-    '--card-grad': 'linear-gradient(135deg, #0D9488 0%, #818CF8 100%)'
+    '--card-grad': 'linear-gradient(135deg, #0D9488 0%, #818CF8 100%)',
+    '--logo-grad': 'linear-gradient(135deg, #0D9488 0%, #818CF8 100%)',
+    '--nav-active': '#F1F5F9',
+    '--btn-hover': '#0F766E'
   },
   default: {
     '--primary': '#B8A8FF',
@@ -52,7 +61,10 @@ const THEMES = {
     '--text': '#1E1B4B',
     '--text-2': '#6B7280',
     '--shadow-md': '0 8px 24px rgba(139, 92, 246, 0.10)',
-    '--card-grad': 'linear-gradient(135deg, #B8A8FF 0%, #F8BBD0 100%)'
+    '--card-grad': 'linear-gradient(135deg, #B8A8FF 0%, #F8BBD0 100%)',
+    '--logo-grad': 'linear-gradient(135deg, #B8A8FF 0%, #F8BBD0 100%)',
+    '--nav-active': '#FAF9FD',
+    '--btn-hover': '#9B87FF'
   }
 };
 
