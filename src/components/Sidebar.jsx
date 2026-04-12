@@ -1,18 +1,23 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
-import { Droplets, LayoutDashboard, Send, CalendarClock, ListOrdered, LogOut, Zap, ChevronRight } from 'lucide-react';
+import { Droplets, LayoutDashboard, Send, CalendarClock, ListOrdered, LogOut, Zap, Database } from 'lucide-react';
 
 const navItems = [
-  { to: '/dashboard',    label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/send',         label: 'Send',      icon: Send },
-  { to: '/scheduler',    label: 'Schedule',  icon: CalendarClock },
-  { to: '/activity',     label: 'Activity',  icon: ListOrdered },
+  { to: '/dashboard',     label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/send',          label: 'Send',      icon: Send },
+  { to: '/scheduler',     label: 'Schedule',  icon: CalendarClock },
+  { to: '/activity',      label: 'Activity',  icon: ListOrdered },
+  { to: '/contract-view', label: 'Contract',  icon: Database },
 ];
+
+import { useUser } from '../context/UserContext';
 
 export default function Sidebar() {
   const { address, balance, disconnect } = useWallet();
+  const { name } = useUser();
   const navigate = useNavigate();
+
 
   const short = (a) => a ? `${a.slice(0,6)}…${a.slice(-4)}` : '';
 
@@ -49,8 +54,10 @@ export default function Sidebar() {
           <div style={{ background:'var(--bg)', borderRadius:'var(--radius-md)', padding:'14px 12px' }}>
             <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
               <div style={{ width:8, height:8, borderRadius:'50%', background:'#10B981', flexShrink:0 }} />
-              <span style={{ fontSize:12, fontWeight:600, color:'var(--text)' }}>Connected</span>
+              <span style={{ fontSize:12, fontWeight:600, color:'var(--text)', flex: 1 }}>Connected</span>
             </div>
+            {name && <div style={{ fontSize:15, fontWeight:800, color:'var(--text)', marginBottom:12 }}>{name}</div>}
+
             <div style={{ fontSize:11, color:'var(--text-3)', marginBottom:4 }}>Address</div>
             <div style={{ fontSize:12, fontWeight:600, color:'var(--text)', marginBottom:8, fontFamily:'monospace' }}>{short(address)}</div>
             <div style={{ fontSize:11, color:'var(--text-3)', marginBottom:2 }}>Balance</div>

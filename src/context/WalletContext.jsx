@@ -1,19 +1,27 @@
 import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
-import { connectWallet, fetchBalance } from '../utils/stellar';
+import { connectWallet, fetchBalance, fetchLockedAmount, fetchRewardsBalance } from '../utils/stellar';
 
 const WalletContext = createContext();
 
 export function WalletProvider({ children }) {
   const [address, setAddress]         = useState(() => localStorage.getItem('pd_wallet') || null);
   const [balance, setBalance]         = useState('0');
+  const [lockedBalance, setLockedBalance] = useState('0');
+  const [rewardsBalance, setRewardsBalance] = useState('0');
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError]             = useState(null);
 
   const updateBalance = useCallback(async (pubKey) => {
     if (!pubKey) return;
     try {
-      const bal = await fetchBalance(pubKey);
+      const [bal, locked, rewards] = await Promise.all([
+        fetchBalance(pubKey),
+        fetchLockedAmount(pubKey),
+        fetchRewardsBalance(pubKey)
+      ]);
       setBalance(bal);
+      setLockedBalance(locked);
+      setRewardsBalance(rewards);
     } catch (err) {
       console.error('Balance fetch error', err);
     }
@@ -46,10 +54,11 @@ export function WalletProvider({ children }) {
   const disconnect = useCallback(() => {
     setAddress(null);
     setBalance('0');
+    setLockedBalance('0');
   }, []);
 
   return (
-    <WalletContext.Provider value={{ address, balance, updateBalance, connect, disconnect, isConnecting, error }}>
+    <WalletContext.Provider value={{ address, balance, lockedBalance, updateBalance, connect, disconnect, isConnecting, error }}>
       {children}
     </WalletContext.Provider>
   );

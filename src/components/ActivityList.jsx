@@ -34,6 +34,14 @@ function ActivityRow({ item }) {
   const meta = TYPE_META[item.type] || TYPE_META.sent;
   const Icon = meta.icon;
   const isPositive = item.type === 'received';
+  const explorerUrl = `https://stellar.expert/explorer/testnet/tx/${item.hash}`;
+  const toast = useToast();
+
+  const copyHash = () => {
+    if (!item.hash) return;
+    navigator.clipboard.writeText(item.hash);
+    toast.success('Transaction hash copied!');
+  };
 
   return (
     <div style={{ display:'flex', alignItems:'center', gap:14, padding:'14px 0', borderBottom:'1px solid var(--border)' }}>
@@ -41,7 +49,23 @@ function ActivityRow({ item }) {
         <Icon size={18} color={meta.iconColor} />
       </div>
       <div style={{ flex:1, minWidth:0 }}>
-        <div style={{ fontSize:14, fontWeight:600, color:'var(--text)', marginBottom:2 }}>{meta.label} · {item.asset}</div>
+        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:2 }}>
+          <div style={{ fontSize:14, fontWeight:600, color:'var(--text)' }}>{meta.label} · {item.asset}</div>
+          {item.hash && (
+            <div style={{ display:'flex', gap:6 }}>
+              <a href={explorerUrl} target="_blank" rel="noreferrer" style={{ color:'var(--text-3)', display:'flex', alignItems:'center' }} title="View on Explorer">
+                <ExternalLink size={10} />
+              </a>
+              <button 
+                onClick={copyHash}
+                style={{ background:'none', border:'none', color:'var(--text-3)', cursor:'pointer', display:'flex', alignItems:'center', padding:0 }}
+                title="Copy Hash"
+              >
+                <Copy size={10} />
+              </button>
+            </div>
+          )}
+        </div>
         <div style={{ fontSize:12, color:'var(--text-3)' }}>
           {item.to ? `To: ${item.to.slice(0,10)}…` : item.from ? `From: ${item.from.slice(0,10)}…` : ''}
           {item.releaseAt ? ` · Release: ${new Date(item.releaseAt).toLocaleDateString()}` : ''}
@@ -57,6 +81,8 @@ function ActivityRow({ item }) {
     </div>
   );
 }
+
+import { ExternalLink } from 'lucide-react';
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
 export function EmptyActivity() {

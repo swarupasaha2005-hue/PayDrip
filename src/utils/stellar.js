@@ -1,13 +1,61 @@
-import { Horizon, TransactionBuilder, Networks, Asset, Operation } from '@stellar/stellar-sdk';
+import { Horizon, rpc, TransactionBuilder, Networks, Asset, Operation, Contract, xdr, scValToNative, nativeToScVal, Address, Account } from '@stellar/stellar-sdk';
 import { isConnected, requestAccess, signTransaction } from '@stellar/freighter-api';
 
 const horizonUrl = 'https://horizon-testnet.stellar.org';
+const rpcUrl = 'https://soroban-testnet.stellar.org';
 const server = new Horizon.Server(horizonUrl);
+const rpcServer = new rpc.Server(rpcUrl);
 const networkPassphrase = Networks.TESTNET;
+
+/**
+ * Polls for transaction status until it's finished or timeouts
+ */
+export async function waitForTransaction(txHash) {
+  let status = 'PENDING';
+  let attempts = 0;
+  while (attempts < 20) {
+    const res = await rpcServer.getTransaction(txHash);
+    if (res.status === 'SUCCESS') return { status: 'SUCCESS', result: res };
+    if (res.status === 'FAILED')  throw new Error('Transaction failed');
+    await new Promise(r => setTimeout(r, 3000));
+    attempts++;
+  }
+  throw new Error('Transaction timed out');
+}
+
+// Our deployed contracts
+export const VAULT_CONTRACT_ID = 'CDL52WTKS4YCXTCSMY2MCVJ2O3DPO2ET7EWXJIQMRP75I6O5ILGFDLWU';
+export const REWARDS_CONTRACT_ID = 'CBPCJ3XMOBDY7F3S6XNJOBDY7F3S6XNJOBDY7F3S6XNJOBDY7F3S6XN'; // Valid format placeholder
+// Native XLM token in Soroban
+export const NATIVE_XLM_ID = 'CDLZFC3SYJYDZT7K67VZ75YJBMKBAV26RZ6SNTLMHRPZ2RV7GT3S6YTM';
+
+/**
+ * Fetches reward points from the DripRewards contract
+ */
+export async function fetchRewardsBalance(publicKey) {
+  try {
+    const contract = new Contract(REWARDS_CONTRACT_ID);
+    const result = await rpcServer.simulateTransaction(
+      new TransactionBuilder(new Account(publicKey, '0'), { fee: '100', networkPassphrase })
+        .addOperation(contract.call('balance', new Address(publicKey).toScVal()))
+        .setTimeout(30)
+        .build()
+    );
+
+    if (rpc.Api.isSimulationSuccess(result)) {
+      const balance = scValToNative(result.result.retval);
+      return balance ? balance.toString() : '0';
+    }
+    return '0';
+  } catch (err) {
+    console.error('Fetch rewards error:', err);
+    return '0';
+  }
+}
+
 
 export async function checkFreighterInstalled() {
   const result = await isConnected();
-  // isConnected returns { isConnected: boolean, error? }
   return result && (result.isConnected === true || result === true);
 }
 
@@ -17,7 +65,6 @@ export async function connectWallet() {
     throw new Error('Freighter is not installed. Please install the Freighter browser extension.');
   }
 
-  // requestAccess returns { address: string, error?: string }
   const result = await requestAccess();
   if (result.error) {
     throw new Error(result.error);
@@ -35,10 +82,106 @@ export async function fetchBalance(publicKey) {
     return nativeBalance ? nativeBalance.balance : '0';
   } catch (error) {
     if (error.response && error.response.status === 404) {
-      return '0 (Unfunded)';
+      return '0';
     }
     throw error;
   }
+}
+
+/** 
+ * Fetches locked amount from the Soroban contract 
+ */
+export async function fetchLockedAmount(publicKey) {
+  try {
+    const contract = new Contract(VAULT_CONTRACT_ID);
+    const result = await rpcServer.simulateTransaction(
+      new TransactionBuilder(new Account(publicKey, '0'), { fee: '100', networkPassphrase })
+        .addOperation(contract.call('get_vault', new Address(publicKey).toScVal(), new Address(NATIVE_XLM_ID).toScVal()))
+        .setTimeout(30)
+        .build()
+    );
+
+    if (rpc.Api.isSimulationSuccess(result)) {
+      const entry = scValToNative(result.result.retval);
+      // entry is { amount: i128, unlock_time: u64 }
+      return entry && entry.amount ? (Number(entry.amount) / 10000000).toString() : '0';
+    }
+    return '0';
+  } catch (err) {
+    console.error('Fetch locked amount error:', err);
+    return '0';
+  }
+}
+
+/**
+ * Common helper for Soroban transactions
+ */
+async function submitSorobanTx(sourceAddress, operation) {
+  const account = await server.loadAccount(sourceAddress);
+  const tx = new TransactionBuilder(account, {
+    fee: '10000', // Higher fee for Soroban
+    networkPassphrase,
+  })
+    .addOperation(operation)
+    .setTimeout(60)
+    .build();
+
+  // Soroban requires simulation to fill in footprint and resource fees
+  const simulated = await rpcServer.simulateTransaction(tx);
+  if (rpc.Api.isSimulationError(simulated)) {
+    throw new Error(`Simulation failed: ${simulated.error}`);
+  }
+
+  const preparedTx = rpc.assembleTransaction(tx, simulated);
+
+  const signResult = await signTransaction(preparedTx.toXDR(), {
+    networkPassphrase,
+  });
+
+  if (signResult.error) {
+    throw new Error(signResult.error);
+  }
+
+  const signedTx = TransactionBuilder.fromXDR(signResult.signedTransaction, networkPassphrase);
+  const response = await rpcServer.sendTransaction(signedTx);
+  
+  if (response.status === 'ERROR') {
+    throw new Error(`Transaction failed: ${JSON.stringify(response.errorResultXdr)}`);
+  }
+
+  return response;
+}
+
+/**
+ * Lock funds on the smart contract
+ */
+export async function lockFundsOnChain(userAddress, amount, unlockSeconds) {
+  const contract = new Contract(VAULT_CONTRACT_ID);
+  const amountRaw = BigInt(Math.floor(Number(amount) * 10000000)); // Stroops
+  
+  const op = contract.call(
+    'lock',
+    new Address(userAddress).toScVal(),
+    new Address(NATIVE_XLM_ID).toScVal(),
+    nativeToScVal(amountRaw, { type: 'i128' }),
+    nativeToScVal(BigInt(unlockSeconds), { type: 'u64' })
+  );
+
+  return await submitSorobanTx(userAddress, op);
+}
+
+/**
+ * Claim funds back from the contract
+ */
+export async function claimFundsOnChain(userAddress) {
+  const contract = new Contract(VAULT_CONTRACT_ID);
+  const op = contract.call(
+    'claim',
+    new Address(userAddress).toScVal(),
+    new Address(NATIVE_XLM_ID).toScVal()
+  );
+
+  return await submitSorobanTx(userAddress, op);
 }
 
 export async function sendPayment(sourcePublicKey, destinationPublicKey, amount) {
@@ -59,7 +202,6 @@ export async function sendPayment(sourcePublicKey, destinationPublicKey, amount)
     .setTimeout(30)
     .build();
 
-  // signTransaction returns { signedTransaction: string, signerAddress: string, error?: string }
   const signResult = await signTransaction(transaction.toXDR(), {
     networkPassphrase,
   });

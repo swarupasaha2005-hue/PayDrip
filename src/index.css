@@ -100,14 +100,15 @@ html, body, #root {
 }
 
 .card-gradient {
-  background: linear-gradient(135deg, #B8A8FF 0%, #D8B4FE 40%, #F8BBD0 100%);
+  background: var(--card-grad);
   border-radius: var(--radius-xl);
   padding: 28px;
   color: white;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 16px 40px rgba(184,168,255,0.4);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.1);
 }
+
 .card-gradient::before {
   content: '';
   position: absolute;
@@ -264,12 +265,34 @@ html, body, #root {
 /* ─── Divider ──────────────────────────────────────────── */
 .divider { height: 1px; background: var(--border); margin: 8px 0; }
 
-/* ─── Responsive ───────────────────────────────────────── */
-@media (max-width: 768px) {
-  .sidebar { width: 60px; padding: 16px 8px; }
-  .sidebar .nav-label { display: none; }
-  .main-content { padding: 20px 16px; }
-  .grid-3 { grid-template-columns: 1fr; }
-  .grid-2 { grid-template-columns: 1fr; }
-  .grid-2-1 { grid-template-columns: 1fr; }
+/* ─── Responsive Grid ─────────────────────────────────── */
+.grid-stack { display: grid; grid-template-columns: 1fr; gap: 20px; }
+
+@media (min-width: 768px) {
+  .grid-stack-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-stack-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-stack-2-1 { grid-template-columns: 2fr 1fr; }
 }
+
+/* ─── Mobile Overrides ─────────────────────────────────── */
+@media (max-width: 1024px) {
+  .app-layout { flex-direction: column; }
+  .sidebar {
+    width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border);
+    flex-direction: row; padding: 12px 16px; gap: 12px; overflow-x: auto;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .sidebar .nav-link { padding: 8px 12px; width: auto; white-space: nowrap; }
+  .sidebar-logo { display: none; }
+  .main-content { padding: 24px 16px; overflow-y: visible; height: auto; }
+}
+
+@media (max-width: 640px) {
+  .sidebar { padding: 8px; gap: 4px; }
+  .nav-link span { display: none; }
+  .nav-link svg { width: 20px; height: 20px; }
+  .card { padding: 20px 16px; }
+  .card-gradient { padding: 20px; }
+  .btn { width: 100%; }
+}
+

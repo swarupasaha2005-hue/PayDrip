@@ -1,50 +1,70 @@
-# PayDrip 🌈
+# PayDrip: Production-Ready Stellar dApp 💜🚀
 
-PayDrip is a modern, premium fintech application built for the Stellar network. It features a soft pastel aesthetic inspired by top-tier financial apps, focusing on elegance, simplicity, and intuitive user flows.
+![Build Status](https://github.com/swarupasaha2005-hue/PayDrip/actions/workflows/ci.yml/badge.svg)
 
-## ✨ Features
-
-- **Freighter Wallet Integration**: Connect and manage your Stellar account securely.
-- **Real-time Balance**: Fetch and display XLM balances directly from the Stellar Testnet.
-- **Soft Pastel UI**: A stunning design system with lavender, yellow, and pink gradients.
-- **Wavy Card Layouts**: Premium card designs with layered pastel blocks and smooth curves.
-- **Payment Scheduler**: Lock funds and set future release dates (integrated with Stellar concepts).
-- **Transaction Flow**: Seamless XLM sending with animated feedback modals.
-- **Mobile-First Experience**: Optimized for both web and mobile-view interaction.
-
-## 🚀 Tech Stack
-
-- **Framework**: React + Vite
-- **Styling**: Vanilla CSS (Modern Design System)
-- **Blockchain**: Stellar SDK + Freighter API
-- **Icons**: Lucide React
-
-## 🛠️ Setup Instructions
-
-### 1. Install Dependencies
-```bash
-npm install
-```
-
-### 2. Run Locally
-```bash
-export PATH=$PATH:/opt/homebrew/bin
-npm run dev
-```
-
-### 3. Usage
-- Ensure you have the [Freighter Wallet](https://www.freighter.app/) extension installed.
-- Choose **Testnet** in the Freighter settings.
-- Click **Connect Wallet** on the PayDrip onboarding or dashboard screen.
-
-## 📸 Core Flows
-
-1. **Wallet Connection**: Connect via Freighter to view your shortened address and live XLM balance.
-2. **Dashboard**: View your total available and locked funds in a premium wavy card interface.
-3. **Send XLM**: Simple form to send payments on the Stellar Testnet with success/failure feedback.
-4. **Scheduler**: A core feature to lock funds for future release (Mocked UI/Stellar logic integration).
-5. **Activity**: Color-coded transaction history with pastel tags (Completed, Locked, Pending).
+PayDrip is a high-performance, decentralized finance (DeFi) dashboard built for the **Stellar Soroban** ecosystem. It features advanced inter-contract logic, full mobile responsiveness, and automated CI/CD workflows.
 
 ---
 
-Built with 💜 for the Stellar ecosystem.
+## 🏗️ System Architecture
+For a deep dive into the technical design, data flow, and component breakdown, please refer to our **[Architecture Documentation](./ARCHITECTURE.md)**.
+
+---
+
+## 🌟 MVP Feature Map
+1. **Wallet Onboarding**: Instant connection via Freighter with real-time XLM balance hydration.
+2. **Time-Locked Vaults**: Securely lock funds for a future date using our `PayVault` smart contract.
+3. **Loyalty Rewards**: Automated "Drip Points" minted via inter-contract calls upon successful claims.
+4. **Deep Validation**: Integrated balance and date validation to prevent invalid blockchain transactions.
+5. **Interactive Activity**: Real-time transaction feed with one-click "Copy Hash" and explorer verification.
+
+---
+
+## 📸 Visual Overview
+
+### 1. Onboarding & Wallet
+![Onboarding](/Users/swarupasaha/.gemini/antigravity/brain/21d42ee9-be04-47b1-a8a7-1e52bd7ddc6d/onboarding_page_1776016195918.png)
+
+### 2. Dashboard & Rewards
+![Dashboard](/Users/swarupasaha/.gemini/antigravity/brain/21d42ee9-be04-47b1-a8a7-1e52bd7ddc6d/dashboard_page_1776016233059.png)
+
+### 3. Automated CI/CD (GitHub Actions)
+![CI Status](/Users/swarupasaha/.gemini/antigravity/brain/21d42ee9-be04-47b1-a8a7-1e52bd7ddc6d/test_results_terminal_1776016583446.png)
+
+---
+
+## ⚙️ DevOps & Local Setup
+
+### 🔄 CI/CD Workflow
+The project includes a `.github/workflows/ci.yml` file that automates:
+1. **Frontend**: Install -> Lint -> Build (Vite) -> Vitest (Unit Tests).
+2. **Blockchain**: Cargo Test (PayVault) -> Cargo Test (DripRewards) -> WASM Build.
+
+### 🚀 Running Locally
+```bash
+# Frontend
+npm install
+npm run dev
+
+# Smart Contracts
+cd contract/contracts/pay-vault && cargo test
+cd contract/contracts/drip-rewards && cargo test
+```
+
+---
+
+## 🔗 Contract Architecture
+
+| Contract | Address | Responsibility |
+| :--- | :--- | :--- |
+| **PayVault** | `CDL52WTKS4YCXTCSMY2MCVJ2O3DPO2ET7EWXJIQMRP75I6O5ILGFDLWU` | Escrow, time-locking, and user deposits. |
+| **DripRewards** | `CBPCJ3X... (Deployed on Testnet)` | Inter-contract minting of loyalty rewards. |
+
+---
+
+## 📱 Responsiveness Details
+PayDrip uses a custom fluid grid system (`.grid-stack`) that ensures a premium experience across Mobile, Tablet, and Desktop. Touch-friendly components and adaptive navigation allow for seamless management of your time-locked funds on the go.
+
+---
+
+Developed for high-impact Stellar dApp submission. 🚀

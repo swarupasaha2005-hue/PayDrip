@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import SendTransaction from './pages/SendTransaction';
 import Scheduler from './pages/Scheduler';
 import Activity from './pages/Activity';
+import ContractView from './pages/ContractView';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/send" element={<SendTransaction />} />
         <Route path="/scheduler" element={<Scheduler />} />
         <Route path="/activity" element={<Activity />} />
+        <Route path="/contract-view" element={<ContractView />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
