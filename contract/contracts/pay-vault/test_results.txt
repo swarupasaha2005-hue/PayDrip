@@ -1,0 +1,13 @@
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/swarupasaha/Projects/PayDrip/contract/contracts/pay-vault/Cargo.toml
+workspace: /Users/swarupasaha/Projects/PayDrip/contract/Cargo.toml
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.34s
+     Running unittests src/lib.rs (/Users/swarupasaha/Projects/PayDrip/contract/target/debug/deps/pay_vault-4d16c925a993eabb)
+
+running 3 tests
+test test::test_get_empty_vault ... ok
+test test::test_lock_and_claim_flow ... ok
+test test::test_claim_too_early_panics - should panic ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
