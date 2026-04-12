@@ -38,3 +38,6 @@ impl DripRewards {
         env.storage().persistent().get(&key).unwrap_or(0)
     }
 }
+
+#[cfg(test)]
+mod test;
