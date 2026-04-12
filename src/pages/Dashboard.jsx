@@ -1,22 +1,19 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { useWallet } from '../context/WalletContext';
 import { useApp } from '../context/AppContext';
 import { useUser } from '../context/UserContext';
 import WalletButton from '../components/WalletButton';
 import ActivityList from '../components/ActivityList';
-import { ArrowUpRight, Lock, CalendarClock, RefreshCw, TrendingUp, Shield } from 'lucide-react';
+import { CalendarClock, RefreshCw, TrendingUp } from 'lucide-react';
 import { SkeletonCard, SkeletonBox } from '../components/UXHelpers';
 
 export default function Dashboard() {
-  const { address, balance, lockedBalance, rewardsBalance, updateBalance, isConnecting } = useWallet();
-  const { activityFeed, addTransaction } = useApp();
+  const { address, balance, rewardsBalance, updateBalance, isConnecting } = useWallet();
+  const { activityFeed } = useApp();
   const { name } = useUser();
-  const navigate = useNavigate();
 
   const xlm = parseFloat(balance || 0);
   const rewards = parseFloat(rewardsBalance || 0);
-  const [isClaiming, setIsClaiming] = useState(false);
 
   
   // Advanced UX: Show skeletons during initial fetch
@@ -35,19 +32,8 @@ export default function Dashboard() {
     );
   }
 
-  const handleClaim = async () => {
-    if (!address || parseFloat(lockedBalance) <= 0) return;
-    setIsClaiming(true);
-    try {
-      const { claimFundsOnChain } = await import('../utils/stellar');
-      const response = await claimFundsOnChain(address);
-      addTransaction({ type:'received', amount: lockedBalance, asset:'XLM', hash: response.hash, status: 'Completed' });
-      await updateBalance(address);
-    } catch (err) {
-      console.error('Claim failed', err);
-    } finally {
-      setIsClaiming(false);
-    }
+  const handleRefresh = async () => {
+    if (address) await updateBalance(address);
   };
 
   return (

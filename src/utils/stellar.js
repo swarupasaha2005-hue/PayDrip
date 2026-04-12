@@ -1,4 +1,4 @@
-import { Horizon, rpc, TransactionBuilder, Networks, Asset, Operation, Contract, xdr, scValToNative, nativeToScVal, Address, Account } from '@stellar/stellar-sdk';
+import { Horizon, rpc, TransactionBuilder, Networks, Asset, Contract, scValToNative, nativeToScVal, Address, Account, Operation } from '@stellar/stellar-sdk';
 import { isConnected, requestAccess, signTransaction } from '@stellar/freighter-api';
 
 const horizonUrl = 'https://horizon-testnet.stellar.org';

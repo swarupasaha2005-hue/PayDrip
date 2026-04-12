@@ -29,14 +29,14 @@ jobs:
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Run PayVault Tests
+      - name: Build Contracts
         run: |
-          cd contract/contracts/pay-vault
-          cargo test
+          cd contract
+          cargo build --target wasm32-unknown-unknown --release
 
-      - name: Run DripRewards Tests
+      - name: Run Contract Tests
         run: |
-          cd contract/contracts/drip-rewards
+          cd contract
           cargo test
 
   frontend:

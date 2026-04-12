@@ -8,6 +8,13 @@ pub enum DataKey {
     RewardsContract,
 }
 
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct VaultEntry {
+    pub amount: i128,
+    pub unlock_time: u64,
+}
+
 mod rewards {
     soroban_sdk::contractimport!(
         file = "../../target/wasm32-unknown-unknown/release/drip_rewards.wasm"
