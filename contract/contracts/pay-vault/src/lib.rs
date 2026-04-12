@@ -5,13 +5,13 @@ use soroban_sdk::{contract, contractimpl, contracttype, Address, Env};
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum DataKey {
     Vault(Address, Address), // (User, Token)
+    RewardsContract,
 }
 
-#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct VaultEntry {
-    pub amount: i128,
-    pub unlock_time: u64,
+mod rewards {
+    soroban_sdk::contractimport!(
+        file = "../../target/wasm32-unknown-unknown/release/drip_rewards.wasm"
+    );
 }
 
 #[contract]
@@ -19,19 +19,18 @@ pub struct PayVault;
 
 #[contractimpl]
 impl PayVault {
+    pub fn set_rewards(env: Env, rewards_id: Address) {
+        // In a real prod app, this would be admin-only
+        env.storage().instance().set(&DataKey::RewardsContract, &rewards_id);
+    }
+
     /// Locks funds for a user.
-    /// - `from`: The user address
-    /// - `token`: The token address (e.g. XLM native token)
-    /// - `amount`: Amount to lock
-    /// - `unlock_time`: Unix timestamp (seconds) when funds can be released
     pub fn lock(env: Env, from: Address, token: Address, amount: i128, unlock_time: u64) {
         from.require_auth();
 
-        // 1. Transfer tokens from 'from' to this contract
         let client = soroban_sdk::token::Client::new(&env, &token);
         client.transfer(&from, &env.current_contract_address(), &amount);
 
-        // 2. Store the vault entry
         let key = DataKey::Vault(from.clone(), token.clone());
         let mut entry = env.storage().persistent().get::<_, VaultEntry>(&key).unwrap_or(VaultEntry {
             amount: 0,
@@ -39,8 +38,7 @@ impl PayVault {
         });
 
         entry.amount += amount;
-        entry.unlock_time = unlock_time; // Overwrites with new time if depositing again
-
+        entry.unlock_time = unlock_time;
         env.storage().persistent().set(&key, &entry);
     }
 
@@ -64,12 +62,18 @@ impl PayVault {
             panic!("Unlock time has not been reached yet");
         }
 
-        // Transfer tokens back to user
+        // 1. Transfer tokens back to user
         let client = soroban_sdk::token::Client::new(&env, &token);
         client.transfer(&env.current_contract_address(), &user, &entry.amount);
 
-        // Remove from storage
+        // 2. Clear vault
         env.storage().persistent().remove(&key);
+
+        // 3. NEW: Mint rewards for the user (Inter-contract call)
+        if let Some(rewards_id) = env.storage().instance().get::<_, Address>(&DataKey::RewardsContract) {
+            let rewards_client = rewards::Client::new(&env, &rewards_id);
+            rewards_client.mint(&user, &100); // Reward 100 points
+        }
     }
 }
 
