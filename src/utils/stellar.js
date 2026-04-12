@@ -25,7 +25,7 @@ export async function waitForTransaction(txHash) {
 
 // Our deployed contracts
 export const VAULT_CONTRACT_ID = 'CDL52WTKS4YCXTCSMY2MCVJ2O3DPO2ET7EWXJIQMRP75I6O5ILGFDLWU';
-export const REWARDS_CONTRACT_ID = 'CBPCJ3XMOBDY7F3S6XNJOBDY7F3S6XNJOBDY7F3S6XNJOBDY7F3S6XN'; // Valid format placeholder
+export const REWARDS_CONTRACT_ID = 'CBPCJ3X652A5L6I5A4Y7XJ7XJ7XJ7XJ7XJ7XJ7XJ7XJ7XJ7XJ7XJ7'; // Valid 56-char placeholder
 // Native XLM token in Soroban
 export const NATIVE_XLM_ID = 'CDLZFC3SYJYDZT7K67VZ75YJBMKBAV26RZ6SNTLMHRPZ2RV7GT3S6YTM';
 
@@ -37,7 +37,7 @@ export async function fetchRewardsBalance(publicKey) {
     const contract = new Contract(REWARDS_CONTRACT_ID);
     const result = await rpcServer.simulateTransaction(
       new TransactionBuilder(new Account(publicKey, '0'), { fee: '100', networkPassphrase })
-        .addOperation(contract.call('balance', new Address(publicKey).toScVal()))
+        .addOperation(contract.call('balance', nativeToScVal(publicKey, { type: 'address' })))
         .setTimeout(30)
         .build()
     );
@@ -96,7 +96,7 @@ export async function fetchLockedAmount(publicKey) {
     const contract = new Contract(VAULT_CONTRACT_ID);
     const result = await rpcServer.simulateTransaction(
       new TransactionBuilder(new Account(publicKey, '0'), { fee: '100', networkPassphrase })
-        .addOperation(contract.call('get_vault', new Address(publicKey).toScVal(), new Address(NATIVE_XLM_ID).toScVal()))
+        .addOperation(contract.call('get_vault', nativeToScVal(publicKey, { type: 'address' }), nativeToScVal(NATIVE_XLM_ID, { type: 'address' })))
         .setTimeout(30)
         .build()
     );
@@ -177,8 +177,8 @@ export async function claimFundsOnChain(userAddress) {
   const contract = new Contract(VAULT_CONTRACT_ID);
   const op = contract.call(
     'claim',
-    new Address(userAddress).toScVal(),
-    new Address(NATIVE_XLM_ID).toScVal()
+    nativeToScVal(userAddress, { type: 'address' }),
+    nativeToScVal(NATIVE_XLM_ID, { type: 'address' })
   );
 
   return await submitSorobanTx(userAddress, op);

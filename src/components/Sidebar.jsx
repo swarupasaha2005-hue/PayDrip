@@ -47,8 +47,12 @@ export default function Sidebar() {
               borderColor: isActive ? 'var(--primary)' : 'transparent'
             })}
           >
-            <Icon size={17} strokeWidth={isActive ? 2.5 : 2} />
-            <span className="nav-label" style={{ fontWeight: isActive ? 700 : 500 }}>{label}</span>
+            {({ isActive }) => (
+              <>
+                <Icon size={17} strokeWidth={isActive ? 2.5 : 2} />
+                <span className="nav-label" style={{ fontWeight: isActive ? 700 : 500 }}>{label}</span>
+              </>
+            )}
           </NavLink>
         ))}
       </div>
