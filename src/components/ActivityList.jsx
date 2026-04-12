@@ -1,0 +1,83 @@
+import React from 'react';
+import { ArrowUpRight, ArrowDownLeft, Clock, Lock, Inbox, CheckCircle2 } from 'lucide-react';
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+export function formatDate(iso) {
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = now - d;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1)  return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+}
+
+const TYPE_META = {
+  sent:      { icon: ArrowUpRight,  iconColor:'#BE185D', iconBg:'#FFE4E6', label:'Sent' },
+  received:  { icon: ArrowDownLeft, iconColor:'white',   iconBg:'var(--primary)', label:'Received' },
+  locked:    { icon: Lock,          iconColor:'white',   iconBg:'#60A5FA', label:'Locked' },
+  scheduled: { icon: Clock,         iconColor:'#92400E', iconBg:'var(--secondary)', label:'Scheduled' },
+};
+
+const STATUS_CLASS = {
+  Completed: 'badge badge-success',
+  Locked:    'badge badge-info',
+  Scheduled: 'badge badge-warn',
+  Pending:   'badge badge-warn',
+  Failed:    'badge badge-error',
+};
+
+// ─── Single row ───────────────────────────────────────────────────────────────
+function ActivityRow({ item }) {
+  const meta = TYPE_META[item.type] || TYPE_META.sent;
+  const Icon = meta.icon;
+  const isPositive = item.type === 'received';
+
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap:14, padding:'14px 0', borderBottom:'1px solid var(--border)' }}>
+      <div style={{ width:44, height:44, borderRadius:'50%', background:meta.iconBg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+        <Icon size={18} color={meta.iconColor} />
+      </div>
+      <div style={{ flex:1, minWidth:0 }}>
+        <div style={{ fontSize:14, fontWeight:600, color:'var(--text)', marginBottom:2 }}>{meta.label} · {item.asset}</div>
+        <div style={{ fontSize:12, color:'var(--text-3)' }}>
+          {item.to ? `To: ${item.to.slice(0,10)}…` : item.from ? `From: ${item.from.slice(0,10)}…` : ''}
+          {item.releaseAt ? ` · Release: ${new Date(item.releaseAt).toLocaleDateString()}` : ''}
+        </div>
+      </div>
+      <div style={{ textAlign:'right', flexShrink:0 }}>
+        <div style={{ fontSize:14, fontWeight:700, color: isPositive ? '#059669' : 'var(--text)', marginBottom:4 }}>
+          {isPositive ? '+' : '-'}{item.amount} {item.asset}
+        </div>
+        <span className={STATUS_CLASS[item.status] || 'badge badge-info'}>{item.status}</span>
+        <div style={{ fontSize:10, color:'var(--text-3)', marginTop:4 }}>{formatDate(item.date)}</div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Empty state ──────────────────────────────────────────────────────────────
+export function EmptyActivity() {
+  return (
+    <div className="empty-state">
+      <div className="empty-icon"><Inbox size={28} color="var(--text-3)" /></div>
+      <div style={{ fontWeight:600, color:'var(--text-2)', fontSize:15 }}>No recent activity</div>
+      <div style={{ fontSize:13, color:'var(--text-3)', maxWidth:240 }}>
+        Your transactions and scheduled payments will appear here.
+      </div>
+    </div>
+  );
+}
+
+// ─── List ─────────────────────────────────────────────────────────────────────
+export default function ActivityList({ items, limit }) {
+  const shown = limit ? items.slice(0, limit) : items;
+  if (!shown.length) return <EmptyActivity />;
+  return (
+    <div>
+      {shown.map(item => <ActivityRow key={item.id} item={item} />)}
+    </div>
+  );
+}
