@@ -136,8 +136,9 @@ async function submitSorobanTx(sourceAddress, operation) {
   }
 
   const preparedTx = rpc.assembleTransaction(tx, simulated);
+  const xdr = (typeof preparedTx === 'string') ? preparedTx : preparedTx.toXDR();
 
-  const signResult = await signTransaction(preparedTx.toXDR(), {
+  const signResult = await signTransaction(xdr, {
     networkPassphrase,
   });
 

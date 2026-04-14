@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { connectWallet, fetchBalance, fetchLockedAmount, fetchRewardsBalance } from '../utils/stellar';
+import { connectWallet, fetchBalance, fetchLockedAmount } from '../utils/stellar';
 import { WalletContext } from './ContextObjects';
 
 export function WalletProvider({ children }) {
