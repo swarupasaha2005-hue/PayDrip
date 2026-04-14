@@ -11,17 +11,23 @@ export function WalletProvider({ children }) {
 
   const updateBalance = useCallback(async (pubKey) => {
     if (!pubKey) return;
+    
+    // Fetch primary XLM balance
     try {
-      const [bal, locked] = await Promise.all([
-        fetchBalance(pubKey),
-        fetchLockedAmount(pubKey),
-        fetchRewardsBalance(pubKey)
-      ]);
+      const bal = await fetchBalance(pubKey);
       setBalance(bal);
-      setLockedBalance(locked);
     } catch (err) {
-      console.error('Balance fetch error', err);
+      console.error('Fetch base balance error', err);
     }
+
+    // Fetch contract-specific data in background
+    Promise.all([
+      fetchLockedAmount(pubKey).catch(e => { console.error('Fetch locked error', e); return '0'; }),
+      fetchRewardsBalance(pubKey).catch(e => { console.error('Fetch rewards error', e); return '0'; })
+    ]).then(([locked, rewards]) => {
+      setLockedBalance(locked);
+      // rewards could be stored if we added rewardsBalance state, but we currently only have lockedBalance
+    });
   }, []);
 
   // Hydrate balance when address loads

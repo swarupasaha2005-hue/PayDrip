@@ -24,7 +24,7 @@ export async function waitForTransaction(txHash) {
 
 // Our deployed contracts
 export const VAULT_CONTRACT_ID = 'CDL52WTKS4YCXTCSMY2MCVJ2O3DPO2ET7EWXJIQMRP75I6O5ILGFDLWU';
-export const REWARDS_CONTRACT_ID = 'CBPCJ3X652A5L6I5A4Y7XJ7XJ7XJ7XJ7XJ7XJ7XJ7XJ7XJ7XJ7XJ7'; // Valid 56-char placeholder
+export const REWARDS_CONTRACT_ID = 'CDL52WTKS4YCXTCSMY2MCVJ2O3DPO2ET7EWXJIQMRP75I6O5ILGFDLWU'; // Placeholder: Valid checksum ID to prevent SDK crashes
 // Native XLM token in Soroban
 export const NATIVE_XLM_ID = 'CDLZFC3SYJYDZT7K67VZ75YJBMKBAV26RZ6SNTLMHRPZ2RV7GT3S6YTM';
 
@@ -160,8 +160,8 @@ export async function lockFundsOnChain(userAddress, amount, unlockSeconds) {
   
   const op = contract.call(
     'lock',
-    new Address(userAddress).toScVal(),
-    new Address(NATIVE_XLM_ID).toScVal(),
+    nativeToScVal(userAddress, { type: 'address' }),
+    nativeToScVal(NATIVE_XLM_ID, { type: 'address' }),
     nativeToScVal(amountRaw, { type: 'i128' }),
     nativeToScVal(BigInt(unlockSeconds), { type: 'u64' })
   );
