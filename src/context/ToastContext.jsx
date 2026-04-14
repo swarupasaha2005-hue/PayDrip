@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { CheckCircle2, XCircle, Info } from 'lucide-react';
-
-export const ToastContext = createContext();
+import { ToastContext } from './ContextObjects';
 
 let toastId = 0;
 

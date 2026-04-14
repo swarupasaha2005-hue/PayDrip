@@ -1,7 +1,6 @@
-import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { connectWallet, fetchBalance, fetchLockedAmount, fetchRewardsBalance } from '../utils/stellar';
-
-export const WalletContext = createContext();
+import { WalletContext } from './ContextObjects';
 
 export function WalletProvider({ children }) {
   const [address, setAddress]         = useState(() => localStorage.getItem('pd_wallet') || null);
@@ -13,7 +12,7 @@ export function WalletProvider({ children }) {
   const updateBalance = useCallback(async (pubKey) => {
     if (!pubKey) return;
     try {
-      const [bal, locked, rewards] = await Promise.all([
+      const [bal, locked] = await Promise.all([
         fetchBalance(pubKey),
         fetchLockedAmount(pubKey),
         fetchRewardsBalance(pubKey)

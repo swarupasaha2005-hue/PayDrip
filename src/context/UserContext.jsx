@@ -1,6 +1,5 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-
-export const UserContext = createContext();
+import React, { useState, useEffect } from 'react';
+import { UserContext } from './ContextObjects';
 
 export function UserProvider({ children }) {
   const [name, setName] = useState(() => localStorage.getItem('pd_user_name') || '');

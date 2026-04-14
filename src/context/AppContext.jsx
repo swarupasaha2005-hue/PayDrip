@@ -1,9 +1,5 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-
-import { loadLS, saveLS } from '../utils/storage';
-
-// ─── Context ─────────────────────────────────────────────────────────────────
-export const AppContext = createContext();
+import React, { useState, useCallback, useEffect } from 'react';
+import { AppContext } from './ContextObjects';
 
 export function AppProvider({ children }) {
   const [transactions, setTransactions] = useState(() => loadLS('pd_transactions', []));

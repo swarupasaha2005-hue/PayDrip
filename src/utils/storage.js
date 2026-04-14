@@ -27,7 +27,7 @@ export function clearLS(key) {
   try {
     localStorage.removeItem(key);
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
