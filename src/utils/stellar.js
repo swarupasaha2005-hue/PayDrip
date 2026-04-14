@@ -36,7 +36,7 @@ export async function fetchRewardsBalance(publicKey) {
     const contract = new Contract(REWARDS_CONTRACT_ID);
     const result = await rpcServer.simulateTransaction(
       new TransactionBuilder(new Account(publicKey, '0'), { fee: '100', networkPassphrase })
-        .addOperation(contract.call('balance', nativeToScVal(publicKey, { type: 'address' })))
+        .addOperation(contract.call('balance', nativeToScVal(new Address(publicKey), { type: 'address' })))
         .setTimeout(30)
         .build()
     );
@@ -95,7 +95,10 @@ export async function fetchLockedAmount(publicKey) {
     const contract = new Contract(VAULT_CONTRACT_ID);
     const result = await rpcServer.simulateTransaction(
       new TransactionBuilder(new Account(publicKey, '0'), { fee: '100', networkPassphrase })
-        .addOperation(contract.call('get_vault', nativeToScVal(publicKey, { type: 'address' }), nativeToScVal(NATIVE_XLM_ID, { type: 'address' })))
+        .addOperation(contract.call('get_vault', 
+          nativeToScVal(new Address(publicKey), { type: 'address' }), 
+          nativeToScVal(new Address(NATIVE_XLM_ID), { type: 'address' })
+        ))
         .setTimeout(30)
         .build()
     );
@@ -160,8 +163,8 @@ export async function lockFundsOnChain(userAddress, amount, unlockSeconds) {
   
   const op = contract.call(
     'lock',
-    nativeToScVal(userAddress, { type: 'address' }),
-    nativeToScVal(NATIVE_XLM_ID, { type: 'address' }),
+    nativeToScVal(new Address(userAddress), { type: 'address' }),
+    nativeToScVal(new Address(NATIVE_XLM_ID), { type: 'address' }),
     nativeToScVal(amountRaw, { type: 'i128' }),
     nativeToScVal(BigInt(unlockSeconds), { type: 'u64' })
   );
@@ -176,8 +179,8 @@ export async function claimFundsOnChain(userAddress) {
   const contract = new Contract(VAULT_CONTRACT_ID);
   const op = contract.call(
     'claim',
-    nativeToScVal(userAddress, { type: 'address' }),
-    nativeToScVal(NATIVE_XLM_ID, { type: 'address' })
+    nativeToScVal(new Address(userAddress), { type: 'address' }),
+    nativeToScVal(new Address(NATIVE_XLM_ID), { type: 'address' })
   );
 
   return await submitSorobanTx(userAddress, op);

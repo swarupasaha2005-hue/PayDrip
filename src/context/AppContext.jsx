@@ -7,8 +7,8 @@ export function AppProvider({ children }) {
   const [schedules, setSchedules]       = useState(() => loadLS('pd_schedules', []));
 
   // Sync to localStorage whenever state changes
-  useEffect(() => saveLS('pd_transactions', transactions), [transactions]);
-  useEffect(() => saveLS('pd_schedules', schedules), [schedules]);
+  useEffect(() => { saveLS('pd_transactions', transactions) }, [transactions]);
+  useEffect(() => { saveLS('pd_schedules', schedules) }, [schedules]);
 
   /** Add a completed/sent transaction */
   const addTransaction = useCallback((tx) => {
