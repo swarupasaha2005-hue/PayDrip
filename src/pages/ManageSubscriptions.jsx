@@ -58,7 +58,7 @@ export default function ManageSubscriptions() {
     if (amountFiat && !amountXLM) {
       setAmountXLM((parseFloat(amountFiat) / RATE).toFixed(2));
     }
-  }, [amountFiat]);
+  }, [amountFiat, amountXLM]);
 
   const handleFiatChange = (val) => {
     setAmountFiat(val);

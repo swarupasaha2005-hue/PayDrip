@@ -24,9 +24,10 @@ export async function waitForTransaction(txHash) {
 
 // Our deployed contracts
 export const VAULT_CONTRACT_ID = 'CDL52WTKS4YCXTCSMY2MCVJ2O3DPO2ET7EWXJIQMRP75I6O5ILGFDLWU';
-export const REWARDS_CONTRACT_ID = 'CDL52WTKS4YCXTCSMY2MCVJ2O3DPO2ET7EWXJIQMRP75I6O5ILGFDLWU'; // Placeholder: Valid checksum ID to prevent SDK crashes
+export const REWARDS_CONTRACT_ID = 'CDL52WTKS4YCXTCSMY2MCVJ2O3DPO2ET7EWXJIQMRP75I6O5ILGFDLWU';
+
 // Native XLM token in Soroban
-export const NATIVE_XLM_ID = 'CDLZFC3SYJYDZT7K67VZ75YJBMKBAV26RZ6SNTLMHRPZ2RV7GT3S6YTM';
+export const NATIVE_XLM_ID = Asset.native().contractId(networkPassphrase);
 
 /**
  * Fetches reward points from the DripRewards contract

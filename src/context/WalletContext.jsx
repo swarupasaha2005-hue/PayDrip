@@ -21,12 +21,8 @@ export function WalletProvider({ children }) {
     }
 
     // Fetch contract-specific data in background
-    Promise.all([
-      fetchLockedAmount(pubKey).catch(e => { console.error('Fetch locked error', e); return '0'; }),
-      fetchRewardsBalance(pubKey).catch(e => { console.error('Fetch rewards error', e); return '0'; })
-    ]).then(([locked, rewards]) => {
+    ]).then(([locked]) => {
       setLockedBalance(locked);
-      // rewards could be stored if we added rewardsBalance state, but we currently only have lockedBalance
     });
   }, []);
 

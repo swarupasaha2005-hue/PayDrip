@@ -4,7 +4,7 @@ import { useApp } from '../hooks/useApp';
 import { useUser } from '../hooks/useUser';
 import WalletButton from '../components/WalletButton';
 import ActivityList from '../components/ActivityList';
-import { CalendarClock, RefreshCw, TrendingUp } from 'lucide-react';
+import { CalendarClock, RefreshCw, TrendingUp, ListOrdered } from 'lucide-react';
 import { SkeletonCard, SkeletonBox } from '../components/UXHelpers';
 
 export default function Dashboard() {
