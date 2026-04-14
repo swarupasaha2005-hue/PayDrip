@@ -21,6 +21,8 @@ export function WalletProvider({ children }) {
     }
 
     // Fetch contract-specific data in background
+    Promise.all([
+      fetchLockedAmount(pubKey).catch(e => { console.error('Fetch locked error', e); return '0'; })
     ]).then(([locked]) => {
       setLockedBalance(locked);
     });
