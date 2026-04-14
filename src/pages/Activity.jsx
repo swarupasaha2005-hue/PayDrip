@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useApp } from '../context/AppContext';
-import { useWallet } from '../context/WalletContext';
+import { useApp } from '../hooks/useApp';
+import { useWallet } from '../hooks/useWallet';
 import ActivityList from '../components/ActivityList';
 import { Filter } from 'lucide-react';
 

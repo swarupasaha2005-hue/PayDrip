@@ -1,5 +1,5 @@
 import React from 'react';
-import { useWallet } from '../context/WalletContext';
+import { useWallet } from '../hooks/useWallet';
 import { Wallet, LogOut, Loader2, Zap } from 'lucide-react';
 
 export default function WalletButton() {
@@ -31,7 +31,7 @@ export default function WalletButton() {
         onClick={connect} disabled={isConnecting}
         style={{
           display:'flex', alignItems:'center', justifyContent:'center', gap:10,
-          padding:'14px 24px', borderRadius:99, border:'none',
+          padding:'14px 24px', borderRadius:99,
           background:'rgba(255,255,255,0.25)', backdropFilter:'blur(8px)',
           border:'1px solid rgba(255,255,255,0.4)',
           color:'white', fontSize:15, fontWeight:700,

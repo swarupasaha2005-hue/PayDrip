@@ -11,7 +11,6 @@ const networkPassphrase = Networks.TESTNET;
  * Polls for transaction status until it's finished or timeouts
  */
 export async function waitForTransaction(txHash) {
-  let status = 'PENDING';
   let attempts = 0;
   while (attempts < 20) {
     const res = await rpcServer.getTransaction(txHash);

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useWallet } from '../context/WalletContext';
-import { useApp } from '../context/AppContext';
-import { useToast } from '../context/ToastContext';
+import { useWallet } from '../hooks/useWallet';
+import { useApp } from '../hooks/useApp';
+import { useToast } from '../hooks/useToast';
 import { sendPayment } from '../utils/stellar';
 import FeedbackModal from '../components/FeedbackModal';
 import { Send, ArrowLeft, Loader2 } from 'lucide-react';

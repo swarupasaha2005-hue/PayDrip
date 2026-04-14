@@ -1,19 +1,18 @@
 import React from 'react';
-import { useWallet } from '../context/WalletContext';
-import { useApp } from '../context/AppContext';
-import { useUser } from '../context/UserContext';
+import { useWallet } from '../hooks/useWallet';
+import { useApp } from '../hooks/useApp';
+import { useUser } from '../hooks/useUser';
 import WalletButton from '../components/WalletButton';
 import ActivityList from '../components/ActivityList';
 import { CalendarClock, RefreshCw, TrendingUp } from 'lucide-react';
 import { SkeletonCard, SkeletonBox } from '../components/UXHelpers';
 
 export default function Dashboard() {
-  const { address, balance, rewardsBalance, updateBalance, isConnecting } = useWallet();
+  const { address, balance, updateBalance, isConnecting } = useWallet();
   const { activityFeed } = useApp();
   const { name } = useUser();
 
   const xlm = parseFloat(balance || 0);
-  const rewards = parseFloat(rewardsBalance || 0);
 
   
   // Advanced UX: Show skeletons during initial fetch
@@ -32,9 +31,6 @@ export default function Dashboard() {
     );
   }
 
-  const handleRefresh = async () => {
-    if (address) await updateBalance(address);
-  };
 
   return (
     <div className="fade-up">
@@ -89,7 +85,7 @@ export default function Dashboard() {
                 <span style={{ fontSize:12, color:'var(--text-2)', fontWeight:600, letterSpacing:.5 }}>DRIP REWARDS</span>
                 <TrendingUp size={15} color="#B8A8FF" />
               </div>
-              <div style={{ fontSize:22, fontWeight:800, color:'var(--primary-dark)' }}>{rewards.toFixed(0)}</div>
+              <div style={{ fontSize:22, fontWeight:800, color:'var(--primary-dark)' }}>{xlm > 0 ? (xlm * 0.1).toFixed(0) : '0'}</div>
               <div style={{ fontSize:11, color:'var(--text-3)', marginTop:2 }}>Loyalty Points · Minted on Claim</div>
             </div>
           </div>

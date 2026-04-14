@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useUser } from '../context/UserContext';
+import { useUser } from '../hooks/useUser';
 
 const THEMES = {
   female: {

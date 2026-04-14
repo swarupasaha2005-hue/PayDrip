@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '../context/UserContext';
+import { useUser } from '../hooks/useUser';
 import { Droplets, ShieldCheck, Zap, Globe, User, Check, Sparkles } from 'lucide-react';
 
 const features = [
@@ -54,17 +54,20 @@ export default function Onboarding() {
             </button>
           </div>
           <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
-            {features.map(({ icon: Icon, title, sub, color }) => (
-              <div key={title} className="card" style={{ display:'flex', alignItems:'center', gap:18, padding:'20px 22px' }}>
-                <div style={{ width:48, height:48, borderRadius:16, background:`${color}22`, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                  <Icon size={22} color={color} />
+            {features.map((f) => {
+              const Icon = f.icon;
+              return (
+                <div key={f.title} className="card" style={{ display:'flex', alignItems:'center', gap:18, padding:'20px 22px' }}>
+                  <div style={{ width:48, height:48, borderRadius:16, background:`${f.color}22`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Icon size={22} color={f.color} />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight:700, fontSize:15 }}>{f.title}</div>
+                    <div style={{ fontSize:13, color:'var(--text-2)' }}>{f.sub}</div>
+                  </div>
                 </div>
-                <div>
-                  <div style={{ fontWeight:700, fontSize:15 }}>{title}</div>
-                  <div style={{ fontSize:13, color:'var(--text-2)' }}>{sub}</div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

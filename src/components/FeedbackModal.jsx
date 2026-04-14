@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckCircle2, XCircle, Copy } from 'lucide-react';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../hooks/useToast';
 
 export default function FeedbackModal({ isOpen, type, message, txHash, onClose }) {
   const toast = useToast();

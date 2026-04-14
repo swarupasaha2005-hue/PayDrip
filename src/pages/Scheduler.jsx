@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useWallet } from '../context/WalletContext';
-import { useApp } from '../context/AppContext';
-import { useToast } from '../context/ToastContext';
+import { useWallet } from '../hooks/useWallet';
+import { useApp } from '../hooks/useApp';
+import { useToast } from '../hooks/useToast';
 import { lockFundsOnChain, VAULT_CONTRACT_ID } from '../utils/stellar';
 import { CalendarClock, Lock, Loader2, ExternalLink, Info } from 'lucide-react';
 import FeedbackModal from '../components/FeedbackModal';

@@ -1,18 +1,9 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
-function loadLS(key, fallback) {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch { return fallback; }
-}
-function saveLS(key, val) {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
-}
+import { loadLS, saveLS } from '../utils/storage';
 
 // ─── Context ─────────────────────────────────────────────────────────────────
-const AppContext = createContext();
+export const AppContext = createContext();
 
 export function AppProvider({ children }) {
   const [transactions, setTransactions] = useState(() => loadLS('pd_transactions', []));
@@ -56,7 +47,7 @@ export function AppProvider({ children }) {
 
   /** Combined activity feed sorted newest first */
   const activityFeed = [...transactions, ...schedules].sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
   return (
@@ -66,4 +57,3 @@ export function AppProvider({ children }) {
   );
 }
 
-export function useApp() { return useContext(AppContext); }

@@ -1,18 +1,7 @@
-import React from 'react';
-import { ArrowUpRight, ArrowDownLeft, Clock, Lock, Inbox, CheckCircle2 } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Clock, Lock, Inbox, ExternalLink, Copy } from 'lucide-react';
+import { useToast } from '../hooks/useToast';
+import { formatDate } from '../utils/formatters';
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-export function formatDate(iso) {
-  const d = new Date(iso);
-  const now = new Date();
-  const diff = now - d;
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1)  return 'Just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
-}
 
 const TYPE_META = {
   sent:      { icon: ArrowUpRight,  iconColor:'#BE185D', iconBg:'#FFE4E6', label:'Sent' },
@@ -81,8 +70,6 @@ function ActivityRow({ item }) {
     </div>
   );
 }
-
-import { ExternalLink } from 'lucide-react';
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
 export function EmptyActivity() {

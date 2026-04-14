@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useWallet } from '../context/WalletContext';
+import { useWallet } from '../hooks/useWallet';
 import { Droplets, LayoutDashboard, Send, CalendarClock, ListOrdered, LogOut, Zap, Database } from 'lucide-react';
 
 const navItems = [
@@ -11,7 +11,7 @@ const navItems = [
   { to: '/contract-view', label: 'Contract',  icon: Database },
 ];
 
-import { useUser } from '../context/UserContext';
+import { useUser } from '../hooks/useUser';
 
 export default function Sidebar() {
   const { address, balance, disconnect } = useWallet();
@@ -36,25 +36,28 @@ export default function Sidebar() {
 
       {/* Nav */}
       <div style={{ display:'flex', flexDirection:'column', gap:4, flex:1 }}>
-        {navItems.map(({ to, label, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
-            style={({ isActive }) => ({
-              background: isActive ? 'var(--nav-active)' : 'transparent',
-              color: isActive ? 'var(--primary-dark)' : 'var(--text-2)',
-              borderColor: isActive ? 'var(--primary)' : 'transparent'
-            })}
-          >
-            {({ isActive }) => (
-              <>
-                <Icon size={17} strokeWidth={isActive ? 2.5 : 2} />
-                <span className="nav-label" style={{ fontWeight: isActive ? 700 : 500 }}>{label}</span>
-              </>
-            )}
-          </NavLink>
-        ))}
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+              style={({ isActive }) => ({
+                background: isActive ? 'var(--nav-active)' : 'transparent',
+                color: isActive ? 'var(--primary-dark)' : 'var(--text-2)',
+                borderColor: isActive ? 'var(--primary)' : 'transparent'
+              })}
+            >
+              {({ isActive }) => (
+                <>
+                  <Icon size={17} strokeWidth={isActive ? 2.5 : 2} />
+                  <span className="nav-label" style={{ fontWeight: isActive ? 700 : 500 }}>{item.label}</span>
+                </>
+              )}
+            </NavLink>
+          );
+        })}
       </div>
 
       {/* Wallet widget */}

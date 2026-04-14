@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useWallet } from '../context/WalletContext';
+import { useWallet } from '../hooks/useWallet';
 import { VAULT_CONTRACT_ID, fetchLockedAmount } from '../utils/stellar';
 import { Code, ExternalLink, RefreshCw, Database, Terminal } from 'lucide-react';
 

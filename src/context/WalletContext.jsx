@@ -1,13 +1,12 @@
 import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { connectWallet, fetchBalance, fetchLockedAmount, fetchRewardsBalance } from '../utils/stellar';
 
-const WalletContext = createContext();
+export const WalletContext = createContext();
 
 export function WalletProvider({ children }) {
   const [address, setAddress]         = useState(() => localStorage.getItem('pd_wallet') || null);
   const [balance, setBalance]         = useState('0');
   const [lockedBalance, setLockedBalance] = useState('0');
-  const [rewardsBalance, setRewardsBalance] = useState('0');
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError]             = useState(null);
 
@@ -21,7 +20,6 @@ export function WalletProvider({ children }) {
       ]);
       setBalance(bal);
       setLockedBalance(locked);
-      setRewardsBalance(rewards);
     } catch (err) {
       console.error('Balance fetch error', err);
     }
@@ -64,4 +62,3 @@ export function WalletProvider({ children }) {
   );
 }
 
-export function useWallet() { return useContext(WalletContext); }
