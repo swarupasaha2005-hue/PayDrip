@@ -1,12 +1,11 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useWallet } from '../hooks/useWallet';
-import { Droplets, LayoutDashboard, Send, CalendarClock, ListOrdered, LogOut, Zap, Database } from 'lucide-react';
+import { Droplets, LayoutDashboard, CreditCard, ListOrdered, LogOut, Zap, Database } from 'lucide-react';
 
 const navItems = [
   { to: '/dashboard',     label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/send',          label: 'Send',      icon: Send },
-  { to: '/scheduler',     label: 'Schedule',  icon: CalendarClock },
+  { to: '/subscriptions', label: 'Payments',  icon: CreditCard },
   { to: '/activity',      label: 'Activity',  icon: ListOrdered },
   { to: '/contract-view', label: 'Contract',  icon: Database },
 ];

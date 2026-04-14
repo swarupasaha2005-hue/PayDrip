@@ -3,8 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
-import SendTransaction from './pages/SendTransaction';
-import Scheduler from './pages/Scheduler';
+import ManageSubscriptions from './pages/ManageSubscriptions';
 import Activity from './pages/Activity';
 import ContractView from './pages/ContractView';
 
@@ -14,8 +13,7 @@ function App() {
       <Route path="/" element={<Onboarding />} />
       <Route element={<Layout />}>
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/send" element={<SendTransaction />} />
-        <Route path="/scheduler" element={<Scheduler />} />
+        <Route path="/subscriptions" element={<ManageSubscriptions />} />
         <Route path="/activity" element={<Activity />} />
         <Route path="/contract-view" element={<ContractView />} />
       </Route>

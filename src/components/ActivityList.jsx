@@ -39,7 +39,9 @@ function ActivityRow({ item }) {
       </div>
       <div style={{ flex:1, minWidth:0 }}>
         <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:2 }}>
-          <div style={{ fontSize:14, fontWeight:600, color:'var(--text)' }}>{meta.label} · {item.asset}</div>
+          <div style={{ fontSize:14, fontWeight:600, color:'var(--text)' }}>
+            {item.service ? `${item.service} Bill` : meta.label} · {item.asset}
+          </div>
           {item.hash && (
             <div style={{ display:'flex', gap:6 }}>
               <a href={explorerUrl} target="_blank" rel="noreferrer" style={{ color:'var(--text-3)', display:'flex', alignItems:'center' }} title="View on Explorer">
@@ -56,8 +58,8 @@ function ActivityRow({ item }) {
           )}
         </div>
         <div style={{ fontSize:12, color:'var(--text-3)' }}>
-          {item.to ? `To: ${item.to.slice(0,10)}…` : item.from ? `From: ${item.from.slice(0,10)}…` : ''}
-          {item.releaseAt ? ` · Release: ${new Date(item.releaseAt).toLocaleDateString()}` : ''}
+          {item.frequency ? `${item.frequency} Plan` : item.to ? `To: ${item.to.slice(0,10)}…` : item.from ? `From: ${item.from.slice(0,10)}…` : ''}
+          {item.releaseAt ? ` · Due: ${new Date(item.releaseAt).toLocaleDateString()}` : ''}
         </div>
       </div>
       <div style={{ textAlign:'right', flexShrink:0 }}>

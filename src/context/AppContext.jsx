@@ -26,20 +26,28 @@ export function AppProvider({ children }) {
     setTransactions(prev => [entry, ...prev]);
   }, []);
 
-  /** Add a scheduled payment */
+  /** Add a scheduled subscription/payment intent */
   const addSchedule = useCallback((s) => {
     const entry = {
-      id:        Date.now().toString(),
-      type:      'scheduled',
-      amount:    s.amount,
-      asset:     s.asset || 'XLM',
-      to:        s.to || '',
-      releaseAt: s.releaseAt,           // ISO date string
-      note:      s.note || '',
-      date:      new Date().toISOString(),
-      status:    'Scheduled',
+      id:          Date.now().toString(),
+      type:        'scheduled',
+      service:     s.service || 'Custom',
+      amount:      s.amount,
+      fiatAmount:  s.fiatAmount || '0',
+      asset:       s.asset || 'XLM',
+      frequency:   s.frequency || 'One-time',
+      releaseAt:   s.releaseAt,           // ISO date string
+      note:        s.note || '',
+      date:        new Date().toISOString(),
+      status:      'Locked',              // 'Locked' | 'Due' | 'Paid'
+      txHash:      s.hash || '',
     };
     setSchedules(prev => [entry, ...prev]);
+  }, []);
+
+  /** Update an existing schedule (e.g., mark as Paid) */
+  const updateSchedule = useCallback((id, updates) => {
+    setSchedules(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
   }, []);
 
   /** Combined activity feed sorted newest first */
@@ -48,7 +56,10 @@ export function AppProvider({ children }) {
   );
 
   return (
-    <AppContext.Provider value={{ transactions, schedules, activityFeed, addTransaction, addSchedule }}>
+    <AppContext.Provider value={{ 
+      transactions, schedules, activityFeed, 
+      addTransaction, addSchedule, updateSchedule 
+    }}>
       {children}
     </AppContext.Provider>
   );
