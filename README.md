@@ -9,6 +9,8 @@
 </div>
 
 ---
+Github: https://github.com/swarupasaha2005-hue/PayDrip
+Vercel: https://pay-drip.vercel.app/
 
 ## 🎯 1. Project Overview
 
