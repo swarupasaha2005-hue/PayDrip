@@ -26,3 +26,13 @@ export function formatXLM(amount) {
   const val = parseFloat(amount || 0);
   return val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
 }
+
+export const XLM_INR_RATE = 12;
+
+export function xlmToInr(xlm) {
+  return (parseFloat(xlm || 0) * XLM_INR_RATE).toFixed(2);
+}
+
+export function inrToXlm(inr) {
+  return (parseFloat(inr || 0) / XLM_INR_RATE).toFixed(4);
+}

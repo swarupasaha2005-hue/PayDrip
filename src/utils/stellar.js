@@ -15,7 +15,7 @@ export async function waitForTransaction(txHash) {
   while (attempts < 20) {
     const res = await rpcServer.getTransaction(txHash);
     if (res.status === 'SUCCESS') return { status: 'SUCCESS', result: res };
-    if (res.status === 'FAILED')  throw new Error('Transaction failed');
+    if (res.status === 'FAILED') throw new Error('Transaction failed');
     await new Promise(r => setTimeout(r, 3000));
     attempts++;
   }
@@ -96,8 +96,8 @@ export async function fetchLockedAmount(publicKey) {
     const contract = new Contract(VAULT_CONTRACT_ID);
     const result = await rpcServer.simulateTransaction(
       new TransactionBuilder(new Account(publicKey, '0'), { fee: '100', networkPassphrase })
-        .addOperation(contract.call('get_vault', 
-          nativeToScVal(new Address(publicKey), { type: 'address' }), 
+        .addOperation(contract.call('get_vault',
+          nativeToScVal(new Address(publicKey), { type: 'address' }),
           nativeToScVal(new Address(NATIVE_XLM_ID), { type: 'address' })
         ))
         .setTimeout(30)
@@ -122,33 +122,45 @@ export async function fetchLockedAmount(publicKey) {
 async function submitSorobanTx(sourceAddress, operation) {
   const account = await server.loadAccount(sourceAddress);
   const tx = new TransactionBuilder(account, {
-    fee: '10000', // Higher fee for Soroban
+    fee: '10000',
     networkPassphrase,
   })
     .addOperation(operation)
     .setTimeout(60)
     .build();
 
-  // Soroban requires simulation to fill in footprint and resource fees
+  // Simulate to get footprint + resource fees
   const simulated = await rpcServer.simulateTransaction(tx);
   if (rpc.Api.isSimulationError(simulated)) {
     throw new Error(`Simulation failed: ${simulated.error}`);
   }
 
-  const preparedTx = rpc.assembleTransaction(tx, simulated);
-  const xdr = (typeof preparedTx === 'string') ? preparedTx : preparedTx.toXDR();
+  // In SDK v15, assembleTransaction returns a TransactionBuilder — .build() gives the Transaction
+  const assembled = rpc.assembleTransaction(tx, simulated);
+  const preparedTx = (typeof assembled.build === 'function') ? assembled.build() : assembled;
 
-  const signResult = await signTransaction(xdr, {
-    networkPassphrase,
-  });
+  // Convert to base64 XDR (official Freighter format)
+  const xdr = preparedTx.toXDR().toString('base64');
 
-  if (signResult.error) {
-    throw new Error(signResult.error);
+  // Freighter API v6 uses .signedTxXdr (renamed from .signedTransaction in v5)
+  // Also wrapping in try/catch as v6 throws on rejection instead of returning error object
+  let signedXdr;
+  try {
+    const signResult = await signTransaction(xdr, { networkPassphrase });
+    signedXdr = (typeof signResult === 'string')
+      ? signResult
+      : (signResult?.signedTxXdr ?? signResult?.signedTransaction);
+  } catch (e) {
+    throw new Error(e?.message || 'Freighter rejected the transaction');
   }
 
-  const signedTx = TransactionBuilder.fromXDR(signResult.signedTransaction, networkPassphrase);
+  if (!signedXdr) {
+    throw new Error('No signed transaction returned from Freighter');
+  }
+
+  const signedTx = TransactionBuilder.fromXDR(signedXdr, networkPassphrase);
   const response = await rpcServer.sendTransaction(signedTx);
-  
+
   if (response.status === 'ERROR') {
     throw new Error(`Transaction failed: ${JSON.stringify(response.errorResultXdr)}`);
   }
@@ -162,7 +174,7 @@ async function submitSorobanTx(sourceAddress, operation) {
 export async function lockFundsOnChain(userAddress, amount, unlockSeconds) {
   const contract = new Contract(VAULT_CONTRACT_ID);
   const amountRaw = BigInt(Math.floor(Number(amount) * 10000000)); // Stroops
-  
+
   const op = contract.call(
     'lock',
     nativeToScVal(new Address(userAddress), { type: 'address' }),

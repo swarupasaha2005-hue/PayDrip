@@ -4,6 +4,7 @@ import { useApp } from '../hooks/useApp';
 import { useUser } from '../hooks/useUser';
 import WalletButton from '../components/WalletButton';
 import ActivityList from '../components/ActivityList';
+import SubscriptionCard from '../components/SubscriptionCard';
 import { CalendarClock, RefreshCw, TrendingUp, ListOrdered } from 'lucide-react';
 import { SkeletonCard, SkeletonBox } from '../components/UXHelpers';
 
@@ -131,34 +132,18 @@ export default function Dashboard() {
                  <p style={{ fontSize:12, color:'var(--text-3)', marginTop:4 }}>Start by adding a subscription in the Payments tab.</p>
               </div>
             ) : (
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(280px, 1fr))', gap:20 }}>
-                {activeSubs.map(sub => {
-                  const status = getStatus(sub.releaseAt);
-                  return (
-                    <div key={sub.id} className="card fade-up" style={{ padding:20, borderTop: status.isDue ? `4px solid ${status.color}` : '1px solid var(--border)' }}>
-                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:16 }}>
-                        <div>
-                          <div style={{ fontSize:12, fontWeight:800, color:'var(--text-3)', marginBottom:2, textTransform:'uppercase' }}>{sub.service}</div>
-                          <div style={{ fontSize:20, fontWeight:800 }}>{sub.amount} <span style={{ fontSize:12, opacity:.6 }}>XLM</span></div>
-                          <div style={{ fontSize:12, color:'var(--text-3)', marginTop:4 }}>≈ ${sub.fiatAmount} USD</div>
-                        </div>
-                        <div style={{ fontSize:10, fontWeight:700, color: status.color, background: `${status.color}15`, padding: '4px 8px', borderRadius: 6 }}>
-                          {status.label}
-                        </div>
-                      </div>
-                      
-                      <div style={{ display:'flex', alignItems:'center', gap:10, paddingTop:16, borderTop:'1px solid var(--border)' }}>
-                        <button 
-                          onClick={() => handlePayNow(sub)}
-                          className={`btn ${status.isDue ? 'btn-primary' : 'btn-ghost'}`}
-                          style={{ flex:1, fontSize:12, height:36 }}
-                        >
-                          {status.isDue ? 'Pay Now' : 'Pending'}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(320px, 1fr))', gap:20 }}>
+                {activeSubs.map(sub => (
+                  <SubscriptionCard 
+                    key={sub.id} 
+                    sub={{
+                      ...sub,
+                      status: getStatus(sub.releaseAt).isDue ? 'Due' : sub.status,
+                      fiatAmount: sub.inrAmount || sub.fiatAmount // Fallback for old data
+                    }}
+                    onPayNow={handlePayNow}
+                  />
+                ))}
               </div>
             )}
           </div>

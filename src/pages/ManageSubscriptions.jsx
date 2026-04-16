@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useWallet } from '../hooks/useWallet';
 import { useApp } from '../hooks/useApp';
 import { useToast } from '../hooks/useToast';
 import { lockFundsOnChain } from '../utils/stellar';
+import { xlmToInr, inrToXlm, XLM_INR_RATE } from '../utils/formatters';
 import FeedbackModal from '../components/FeedbackModal';
 import { 
   CreditCard, 
@@ -33,14 +34,15 @@ const FREQUENCIES = [
 
 export default function ManageSubscriptions() {
   const { address, balance, updateBalance } = useWallet();
-  const { addSchedule } = useApp();
+  const { addSchedule, inrRate } = useApp(); // Use the rate from context or default
   const toast = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [selectedService, setSelectedService] = useState(SERVICES[0]);
   const [customService, setCustomService]     = useState('');
   const [amountXLM, setAmountXLM]             = useState('');
-  const [amountFiat, setAmountFiat]           = useState('');
+  const [amountINR, setAmountINR]             = useState('');
   const [frequency, setFrequency]             = useState('monthly');
   const [releaseAt, setReleaseAt]             = useState('');
   const [note, setNote]                       = useState('');
@@ -51,25 +53,37 @@ export default function ManageSubscriptions() {
   const xlmValue = parseFloat(amountXLM || 0);
   const isInsufficient = xlmValue > walletBalance;
 
-  // Simple fiat simulation (1 XLM = $0.12 approx)
-  const RATE = 0.12; 
-  
+  // Handle prefill from Smart Planner
   useEffect(() => {
-    if (amountFiat && !amountXLM) {
-      setAmountXLM((parseFloat(amountFiat) / RATE).toFixed(2));
+    if (location.state?.prefill) {
+      const p = location.state.prefill;
+      setSelectedService(SERVICES.find(s => s.id === 'other'));
+      setCustomService(p.service);
+      setAmountXLM(p.amount);
+      setAmountINR(p.inrAmount);
+      setFrequency(p.frequency.toLowerCase());
+      setNote(p.note);
+      
+      // Auto-set release date to 1 week from now if not specified
+      const nextWeek = new Date();
+      nextWeek.setDate(nextWeek.getDate() + 7);
+      setReleaseAt(nextWeek.toISOString().split('T')[0]);
+      
+      // Clear state so reload doesn't keep prefilling
+      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [amountFiat, amountXLM]);
+  }, [location, navigate]);
 
-  const handleFiatChange = (val) => {
-    setAmountFiat(val);
-    if (val) setAmountXLM((parseFloat(val) / RATE).toFixed(2));
+  const handleInrChange = (val) => {
+    setAmountINR(val);
+    if (val) setAmountXLM(inrToXlm(val));
     else setAmountXLM('');
   };
 
   const handleXLMChange = (val) => {
     setAmountXLM(val);
-    if (val) setAmountFiat((parseFloat(val) * RATE).toFixed(2));
-    else setAmountFiat('');
+    if (val) setAmountINR(xlmToInr(val));
+    else setAmountINR('');
   };
 
   const handleSubmit = async (e) => {
@@ -93,7 +107,7 @@ export default function ManageSubscriptions() {
       addSchedule({
         service: selectedService.id === 'other' ? customService : selectedService.label,
         amount: amountXLM,
-        fiatAmount: amountFiat,
+        inrAmount: amountINR,
         frequency: frequency,
         releaseAt,
         note,
@@ -176,25 +190,28 @@ export default function ManageSubscriptions() {
               )}
 
               {/* Amount - Dual Input */}
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
-                <div className="field">
-                  <label>Amount (Fiat Proxy)</label>
-                  <div style={{ position:'relative' }}>
-                    <input
-                      type="number" value={amountFiat} onChange={e => handleFiatChange(e.target.value)}
-                      placeholder="0.00" style={fieldStyle}
-                    />
-                    <span style={{ position:'absolute', right:18, top:'50%', transform:'translateY(-50%)', fontWeight:700, color:'var(--text-3)', fontSize:13 }}>USD</span>
+              <div style={{ display:'flex', flexDirection:'column', gap:4, marginBottom: 8 }}>
+                <div style={{ fontSize:12, color:'var(--text-3)', fontWeight:500, textAlign:'right' }}>1 XLM ≈ ₹{XLM_INR_RATE}</div>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
+                  <div className="field">
+                    <label>Amount (INR)</label>
+                    <div style={{ position:'relative' }}>
+                      <input
+                        type="number" value={amountINR} onChange={e => handleInrChange(e.target.value)}
+                        placeholder="0.00" style={{...fieldStyle, paddingLeft: 30}}
+                      />
+                      <span style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', fontWeight:700, color:'var(--text-3)', fontSize:14 }}>₹</span>
+                    </div>
                   </div>
-                </div>
-                <div className="field">
-                  <label>Amount (XLM)</label>
-                  <div style={{ position:'relative' }}>
-                    <input
-                      type="number" value={amountXLM} onChange={e => handleXLMChange(e.target.value)}
-                      placeholder="0.00" required style={{ ...fieldStyle, borderColor: isInsufficient ? 'var(--error-text)' : 'var(--border)' }}
-                    />
-                    <span style={{ position:'absolute', right:18, top:'50%', transform:'translateY(-50%)', fontWeight:700, color:'var(--primary)', fontSize:13 }}>XLM</span>
+                  <div className="field">
+                    <label>Amount (XLM)</label>
+                    <div style={{ position:'relative' }}>
+                      <input
+                        type="number" value={amountXLM} onChange={e => handleXLMChange(e.target.value)}
+                        placeholder="0.00" required style={{ ...fieldStyle, borderColor: isInsufficient ? 'var(--error-text)' : 'var(--border)' }}
+                      />
+                      <span style={{ position:'absolute', right:18, top:'50%', transform:'translateY(-50%)', fontWeight:700, color:'var(--primary)', fontSize:13 }}>XLM</span>
+                    </div>
                   </div>
                 </div>
               </div>
