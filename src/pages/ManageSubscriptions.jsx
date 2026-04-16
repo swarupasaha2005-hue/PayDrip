@@ -34,7 +34,7 @@ const FREQUENCIES = [
 
 export default function ManageSubscriptions() {
   const { address, balance, updateBalance } = useWallet();
-  const { addSchedule, inrRate } = useApp(); // Use the rate from context or default
+  const { addSchedule } = useApp();
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
