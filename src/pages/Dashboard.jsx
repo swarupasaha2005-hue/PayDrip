@@ -37,7 +37,7 @@ export default function Dashboard() {
       
       // Assume successful intent mapping on return/background flush
       setTimeout(() => {
-        updateSchedule(sub.id, { status: 'Paid' });
+        updateSchedule(sub.id, { status: 'Paid', type: 'sent' });
         addNotification('success', `Payment for ${sub.service} completed via UPI.`);
       }, 1500);
     } else {
@@ -51,7 +51,7 @@ export default function Dashboard() {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    updateSchedule(upiModal.sub.id, { status: 'Paid' });
+    updateSchedule(upiModal.sub.id, { status: 'Paid', type: 'sent' });
     addNotification('success', `Simulated Payment for ${upiModal.sub.service} completed successfully.`);
     const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3'); 
     audio.play().catch(() => {});

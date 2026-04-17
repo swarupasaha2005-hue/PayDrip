@@ -88,7 +88,22 @@ export default function ManageSubscriptions() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!address || isInsufficient || !amountXLM || !releaseAt) return;
+    if (!address) {
+       toast.error("Please connect your wallet first.");
+       return;
+    }
+    if (isInsufficient) {
+       toast.error("Insufficient XLM balance.");
+       return;
+    }
+    if (!amountXLM || parseFloat(amountXLM) <= 0) {
+       toast.error("Amount must be greater than 0 XLM.");
+       return;
+    }
+    if (!releaseAt) {
+       toast.error("Please specify a due date.");
+       return;
+    }
 
     const releaseTimestamp = Math.floor(new Date(releaseAt).getTime() / 1000);
     const now = Math.floor(Date.now() / 1000);
@@ -122,10 +137,34 @@ export default function ManageSubscriptions() {
         txHash: response.hash
       });
     } catch (err) {
-      toast.error(err.message || 'Failed to setup payment intent');
+      console.error("ManageSubscriptions Submit Error:", err);
+      // Safely serialize unknown errors to prevent "undefined" toasts
+      const errorMsg = err?.message || (typeof err === 'string' ? err : JSON.stringify(err)) || 'Failed to setup payment intent';
+      setModal({
+         open: true,
+         type: 'error',
+         message: errorMsg,
+         txHash: ''
+      });
     } finally {
       setIsLocking(false);
     }
+  };
+
+  const handleSimulate = () => {
+    // Skip blockchain entirely
+    addSchedule({
+      service: selectedService.id === 'other' ? customService : selectedService.label,
+      amount: amountXLM,
+      inrAmount: amountINR,
+      frequency: frequency,
+      releaseAt,
+      note,
+      hash: 'simulated_tx_' + Date.now()
+    });
+    setModal({ open: false, type: 'success', message: '', txHash: '' });
+    toast.success('Simulation successful. Plan added.');
+    navigate('/dashboard');
   };
 
   const fieldStyle = {
@@ -288,6 +327,7 @@ export default function ManageSubscriptions() {
 
       <FeedbackModal
         isOpen={modal.open} type={modal.type} message={modal.message} txHash={modal.txHash}
+        onSimulate={modal.type === 'error' ? handleSimulate : undefined}
         onClose={() => { setModal(m => ({ ...m, open:false })); if (modal.type==='success') navigate('/dashboard'); }}
       />
     </div>

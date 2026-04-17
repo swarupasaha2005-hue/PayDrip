@@ -130,9 +130,12 @@ async function submitSorobanTx(sourceAddress, operation) {
     .build();
 
   // Simulate to get footprint + resource fees
+  console.log(`[Stellar] Simulating transaction for ${sourceAddress} on Testnet...`);
   const simulated = await rpcServer.simulateTransaction(tx);
   if (rpc.Api.isSimulationError(simulated)) {
-    throw new Error(`Simulation failed: ${simulated.error}`);
+    console.error("FULL SIMULATION ERROR:", simulated);
+    const errDetails = simulated.error || JSON.stringify(simulated);
+    throw new Error(`Simulation failed: ${errDetails}`);
   }
 
   // In SDK v15, assembleTransaction returns a TransactionBuilder — .build() gives the Transaction
@@ -141,6 +144,13 @@ async function submitSorobanTx(sourceAddress, operation) {
 
   // Convert to base64 XDR (official Freighter format)
   const xdr = preparedTx.toXDR().toString('base64');
+  console.log(`[Stellar] Extracted XDR Payload successfully.`);
+
+  // Verify wallet before dispatch
+  const isInstalled = await checkFreighterInstalled();
+  if (!isInstalled) {
+    throw new Error('Wallet not available. Please install the Freighter browser extension.');
+  }
 
   // Freighter API v6 uses .signedTxXdr (renamed from .signedTransaction in v5)
   // Also wrapping in try/catch as v6 throws on rejection instead of returning error object
@@ -151,18 +161,27 @@ async function submitSorobanTx(sourceAddress, operation) {
       ? signResult
       : (signResult?.signedTxXdr ?? signResult?.signedTransaction);
   } catch (e) {
-    throw new Error(e?.message || 'Freighter rejected the transaction');
+    console.error("FULL SIGNATURE ERROR:", e);
+    throw new Error(e?.message || JSON.stringify(e) || 'Freighter rejected the transaction');
   }
 
   if (!signedXdr) {
     throw new Error('No signed transaction returned from Freighter');
   }
 
+  console.log(`[Stellar] Transmitting signed transaction to Soroban RPC...`);
   const signedTx = TransactionBuilder.fromXDR(signedXdr, networkPassphrase);
-  const response = await rpcServer.sendTransaction(signedTx);
+  
+  let response;
+  try {
+     response = await rpcServer.sendTransaction(signedTx);
+  } catch(e) {
+     console.error("FULL SEND ERROR:", e);
+     throw new Error(`Broadcast failed: ${e?.message || JSON.stringify(e)}`);
+  }
 
   if (response.status === 'ERROR') {
-    throw new Error(`Transaction failed: ${JSON.stringify(response.errorResultXdr)}`);
+    throw new Error(`Transaction rejected by network: ${JSON.stringify(response.errorResultXdr)}`);
   }
 
   return response;

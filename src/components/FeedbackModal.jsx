@@ -2,7 +2,7 @@ import React from 'react';
 import { CheckCircle2, XCircle, Copy } from 'lucide-react';
 import { useToast } from '../hooks/useToast';
 
-export default function FeedbackModal({ isOpen, type, message, txHash, onClose }) {
+export default function FeedbackModal({ isOpen, type, message, txHash, onClose, onSimulate }) {
   const toast = useToast();
   if (!isOpen) return null;
 
@@ -45,13 +45,24 @@ export default function FeedbackModal({ isOpen, type, message, txHash, onClose }
           </div>
         )}
 
-        <button
-          onClick={onClose}
-          className="btn btn-primary"
-          style={{ width:'100%', padding:16, fontSize:15 }}
-        >
-          {isSuccess ? 'Awesome!' : 'Close'}
-        </button>
+        <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
+          {!isSuccess && onSimulate && (
+            <button
+              onClick={onSimulate}
+              className="btn btn-outline"
+              style={{ width:'100%', padding:16, fontSize:15, border: '2px solid var(--primary)', color: 'var(--primary)', fontWeight: 800 }}
+            >
+              Skip & Simulate
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            className="btn btn-primary"
+            style={{ width:'100%', padding:16, fontSize:15 }}
+          >
+            {isSuccess ? 'Awesome!' : 'Close'}
+          </button>
+        </div>
       </div>
     </div>
   );
