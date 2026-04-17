@@ -1,17 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useWallet } from '../hooks/useWallet';
 import { useApp } from '../hooks/useApp';
 import { useUser } from '../hooks/useUser';
 import WalletButton from '../components/WalletButton';
 import ActivityList from '../components/ActivityList';
 import SubscriptionCard from '../components/SubscriptionCard';
-import { CalendarClock, RefreshCw, TrendingUp, ListOrdered } from 'lucide-react';
+import { CalendarClock, RefreshCw, TrendingUp, ListOrdered, Smartphone, CheckCircle2, Copy } from 'lucide-react';
 import { SkeletonCard, SkeletonBox } from '../components/UXHelpers';
+import { useToast } from '../hooks/useToast';
 
 export default function Dashboard() {
   const { address, balance, updateBalance, isConnecting } = useWallet();
-  const { activityFeed, schedules, updateSchedule } = useApp();
+  const { activityFeed, schedules, updateSchedule, addNotification } = useApp();
   const { name } = useUser();
+  const toast = useToast();
+
+  const [upiModal, setUpiModal] = useState({ open: false, sub: null, loading: false });
 
   const xlm = parseFloat(balance || 0);
 
@@ -22,13 +26,44 @@ export default function Dashboard() {
 
   const totalLocked = activeSubs.reduce((acc, s) => acc + parseFloat(s.amount), 0);
 
-  // Execution simulation
-  const handlePayNow = async (sub) => {
-    // In a real app, this would trigger a contract release and potentially an external payment
-    updateSchedule(sub.id, { status: 'Paid' });
-    // Simulate some feedback
+  // Execution simulation via UPI Redirection
+  const handlePayNow = (sub) => {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const upiLink = `upi://pay?pa=merchant@upi&pn=${encodeURIComponent(sub.service)}&am=${sub.inrAmount}&cu=INR`;
+
+    if (isMobile) {
+      // Simulate real-world deep linking
+      window.location.href = upiLink;
+      
+      // Assume successful intent mapping on return/background flush
+      setTimeout(() => {
+        updateSchedule(sub.id, { status: 'Paid' });
+        addNotification('success', `Payment for ${sub.service} completed via UPI.`);
+      }, 1500);
+    } else {
+      // Desktop Fallback UI
+      setUpiModal({ open: true, sub, loading: false });
+    }
+  };
+
+  const simulateDesktopPayment = async () => {
+    setUpiModal(prev => ({ ...prev, loading: true }));
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    updateSchedule(upiModal.sub.id, { status: 'Paid' });
+    addNotification('success', `Simulated Payment for ${upiModal.sub.service} completed successfully.`);
     const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3'); 
-    audio.play().catch(() => {}); // Optional sound if possible
+    audio.play().catch(() => {});
+    
+    setUpiModal({ open: false, sub: null, loading: false });
+  };
+
+  const copyUpiLink = () => {
+    if (!upiModal.sub) return;
+    const upiLink = `upi://pay?pa=merchant@upi&pn=${encodeURIComponent(upiModal.sub.service)}&am=${upiModal.sub.inrAmount}&cu=INR`;
+    navigator.clipboard.writeText(upiLink);
+    toast.success('UPI Link Copied! Send this to your mobile.');
   };
 
   const getStatus = (releaseAt) => {
@@ -176,6 +211,57 @@ export default function Dashboard() {
               Recent Activity
             </h3>
             <ActivityList items={activityFeed} limit={5} />
+          </div>
+        </div>
+      )}
+
+      {/* UPI Desktop Fallback Modal */}
+      {upiModal.open && upiModal.sub && (
+        <div
+          style={{ position:'fixed', inset:0, zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(30,27,75,0.4)', backdropFilter:'blur(8px)', padding:24 }}
+          onClick={(e) => { if (e.target === e.currentTarget && !upiModal.loading) setUpiModal({ open: false, sub: null, loading: false }); }}
+        >
+          <div className="fade-up" style={{ background:'white', borderRadius:28, padding:36, width:'100%', maxWidth:420, textAlign:'center', boxShadow:'0 32px 80px rgba(0,0,0,0.18)' }}>
+            <div style={{ width:72, height:72, borderRadius:'50%', background: 'var(--bg)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px', color: 'var(--primary)' }}>
+              <Smartphone size={32} />
+            </div>
+
+            <h3 style={{ fontSize:22, marginBottom:8, color:'var(--text)', fontWeight: 800, letterSpacing: '-0.5px' }}>
+              UPI Redirection
+            </h3>
+            <p style={{ fontSize:14, color:'var(--text-3)', lineHeight:1.6, marginBottom: 24 }}>
+              Automatic UPI deep-linking works best on mobile devices. How would you like to proceed with your payment for <strong>{upiModal.sub.service}</strong>?
+            </p>
+
+            <div style={{ background:'var(--surface-2)', border: '1px solid var(--border)', borderRadius:16, padding:'16px', marginBottom:28, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+               <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontSize:12, color:'var(--text-3)', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Amount Due</div>
+                  <div style={{ fontSize:24, fontWeight: 800, color:'var(--text)' }}>₹{upiModal.sub.inrAmount}</div>
+               </div>
+               <div style={{ padding: '8px 12px', background: 'var(--warning)', color: 'var(--warning-text)', borderRadius: 8, fontSize: 12, fontWeight: 700 }}>
+                 Pending
+               </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <button
+                onClick={simulateDesktopPayment}
+                disabled={upiModal.loading}
+                className="btn btn-primary"
+                style={{ width:'100%', padding:16, fontSize:15, height: 52 }}
+              >
+                {upiModal.loading ? <RefreshCw className="spinning" size={18} /> : <><CheckCircle2 size={18} /> Simulate Payment</>}
+              </button>
+              
+              <button
+                onClick={copyUpiLink}
+                disabled={upiModal.loading}
+                className="btn btn-ghost"
+                style={{ width:'100%', padding:16, fontSize:15, height: 52 }}
+              >
+                <Copy size={18} /> Copy UPI Link
+              </button>
+            </div>
           </div>
         </div>
       )}
