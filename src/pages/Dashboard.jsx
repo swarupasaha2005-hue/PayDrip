@@ -127,8 +127,8 @@ export default function Dashboard() {
       ) : (
         <div className="grid-stack">
           {/* Top Stats Cards */}
-          <div className="grid-stack grid-stack-3" style={{ marginBottom:24 }}>
-            <div className="card-gradient" style={{ gridColumn: 'span 2' }}>
+          <div className="grid-stack grid-stack-3" style={{ marginBottom:32 }}>
+            <div className="card-gradient offset-y-1" style={{ gridColumn: 'span 2' }}>
               <div style={{ position:'relative', zIndex:1 }}>
                 <p style={{ opacity:.8, fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:1, marginBottom:8 }}>Spending Power (XLM)</p>
                 <div style={{ fontSize:44, fontWeight:800, letterSpacing:'-2px', marginBottom:6 }}>
@@ -191,7 +191,7 @@ export default function Dashboard() {
               </div>
               <h3 style={{ fontSize: 17, fontWeight: 800 }}>Smart Financial Discipline</h3>
             </div>
-            <div className="grid-stack grid-stack-3" style={{ gap: 24 }}>
+            <div className="grid-stack grid-stack-3 offset-y-1" style={{ gap: 32 }}>
               {[
                 { title: 'Lock Budget', desc: 'Seal funds specifically for recurring bills so you never overspend.' },
                 { title: 'Auto-Detect', desc: 'Our smart contracts track due dates and alert you when payment is near.' },

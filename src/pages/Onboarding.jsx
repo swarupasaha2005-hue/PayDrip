@@ -30,8 +30,14 @@ export default function Onboarding() {
 
   if (step === 1) {
     return (
-      <div style={{ minHeight:'100vh', background:'linear-gradient(145deg,var(--surface-2) 0%,var(--bg) 100%)', display:'flex', alignItems:'center', justifyContent:'center', padding:32 }}>
-        <div className="fade-up" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:64, maxWidth:960, width:'100%', alignItems:'center' }}>
+      <>
+        <div className="blob-container">
+          <div className="blob blob-1"></div>
+          <div className="blob blob-2"></div>
+          <div className="blob blob-3"></div>
+        </div>
+        <div style={{ minHeight:'100vh', background:'transparent', display:'flex', alignItems:'center', justifyContent:'center', padding:32, position: 'relative', zIndex: 10 }}>
+          <div className="fade-up" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:64, maxWidth:960, width:'100%', alignItems:'center' }}>
           <div>
             <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:32 }}>
               <div style={{ width:44, height:44, borderRadius:14, background:'var(--logo-grad)', display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -54,10 +60,10 @@ export default function Onboarding() {
             </button>
           </div>
           <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
-            {features.map((f) => {
+            {features.map((f, i) => {
               const Icon = f.icon;
               return (
-                <div key={f.title} className="card" style={{ display:'flex', alignItems:'center', gap:18, padding:'20px 22px' }}>
+                <div key={f.title} className={`card-glass ${i % 2 !== 0 ? 'offset-y-1' : ''}`} style={{ display:'flex', alignItems:'center', gap:18, padding:'24px 26px' }}>
                   <div style={{ width:48, height:48, borderRadius:16, background:`${f.color}22`, display:'flex', alignItems:'center', justifyContent:'center' }}>
                     <Icon size={22} color={f.color} />
                   </div>
@@ -70,13 +76,19 @@ export default function Onboarding() {
             })}
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div style={{ minHeight:'100vh', background:'var(--bg)', display:'flex', alignItems:'center', justifyContent:'center', padding:32 }}>
-      <div className="card fade-up" style={{ maxWidth:440, width:'100%', padding:40, textAlign:'center' }}>
+    <>
+      <div className="blob-container">
+        <div className="blob blob-1"></div>
+        <div className="blob blob-2"></div>
+        <div className="blob blob-3"></div>
+      </div>
+      <div style={{ minHeight:'100vh', background:'transparent', display:'flex', alignItems:'center', justifyContent:'center', padding:32, position: 'relative', zIndex: 10 }}>
+        <div className="card-glass fade-up" style={{ maxWidth:440, width:'100%', padding:40, textAlign:'center' }}>
         <div style={{ margin:'0 auto 24px', width:56, height:56, borderRadius:'50%', background:'var(--surface-2)', display:'flex', alignItems:'center', justifyContent:'center' }}>
           <User size={24} color="var(--primary)" />
         </div>
@@ -98,11 +110,11 @@ export default function Onboarding() {
               <div 
                 key={g.id} 
                 onClick={() => setGender(g.id)}
-                className={`card ${gender === g.id ? 'active-theme' : ''}`}
+                className={`card-glass ${gender === g.id ? 'active-theme' : ''}`}
                 style={{ 
                   display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px 20px', cursor:'pointer',
-                  border: gender === g.id ? '2px solid var(--primary)' : '2px solid var(--border)',
-                  background: gender === g.id ? 'var(--surface-2)' : 'var(--surface)',
+                  border: gender === g.id ? '2px solid var(--primary)' : '1px solid var(--border)',
+                  background: gender === g.id ? 'var(--surface)' : 'transparent',
                   transition: 'all 0.2s', borderRadius:14
                 }}
               >
@@ -123,6 +135,7 @@ export default function Onboarding() {
         </button>
       </div>
     </div>
+    </>
   );
 }
 
