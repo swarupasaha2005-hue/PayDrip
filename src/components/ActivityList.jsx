@@ -33,41 +33,41 @@ function ActivityRow({ item }) {
   };
 
   return (
-    <div style={{ display:'flex', alignItems:'center', gap:14, padding:'14px 0', borderBottom:'1px solid var(--border)' }}>
-      <div style={{ width:44, height:44, borderRadius:'50%', background:meta.iconBg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-        <Icon size={18} color={meta.iconColor} />
+    <div style={{ display:'flex', alignItems:'center', gap:20, padding:'20px 24px', marginBottom: '24px', background: 'var(--surface-2)', borderRadius: '999px', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border)', transition: 'all 0.4s', transform: `translateX(${Math.random() > 0.5 ? 10 : -10}px)` }} className="module-pill">
+      <div style={{ width:48, height:48, borderRadius:'50%', background:meta.iconBg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, boxShadow: `0 0 20px ${meta.iconColor}40` }}>
+        <Icon size={20} color={meta.iconColor} />
       </div>
-      <div style={{ flex:1, minWidth:0 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:2 }}>
-          <div style={{ fontSize:14, fontWeight:600, color:'var(--text)' }}>
+      <div style={{ flex:1, minWidth:0, textAlign: 'left' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
+          <div style={{ fontSize:15, fontWeight:700, color:'var(--text)', letterSpacing: 0.5 }}>
             {item.service ? `${item.service} Bill` : meta.label} · {item.asset}
           </div>
           {item.hash && (
-            <div style={{ display:'flex', gap:6 }}>
-              <a href={explorerUrl} target="_blank" rel="noreferrer" style={{ color:'var(--text-3)', display:'flex', alignItems:'center' }} title="View on Explorer">
-                <ExternalLink size={10} />
+            <div style={{ display:'flex', gap:8 }}>
+              <a href={explorerUrl} target="_blank" rel="noreferrer" style={{ color:'var(--text-3)', display:'flex', alignItems:'center', background:'rgba(255,255,255,0.1)', padding:'4px', borderRadius:'50%' }} title="View on Explorer">
+                <ExternalLink size={12} color="var(--primary)" />
               </a>
               <button 
                 onClick={copyHash}
-                style={{ background:'none', border:'none', color:'var(--text-3)', cursor:'pointer', display:'flex', alignItems:'center', padding:0 }}
+                style={{ background:'rgba(255,255,255,0.1)', border:'none', color:'var(--text-3)', cursor:'pointer', display:'flex', alignItems:'center', padding:'4px', borderRadius:'50%' }}
                 title="Copy Hash"
               >
-                <Copy size={10} />
+                <Copy size={12} color="var(--primary)" />
               </button>
             </div>
           )}
         </div>
-        <div style={{ fontSize:12, color:'var(--text-3)' }}>
+        <div style={{ fontSize:12, color:'var(--text-3)', fontWeight: 600 }}>
           {item.frequency ? `${item.frequency} Plan` : item.to ? `To: ${item.to.slice(0,10)}…` : item.from ? `From: ${item.from.slice(0,10)}…` : ''}
           {item.releaseAt ? ` · Due: ${new Date(item.releaseAt).toLocaleDateString()}` : ''}
         </div>
       </div>
       <div style={{ textAlign:'right', flexShrink:0 }}>
-        <div style={{ fontSize:14, fontWeight:700, color: isPositive ? '#059669' : 'var(--text)', marginBottom:4 }}>
+        <div style={{ fontSize:16, fontWeight:800, color: isPositive ? 'var(--success-text)' : 'var(--text)', marginBottom:6, textShadow: isPositive ? '0 0 10px var(--success-text)' : 'none' }}>
           {isPositive ? '+' : '-'}{item.amount} {item.asset}
         </div>
         <span className={STATUS_CLASS[item.status] || 'badge badge-info'}>{item.status}</span>
-        <div style={{ fontSize:10, color:'var(--text-3)', marginTop:4 }}>{formatDate(item.date)}</div>
+        <div style={{ fontSize:10, color:'var(--text-3)', marginTop:6, fontWeight: 700 }}>{formatDate(item.date)}</div>
       </div>
     </div>
   );

@@ -108,15 +108,20 @@ PayDrip implements an enterprise-grade CI/CD pipeline via GitHub Actions.
 
 ## 🖼️ 8. Platform Screenshots
 
-*Note: Add high-resolution screenshots here prior to final submission.*
+![Dashboard](./screenshots/dashboard.png)  
+![Payments](./screenshots/payments.png)  
+![Planner](./screenshots/planner.png)  
+![Activity](./screenshots/activity.png)  
+![Contract](./screenshots/contract.png)
 
-| Wallet & Onboarding | Dashboard & Intent Tracker |
-| :---: | :---: |
-| ![Wallet Connected Placeholder](https://placehold.co/600x400/F5F3FF/9B87FF?text=Wallet+Connection) | ![Dashboard Placeholder](https://placehold.co/600x400/F5F3FF/9B87FF?text=Dashboard+Overview) |
+---
 
-| AI Smart Planner | Notifications Panel |
-| :---: | :---: |
-| ![Planner Placeholder](https://placehold.co/600x400/F5F3FF/9B87FF?text=AI+Smart+Planner) | ![Notifications Placeholder](https://placehold.co/600x400/F5F3FF/9B87FF?text=Smart+Notification+Bell) |
+## 🔗 9. Deployed Contract
+
+- **Network:** Stellar Testnet
+- **Contract Name:** PayVault Engine
+- **Contract Address:** `CDL52WTKS4YCXTCSMY2MCVJ2O3DPO2ET7EWXJIQMRP75I6O5ILGFDLWU`
+- **Explorer:** [View on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CDL52WTKS4YCXTCSMY2MCVJ2O3DPO2ET7EWXJIQMRP75I6O5ILGFDLWU)
 
 ---
 

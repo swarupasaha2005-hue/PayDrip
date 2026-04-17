@@ -64,12 +64,10 @@ export default function ManageSubscriptions() {
       setFrequency(p.frequency.toLowerCase());
       setNote(p.note);
       
-      // Auto-set release date to 1 week from now if not specified
       const nextWeek = new Date();
       nextWeek.setDate(nextWeek.getDate() + 7);
       setReleaseAt(nextWeek.toISOString().split('T')[0]);
       
-      // Clear state so reload doesn't keep prefilling
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location, navigate]);
@@ -88,37 +86,19 @@ export default function ManageSubscriptions() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!address) {
-       toast.error("Please connect your wallet first.");
-       return;
-    }
-    if (isInsufficient) {
-       toast.error("Insufficient XLM balance.");
-       return;
-    }
-    if (!amountXLM || parseFloat(amountXLM) <= 0) {
-       toast.error("Amount must be greater than 0 XLM.");
-       return;
-    }
-    if (!releaseAt) {
-       toast.error("Please specify a due date.");
-       return;
-    }
+    if (!address) { toast.error("Please connect your wallet first."); return; }
+    if (isInsufficient) { toast.error("Insufficient XLM balance."); return; }
+    if (!amountXLM || parseFloat(amountXLM) <= 0) { toast.error("Amount must be greater than 0 XLM."); return; }
+    if (!releaseAt) { toast.error("Please specify a due date."); return; }
 
     const releaseTimestamp = Math.floor(new Date(releaseAt).getTime() / 1000);
     const now = Math.floor(Date.now() / 1000);
     
-    if (releaseTimestamp <= now) { 
-      toast.error('Payment date must be in the future.'); 
-      return; 
-    }
+    if (releaseTimestamp <= now) { toast.error('Payment date must be in the future.'); return; }
 
     setIsLocking(true);
     try {
-      // Step 1: Lock funds on-chain
       const response = await lockFundsOnChain(address, amountXLM, releaseTimestamp);
-      
-      // Step 2: Save intent to AppContext
       addSchedule({
         service: selectedService.id === 'other' ? customService : selectedService.label,
         amount: amountXLM,
@@ -130,29 +110,16 @@ export default function ManageSubscriptions() {
       });
       
       await updateBalance(address);
-      setModal({ 
-        open:true, 
-        type:'success', 
-        message:`Successfully locked ${amountXLM} XLM for ${selectedService.label}. We'll notify you on the due date!`,
-        txHash: response.hash
-      });
+      setModal({ open:true, type:'success', message:`Successfully locked ${amountXLM} XLM for ${selectedService.label}.`, txHash: response.hash });
     } catch (err) {
-      console.error("ManageSubscriptions Submit Error:", err);
-      // Safely serialize unknown errors to prevent "undefined" toasts
       const errorMsg = err?.message || (typeof err === 'string' ? err : JSON.stringify(err)) || 'Failed to setup payment intent';
-      setModal({
-         open: true,
-         type: 'error',
-         message: errorMsg,
-         txHash: ''
-      });
+      setModal({ open: true, type: 'error', message: errorMsg, txHash: '' });
     } finally {
       setIsLocking(false);
     }
   };
 
   const handleSimulate = () => {
-    // Skip blockchain entirely
     addSchedule({
       service: selectedService.id === 'other' ? customService : selectedService.label,
       amount: amountXLM,
@@ -168,110 +135,107 @@ export default function ManageSubscriptions() {
   };
 
   const fieldStyle = {
-    padding:'14px 18px', borderRadius:14, border:'2px solid var(--border)',
-    background:'var(--surface-2)', fontSize:15, fontFamily:'Inter,sans-serif',
-    color:'var(--text)', outline:'none', width:'100%', transition:'all 0.2s',
+    padding:'16px 20px', borderRadius:'999px', border:'none',
+    background:'var(--bg)', fontSize:15, fontFamily:'Inter,sans-serif',
+    color:'var(--text)', outline:'none', width:'100%', transition:'all 0.4s',
+    boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.04)'
   };
 
   return (
-    <div className="fade-up">
-      <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:28 }}>
-        <button onClick={() => navigate(-1)} className="btn btn-ghost btn-icon"><ArrowLeft size={17} /></button>
+    <div className="spatial-spread fade-up">
+      <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:40, position:'relative', zIndex: 10 }}>
+        <button onClick={() => navigate(-1)} className="btn-icon"><ArrowLeft size={18} /></button>
         <div>
-          <h1 style={{ fontSize:24, fontWeight:800, letterSpacing:'-0.5px' }}>Setup Smart Payment</h1>
-          <p style={{ color:'var(--text-2)', fontSize:13 }}>Lock funds for a future subscription or expense</p>
+          <h1 style={{ fontSize:28, fontWeight:800, letterSpacing:'-0.5px' }}>Construct Payment</h1>
+          <p style={{ color:'var(--text-2)', fontSize:14 }}>Secure funds for upcoming payments</p>
         </div>
       </div>
 
-      <div className="grid-2-1" style={{ gap:24 }}>
-        <div className="card" style={{ padding:28 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 40, alignItems: 'flex-start' }}>
+        
+        {/* Abstract Configuration Panel */}
+        <div className="module" style={{ flex: '1 1 400px', padding: '48px', alignItems:'stretch', borderRadius: 32, background: 'linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01))', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', boxShadow: '0 0 40px rgba(255, 0, 255, 0.15)' }}>
           {!address ? (
-            <div className="empty-state">
-              <div className="empty-icon">🔑</div>
-              <div style={{ fontWeight:600, color:'var(--text-2)' }}>Connect your wallet first</div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', opacity: 0.8 }}>
+              <div style={{ fontSize: 40, marginBottom: 16 }}>🔑</div>
+              <div style={{ fontWeight:700, color:'var(--text)' }}>Wallet not connected</div>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:24 }}>
+            <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:28 }}>
               
-              {/* Service Selection */}
-              <div className="field">
-                <label>Select Service</label>
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(100px, 1fr))', gap:12 }}>
+              {/* Floating Service Clusters */}
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 700, opacity: 0.6, marginBottom: 12, display: 'block', textTransform:'uppercase' }}>Select Service</label>
+                <div className="organic-cluster" style={{ padding: 0, justifyContent: 'flex-start', gap: 12 }}>
                   {SERVICES.map(s => (
                     <div 
                       key={s.id}
                       onClick={() => setSelectedService(s)}
                       style={{
-                        padding: '12px',
-                        borderRadius: 12,
-                        border: `2px solid ${selectedService.id === s.id ? s.color : 'var(--border)'}`,
-                        background: selectedService.id === s.id ? `${s.color}10` : 'var(--bg)',
+                        padding: '12px 20px',
+                        borderRadius: '999px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        background: selectedService.id === s.id ? `${s.color}15` : 'var(--bg)',
+                        color: selectedService.id === s.id ? s.color : 'var(--text-3)',
                         cursor: 'pointer',
-                        textAlign: 'center',
-                        transition: 'all 0.2s'
+                        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                        transform: selectedService.id === s.id ? 'scale(1.05)' : 'scale(1)',
+                        boxShadow: selectedService.id === s.id ? `0 8px 24px ${s.color}25` : 'none'
                       }}
                     >
-                      <s.icon size={20} color={selectedService.id === s.id ? s.color : 'var(--text-3)'} style={{ marginBottom:8 }} />
-                      <div style={{ fontSize:11, fontWeight:700, color: selectedService.id === s.id ? 'var(--text)' : 'var(--text-3)' }}>{s.label}</div>
+                      <s.icon size={18} />
+                      <div style={{ fontSize:14, fontWeight:700 }}>{s.label}</div>
                     </div>
                   ))}
                 </div>
               </div>
 
               {selectedService.id === 'other' && (
-                <div className="field">
-                  <label>Custom Service Name</label>
+                <div>
                   <input 
                     value={customService} onChange={e => setCustomService(e.target.value)}
-                    placeholder="e.g. Electricity Bill" style={fieldStyle} required
+                    placeholder="e.g. Electric Node" style={fieldStyle} required
                   />
                 </div>
               )}
 
-              {/* Amount - Dual Input */}
-              <div style={{ display:'flex', flexDirection:'column', gap:4, marginBottom: 8 }}>
-                <div style={{ fontSize:12, color:'var(--text-3)', fontWeight:500, textAlign:'right' }}>1 XLM ≈ ₹{XLM_INR_RATE}</div>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
-                  <div className="field">
-                    <label>Amount (INR)</label>
-                    <div style={{ position:'relative' }}>
-                      <input
-                        type="number" value={amountINR} onChange={e => handleInrChange(e.target.value)}
-                        placeholder="0.00" style={{...fieldStyle, paddingLeft: 30}}
-                      />
-                      <span style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', fontWeight:700, color:'var(--text-3)', fontSize:14 }}>₹</span>
-                    </div>
+              {/* Amount Fluid Inputs */}
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 700, opacity: 0.6, marginBottom: 12, display: 'block', textTransform:'uppercase' }}>Amount</label>
+                <div style={{ display:'flex', flexWrap: 'wrap', gap:16 }}>
+                  <div style={{ flex: 1, position:'relative' }}>
+                    <input
+                      type="number" value={amountINR} onChange={e => handleInrChange(e.target.value)}
+                      placeholder="0.00" style={{...fieldStyle, paddingLeft: 40}}
+                    />
+                    <span style={{ position:'absolute', left:18, top:'50%', transform:'translateY(-50%)', fontWeight:800, color:'var(--text-3)' }}>₹</span>
                   </div>
-                  <div className="field">
-                    <label>Amount (XLM)</label>
-                    <div style={{ position:'relative' }}>
-                      <input
-                        type="number" value={amountXLM} onChange={e => handleXLMChange(e.target.value)}
-                        placeholder="0.00" required style={{ ...fieldStyle, borderColor: isInsufficient ? 'var(--error-text)' : 'var(--border)' }}
-                      />
-                      <span style={{ position:'absolute', right:18, top:'50%', transform:'translateY(-50%)', fontWeight:700, color:'var(--primary)', fontSize:13 }}>XLM</span>
-                    </div>
+                  <div style={{ flex: 1, position:'relative' }}>
+                    <input
+                      type="number" value={amountXLM} onChange={e => handleXLMChange(e.target.value)}
+                      placeholder="0.00" required style={{ ...fieldStyle, background: isInsufficient ? 'var(--error)' : 'var(--bg)', paddingRight: 50 }}
+                    />
+                    <span style={{ position:'absolute', right:20, top:'50%', transform:'translateY(-50%)', fontWeight:800, color:'var(--primary)' }}>XLM</span>
                   </div>
                 </div>
+                {isInsufficient && (
+                  <p style={{ color:'var(--error-text)', fontSize:12, fontWeight:700, marginTop:12, marginLeft: 16 }}>
+                     ⚠️ Volume exceeds limits (Avail: {walletBalance.toFixed(2)} XLM)
+                  </p>
+                )}
               </div>
-              {isInsufficient && (
-                <p style={{ color:'var(--error-text)', fontSize:11, fontWeight:600, marginTop:-16 }}>
-                   ⚠️ Insufficient balance (Available: {walletBalance.toFixed(2)} XLM)
-                </p>
-              )}
 
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
-                <div className="field">
-                  <label>Frequency</label>
-                  <select 
-                    value={frequency} onChange={e => setFrequency(e.target.value)}
-                    style={fieldStyle}
-                  >
+              <div style={{ display:'flex', flexWrap: 'wrap', gap:16 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 11, fontWeight: 700, opacity: 0.6, marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Frequency</label>
+                  <select value={frequency} onChange={e => setFrequency(e.target.value)} style={fieldStyle}>
                     {FREQUENCIES.map(f => <option key={f.id} value={f.id}>{f.label}</option>)}
                   </select>
                 </div>
-                <div className="field">
-                  <label>Due Date</label>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 11, fontWeight: 700, opacity: 0.6, marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Due Date</label>
                   <input
                     type="date" value={releaseAt} onChange={e => setReleaseAt(e.target.value)}
                     required style={fieldStyle} min={new Date().toISOString().split('T')[0]}
@@ -279,48 +243,51 @@ export default function ManageSubscriptions() {
                 </div>
               </div>
 
-              <div className="field">
-                <label>Note <span style={{ fontWeight:400, color:'var(--text-3)' }}>(optional)</span></label>
+              <div>
                 <input
                   value={note} onChange={e => setNote(e.target.value)}
-                  placeholder="e.g. Standard 4K Plan" maxLength={28} style={fieldStyle}
+                  placeholder="Note (Optional)" maxLength={40} style={{...fieldStyle, background: 'transparent', borderBottom: '2px solid rgba(255,255,255,0.4)', borderRadius: 0, boxShadow: 'none', paddingLeft: 4}}
                 />
               </div>
 
               <button
                 type="submit" disabled={isLocking || isInsufficient}
-                className="btn btn-primary"
-                style={{ padding:'16px', fontSize:15, borderRadius:99, marginTop:8 }}
+                className="btn-primary"
+                style={{ 
+                  padding:'20px 32px', fontSize:16, border:'none',
+                  borderRadius:'999px', marginTop:24, width: '100%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+                  boxShadow: '0 20px 48px rgba(139,92,246,0.25)' 
+                }}
               >
                 {isLocking
-                  ? <><Loader2 size={16} className="spinning" /> Locking Funds…</>
-                  : <><CreditCard size={16} /> Setup Payment Intent</>
+                  ? <><Loader2 size={20} className="spinning" /> Channeling Funds…</>
+                  : <><CreditCard size={20} /> Setup Payment</>
                 }
               </button>
             </form>
           )}
         </div>
 
-        <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
-          <div className="card" style={{ background:'linear-gradient(135deg,#F0EDFF,#FFF0F5)', border:'none' }}>
-            <div style={{ fontSize:12, fontWeight:700, color:'var(--primary-dark)', letterSpacing:.5, marginBottom:16, display:'flex', alignItems:'center', gap:8 }}>
-              <AlertCircle size={14} /> HOW IT WORKS
-            </div>
-            <p style={{ fontSize:13, color:'var(--text-2)', lineHeight:1.6, marginBottom:16 }}>
-              PayDrip isn't just a wallet—it's a <strong>financial discipline layer</strong>. 
-            </p>
-            <ul style={{ listStyle:'none', display:'flex', flexDirection:'column', gap:12 }}>
-              {[
-                'Lock funds specifically for your upcoming bill.',
-                'The XLM stays in a smart contract and cannot be spent elsewhere.',
-                'On the due date, we notify you to execute the payment.',
-                'Ensures your subscription budget is always protected.'
-              ].map((t, i) => (
-                <li key={i} style={{ fontSize:12, color:'var(--text-2)', display:'flex', gap:10 }}>
-                  <span style={{ color:'var(--primary)', fontWeight:800 }}>{i+1}.</span> {t}
-                </li>
-              ))}
-            </ul>
+        {/* Educational Module */}
+        <div className="module" style={{ flex: '1 1 300px', background: 'linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01))', color: 'white', borderRadius: 32, border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', boxShadow: '0 0 40px rgba(255, 0, 255, 0.15)', padding: '40px' }}>
+          <div style={{ fontSize:13, fontWeight:800, letterSpacing:1, marginBottom:24, display:'flex', alignItems:'center', gap:10, opacity: 0.9 }}>
+            <AlertCircle size={18} /> HOW IT WORKS
+          </div>
+          <p style={{ fontSize:15, lineHeight:1.6, marginBottom:24, opacity: 0.9 }}>
+            PayDrip secures your budget. We time-lock funds so you don't accidentally spend money meant for bills.
+          </p>
+          <div style={{ display:'flex', flexDirection:'column', gap:16, opacity: 0.8 }}>
+            {[
+              'Set aside funds strictly for a specific bill',
+              'The required XLM is securely escrowed on the Stellar blockchain',
+              'Funds are automatically unlocked on the due date'
+            ].map((t, i) => (
+              <div key={i} style={{ fontSize:13, display:'flex', gap:12, alignItems: 'flex-start' }}>
+                <div style={{ background: 'rgba(255,255,255,0.2)', width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent:'center', flexShrink: 0, fontWeight: 700, fontSize: 10 }}>{i+1}</div>
+                <div style={{ paddingTop: 3 }}>{t}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
