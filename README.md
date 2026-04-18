@@ -5,6 +5,14 @@
 
   [![Build Status](https://github.com/swarupasaha2005-hue/PayDrip/actions/workflows/ci.yml/badge.svg)](https://github.com/swarupasaha2005-hue/PayDrip/actions)
   [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](https://opensource.org/licenses/MIT)
+
+  <h3>
+    <a href="https://pay-drip.vercel.app">Live Demo</a>
+    <span> | </span>
+    <a href="https://github.com/swarupasaha2005-hue/PayDrip">GitHub Repository</a>
+    <span> | </span>
+    <a href="https://docs.google.com/spreadsheets/d/1uFVhSqDnd9lSzuoPf20sxc75dF4vFvij-DJvJfXqHWo/edit?usp=sharing">Feedback Documentation</a>
+  </h3>
 </div>
 
 ---
