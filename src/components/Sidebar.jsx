@@ -2,7 +2,6 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useWallet } from '../hooks/useWallet';
 import { LayoutDashboard, CreditCard, ListOrdered, LogOut, Zap, Database, Sparkles } from 'lucide-react';
-import { useUser } from '../hooks/useUser';
 
 const navItems = [
   { to: '/dashboard',     label: 'Dashboard', icon: LayoutDashboard },
@@ -14,7 +13,6 @@ const navItems = [
 
 export default function Sidebar() {
   const { address, balance, disconnect } = useWallet();
-  const { name } = useUser();
   const navigate = useNavigate();
 
   const short = (a) => a ? `${a.slice(0,6)}…${a.slice(-4)}` : '';

@@ -33,7 +33,7 @@ function ActivityRow({ item }) {
   };
 
   return (
-    <div style={{ display:'flex', alignItems:'center', gap:20, padding:'20px 24px', marginBottom: '24px', background: 'var(--surface-2)', borderRadius: '999px', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border)', transition: 'all 0.4s', transform: `translateX(${Math.random() > 0.5 ? 10 : -10}px)` }} className="module-pill">
+    <div style={{ display:'flex', alignItems:'center', gap:20, padding:'20px 24px', marginBottom: '24px', background: 'var(--surface-2)', borderRadius: '999px', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border)', transition: 'all 0.4s' }} className="module-pill">
       <div style={{ width:48, height:48, borderRadius:'50%', background:meta.iconBg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, boxShadow: `0 0 20px ${meta.iconColor}40` }}>
         <Icon size={20} color={meta.iconColor} />
       </div>
