@@ -1,122 +1,58 @@
 <div align="center">
-  <img src="./src/assets/logo.png" alt="PayDrip Logo" width="120" style="border-radius: 20px; margin-bottom: 20px;" />
-  <h1>💧 PayDrip</h1>
-  <p><strong>The Smart Financial Discipline Platform</strong></p>
-  <p>Autonomous Payment Intents, AI Goal Planning, & Blockchain-backed Subscription Budgeting.</p>
+  <img src="/logo.png" alt="PayDrip Logo" width="120" style="margin-bottom: 20px;" />
+  <h1>🚀 PayDrip</h1>
+  <p><strong>Smart, automated, on-chain financial discipline.</strong></p>
 
   [![Build Status](https://github.com/swarupasaha2005-hue/PayDrip/actions/workflows/ci.yml/badge.svg)](https://github.com/swarupasaha2005-hue/PayDrip/actions)
   [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](https://opensource.org/licenses/MIT)
 </div>
 
 ---
-Github: https://github.com/swarupasaha2005-hue/PayDrip
-Vercel: https://pay-drip.vercel.app/
 
-## 🎯 1. Project Overview
-
-**The Problem:** Managing subscription budgets (Netflix, Rent, Tuition) is messy. Traditional banking apps abstract away liquidity until the payment bounces. Decentralized finance applications often lack real-world usability because they don't map to human-readable financial services or local fiat currencies.
-
-**The PayDrip Solution:** PayDrip is a **Smart Financial Discipline Platform**. It bridges the gap between raw blockchain utility and everyday consumer finance. Users can define a savings goal or upcoming expense, let AI compute a payment trajectory, and safely lock their required funds on the Stellar blockchain. When the due date hits, PayDrip executes the payment autonomously. It protects your budget by physically securing the liquidity required for your upcoming bills.
+## 🌟 Overview
+PayDrip bridges the gap between raw blockchain utility and everyday consumer finance. It allows users to schedule recurring or one-time payments, secure the required liquidity via smart contracts, and ensure those payments execute autonomously on the targeted due date.
 
 ---
 
-## ✨ 2. Key Features
-
-- **💱 Dynamic INR ↔ XLM Engine:** Say goodbye to mental math. Type in your required amount in INR (₹) and instantly lock the exact XLM equivalent.
-- **🔒 Smart Fund Locking:** Secure funds in a time-locked escrow contract. You literally cannot spend your specialized Netflix budget on a whim.
-- **📅 Visual Payment Scheduling:** Map out your expenses (Rent, Spotify, Custom) and view them dynamically on a beautiful pipeline.
-- **🔁 Autopay Simulation Loop:** Watch the platform track time and transition intents from *Locked* to *Paid* seamlessly on the designated due date.
-- **🤖 AI Smart Plan Generator:** Feed our AI your savings target ("I need ₹10,000 in 3 months") and get an instant, deterministic weekly locking schedule applied straight to your dashboard.
-- **🔔 Smart Notification Layer:** Integrated alerts that ping you when funds are secured and autonomously notify you exactly when a payment successfully executes.
+## ✨ Key Features
+- **Automated smart payments** using time-locked Soroban smart contracts.
+- **Intelligent financial planning** via the Smart Planner goal trajectory calculator.
+- **Time-locked fund management** that prevents you from misusing allocated budgets.
+- **Dynamic INR ↔ XLM Engine** to schedule web3 payments via familiar fiat mental models.
+- **Real-time activity tracking** visualized through dynamic transaction streams.
 
 ---
 
-## 🛠️ 3. How It Works (The User Flow)
-
-1. **Calculate:** Open the *Smart Planner*, input your target in INR, and click "Apply Plan".
-2. **Authorize:** Review the prepopulated Payment Intent form (Service, Amount, Frequency) and click *Setup Payment*.
-3. **Lock:** Approve the transaction via your **Freighter Wallet**. The specified XLM is removed from your operational balance and locked into the `PayVault` Soroban Smart Contract.
-4. **Monitor:** Track your upcoming payment from the *Dashboard* via time-coded status badges.
-5. **Execute:** On the due date, the system auto-resolves the transaction via our background execution simulator, completing the cycle and generating a receipt.
+## 🧠 Problem Statement
+- **Lack of Discipline:** People naturally overspend when liquidity is readily available, often missing critical subscription payments or future bills.
+- **Mental Friction:** Traditional banking apps only track what you've spent, not what you need to safely hold, causing financial stress.
+- **Web3 Usability:** Decentralized finance currently lacks structured budgeting interfaces that map to human-readable recurring expenses.
 
 ---
 
-## 💻 4. Tech Stack
-
-- **Frontend Interface:** 
-  - React 18 & React Router
-  - Vite (Lightning-fast HMR & Builds)
-  - CSS3 (Custom Glassmorphism & Tokenized Theming)
-- **Blockchain Connectivity:**
-  - `@stellar/stellar-sdk` (v15+)
-  - `@stellar/freighter-api` (v6 Wallet Signature flows)
-  - **Soroban** Smart Contracts (Rust)
-- **DevOps & CI/CD:**
-  - GitHub Actions (Automated Linting & Test Matrix)
-  - Vercel (CD targeted)
+## 💡 Solution (PayDrip)
+- **Advance Commits:** Locks your required funds in an on-chain escrow *before* the due date.
+- **Guaranteed Execution:** Ensures critical payments happen exactly when required, completely autonomously.
+- **Secure Isolation:** Prevents the accidental misuse of funds specifically allocated for rent, tuition, or utilities.
+- **Web3 Usability:** Brings much-needed real-world financial discipline into the decentralized ecosystem through an immersive, premium Fintech UX.
 
 ---
 
-## 🏗️ 5. System Architecture Flow
+## 📸 Screenshots
 
-```mermaid
-graph TD
-    A[User] -->|Inputs Goal| B(Smart Planner UI)
-    B -->|Calculates INR/XLM| C[Manager UI]
-    C -->|Requests Signature| D{Freighter Wallet}
-    D -->|Signed XDR| E[Stellar RPC]
-    E -->|Deploy| F((Soroban Vault Contract))
-    E -->|Receipt| G(Dashboard Feed)
-    G -->|Time Loop Update| H[Notification Panel]
-```
-
----
-
-## 🚀 6. Setup Instructions
-
-To get PayDrip running locally on your machine, follow these steps:
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/swarupasaha2005-hue/PayDrip.git
-cd PayDrip
-
-# 2. Install Dependencies
-npm install
-
-# 3. Run the Frontend (Localhost)
-npm run dev
-
-# 4. Run Contract Tests (Optional/Backend)
-cd contract/contracts/pay-vault
-cargo test
-```
-
-> **Note:** Make sure you have the [Freighter Browser Extension](https://www.freighter.app/) installed and set to the Stellar Testnet.
+<img src="screenshots/dashboard.png" width="800"/>
+<br/>
+<img src="screenshots/payments.png" width="800"/>
+<br/>
+<img src="screenshots/planner.png" width="800"/>
+<br/>
+<img src="screenshots/activity.png" width="800"/>
+<br/>
+<img src="screenshots/contract.png" width="800"/>
 
 ---
 
-## ⚙️ 7. CI/CD & Code Quality
-
-PayDrip implements an enterprise-grade CI/CD pipeline via GitHub Actions.
-
-- **Lint Checks:** Every push triggers an ESLint validation step across the React codebase to enforce strict style and syntax rules.
-- **Build Validation:** Vite attempts a production build (`npm run build`) in the runner to guarantee no dependency issues exist.
-- **Contract Tests:** Rust unit tests for the Soroban smart contracts are run automatically upon modification to ensure on-chain logic remains bulletproof.
-
----
-
-## 🖼️ 8. Platform Screenshots
-
-![Dashboard](./screenshots/dashboard.png)  
-![Payments](./screenshots/payments.png)  
-![Planner](./screenshots/planner.png)  
-![Activity](./screenshots/activity.png)  
-![Contract](./screenshots/contract.png)
-
----
-
-## 🔗 9. Deployed Contract
+## 🔗 Smart Contract
 
 - **Network:** Stellar Testnet
 - **Contract Name:** PayVault Engine
@@ -125,23 +61,52 @@ PayDrip implements an enterprise-grade CI/CD pipeline via GitHub Actions.
 
 ---
 
-## 🏆 9. Why PayDrip is Unique
+## 🛠️ Tech Stack
+- **Frontend Focus:** React.js / Vite
+- **Styling Architecture:** Pure CSS3 (Glassmorphism & Liquid Mesh Tokens)
+- **Blockchain Network:** Stellar (Soroban)
+- **Smart Contracts:** Rust
+- **Wallet Integration:** `@stellar/freighter-api`
 
-1. **Real-World Relativity:** Raw crypto balances mean nothing to everyday users. By prioritizing a **local fiat context** (INR) combined with familiar services (Netflix, Rent), PayDrip makes web3 feel like banking.
-2. **Actionable AI:** We don't just use AI to chat; we use it to construct mathematical matrices for your goals and *auto-fill* the application interface to save you clicks.
-3. **Financial Defense:** PayDrip isn't just for moving money; it’s designed to forcibly instill financial discipline by leveraging the immutability of blockchain escrows.
+---
+
+## ⚙️ How It Works
+1. **Connect:** User authorizes their Freighter wallet.
+2. **Plan:** Sets up a payment goal or intent (e.g., Target: ₹10,000 for Tuition).
+3. **Lock:** The exact XLM amount is calculated and securely escrowed via a time-locked smart contract.
+4. **Execute:** The payment processes autonomously upon reaching the specific due date, notifying the user.
 
 ---
 
-## 🌌 10. Future Scope
+## 🚀 Getting Started
 
-Our MVP proves the concept. Our roadmap proves the vision:
+**1. Clone the repository**
+```bash
+git clone https://github.com/swarupasaha2005-hue/PayDrip.git
+cd PayDrip
+```
 
-- **Real Payment Integration:** Connecting with off-ramps/oracles to actually trigger fiat APIs (UPI/Credit Cards) for the final subscription leg.
-- **Multi-Currency Toggle:** Allow users to switch between USD, EUR, INR, and JPY conversion rates dynamically.
-- **Group Payments:** Sub-vaults where multiple roommates can stream XLM towards a single Rent contract.
-- **Advanced Predictive AI:** Analyzing wallet history to organically suggest subscriptions you might want to time-lock before you even ask.
-- **Mobile Native Application:** Migrating our fluid responsive design into a standalone iOS/Android application.
+**2. Install Dependencies**
+```bash
+npm install
+```
+
+**3. Run Local Environment**
+```bash
+npm run dev
+```
+
+> **Note:** Ensure you have the [Freighter Browser Extension](https://www.freighter.app/) installed and configured to the **Stellar Testnet**.
 
 ---
+
+## 🔮 Future Scope
+- **Mobile Native Flow:** Porting the application to React Native for iOS/Android adoption.
+- **AI-Based Actionable Insights:** Using deterministic AI to analyze your wallet history and suggest subscription protections.
+- **Real Payment Gateways:** Connecting with web3 off-ramps to legally trigger final fiat APIs (UPI/Cards).
+- **Group Budgeting:** Multi-signature vaults where multiple users stream XLM towards a collective rent contract.
+
+---
+
+## 👥 Team / Credits
 <p align="center">Made with 💜 for the Stellar Ecosystem</p>
