@@ -1,37 +1,41 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useWallet } from '../hooks/useWallet';
-import { LayoutDashboard, CreditCard, ListOrdered, LogOut, Zap, Database, Sparkles } from 'lucide-react';
+import { LayoutDashboard, CreditCard, ListOrdered, LogOut, Zap, Database, Cpu, ShieldCheck, Sun, Moon, BarChart3 } from 'lucide-react';
+import { useTheme } from './ThemeProvider';
+import { useApp } from '../hooks/useApp';
+import { Plus } from 'lucide-react';
 
 const navItems = [
   { to: '/dashboard',     label: 'Dashboard', icon: LayoutDashboard },
   { to: '/subscriptions', label: 'Payments',  icon: CreditCard },
-  { to: '/planner',       label: 'Smart Planner', icon: Sparkles },
+  { to: '/planner',       label: 'Agent Intent', icon: Cpu },
+  { to: '/vault',         label: 'Security Vault', icon: ShieldCheck },
   { to: '/activity',      label: 'Activity',  icon: ListOrdered },
+  { to: '/metrics',       label: 'Metrics',   icon: BarChart3 },
   { to: '/contract-view', label: 'Contract',  icon: Database },
 ];
 
 export default function Sidebar() {
-  const { address, balance, disconnect } = useWallet();
+  const { address, balance } = useWallet();
+  const { themeMode, toggleTheme } = useTheme();
+  const { internalWalletBalance, addInternalFunds } = useApp();
   const navigate = useNavigate();
 
   const short = (a) => a ? `${a.slice(0,6)}…${a.slice(-4)}` : '';
 
   return (
-    <aside className="sidebar" style={{ background: 'rgba(5, 5, 10, 0.6)', borderRight: '1px solid var(--border)', backdropFilter: 'blur(40px)', padding: '40px 24px', boxShadow: '10px 0 30px rgba(0,0,0,0.5)' }}>
+    <aside className="sidebar">
       {/* Brand Node */}
       <div style={{ display:'flex', alignItems:'center', gap:12, paddingBottom: 32, marginBottom:16, borderBottom: '1px solid var(--border)' }}>
-        
-        {/* Main Uploaded Logo Lockup */}
-        <div className="logo-float" style={{ width: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <img 
             src="/logo.png" 
             alt="PayDrip Logo" 
             style={{ 
                width: '100%', 
-               maxWidth: '220px', 
-               objectFit: 'contain', 
-               filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.4))'
+               maxWidth: '200px', 
+               objectFit: 'contain'
             }} 
           />
         </div>
@@ -49,8 +53,8 @@ export default function Sidebar() {
             >
               {({ isActive }) => (
                 <>
-                  <Icon size={18} strokeWidth={isActive ? 2.5 : 2} style={{ color: isActive ? 'white' : 'var(--text-3)' }} />
-                  <span className="nav-label" style={{ fontWeight: isActive ? 800 : 600, color: isActive ? 'white' : 'var(--text-2)', letterSpacing: 0.5 }}>{item.label}</span>
+                  <Icon size={18} strokeWidth={isActive ? 2.5 : 2} style={{ color: isActive ? 'var(--text)' : 'var(--text-3)' }} />
+                  <span className="nav-label" style={{ fontWeight: isActive ? 700 : 500, color: isActive ? 'var(--text)' : 'var(--text-3)' }}>{item.label}</span>
                 </>
               )}
             </NavLink>
@@ -58,41 +62,45 @@ export default function Sidebar() {
         })}
       </div>
 
+      {/* Theme Toggle Module */}
+      <div style={{ marginTop:'auto', paddingTop:16, borderTop:'1px solid var(--border)', paddingBottom: 16 }}>
+         <button className="btn btn-ghost" style={{ width: '100%', display: 'flex', justifyContent: 'space-between', padding: '12px 16px' }} onClick={toggleTheme}>
+           <span style={{ fontSize: 13, fontWeight: 600 }}>{themeMode === 'light' ? 'Light Mode' : 'Dark Mode'}</span>
+           {themeMode === 'light' ? <Sun size={16} /> : <Moon size={16} />}
+         </button>
+      </div>
+
       {/* Wallet Module */}
-      <div style={{ marginTop:'auto', paddingTop:24, borderTop:'1px solid var(--border)' }}>
+      <div>
         {address ? (
-          <div className="module" style={{ background:'var(--surface-2)', padding:'20px', borderRadius:'24px', border: '1px solid var(--border-glow)' }}>
-            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
-              <div style={{ width:10, height:10, borderRadius:'50%', background:'var(--success)', flexShrink:0, boxShadow: '0 0 12px var(--success-text)' }} />
-              <span style={{ fontSize:12, fontWeight:800, color:'var(--success-text)', flex: 1, letterSpacing: 1 }}>CONNECTED</span>
+          <div className="stitch-card" style={{ padding: '16px', background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
+              <div style={{ width:8, height:8, borderRadius:'50%', background:'var(--success)', flexShrink:0 }} />
+              <span style={{ fontSize:11, fontWeight:700, color:'var(--success)', flex: 1, letterSpacing: 0.5 }}>CONNECTED</span>
             </div>
 
-            <div style={{ fontSize:10, color:'var(--text-3)', marginBottom:4, fontWeight: 700, letterSpacing: 1 }}>IDENTITY NODE</div>
-            <div style={{ fontSize:13, fontWeight:600, color:'white', marginBottom:16, fontFamily:'monospace' }}>{short(address)}</div>
+            <div style={{ fontSize:10, color:'var(--text-3)', marginBottom:4, fontWeight: 600 }}>IDENTITY</div>
+            <div style={{ fontSize:13, fontWeight:600, color:'var(--text)', marginBottom:12, fontFamily:'monospace' }}>{short(address)}</div>
             
-            <div style={{ fontSize:10, color:'var(--text-3)', marginBottom:2, fontWeight: 700, letterSpacing: 1 }}>LIQUIDITY</div>
-            <div style={{ fontSize:20, fontWeight:800, color:'var(--primary)', marginBottom:24, textShadow: '0 0 16px var(--border-glow)' }}>
+            <div style={{ fontSize:18, fontWeight:700, color:'var(--primary)', marginBottom: 16 }}>
               {parseFloat(balance||0).toFixed(4)} <span style={{fontSize:12, fontWeight:600}}>XLM</span>
             </div>
-            
-            <button
-              onClick={disconnect}
-              className="btn"
-              style={{ width:'100%', fontSize:12, padding:'10px', gap:8, border: '1px solid var(--error-text)', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--error-text)' }}
-            >
-              <LogOut size={14} />
-              DISCONNECT
-            </button>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <div style={{ fontSize:10, color:'var(--text-3)', fontWeight: 600 }}>PAYDRIP WALLET</div>
+              <button 
+                onClick={() => addInternalFunds(500)}
+                style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 4, width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+              >
+                <Plus size={10} color="var(--primary)" />
+              </button>
+            </div>
+            <div style={{ fontSize:16, fontWeight:700, color:'var(--text)' }}>
+              {parseFloat(internalWalletBalance||0).toFixed(2)} <span style={{fontSize:12, fontWeight:600}}>XLM</span>
+            </div>
           </div>
         ) : (
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="btn btn-primary"
-            style={{ width:'100%', fontSize:13, padding:'16px' }}
-          >
-            <Zap size={16} />
-            ACTIVATE WALLET
-          </button>
+          <p style={{fontSize: 12, color: 'var(--text-3)', textAlign: 'center'}}>Identity Node Offline</p>
         )}
       </div>
     </aside>

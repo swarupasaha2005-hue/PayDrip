@@ -108,11 +108,57 @@ npm run dev
 
 ---
 
+## 🔐 Security & Production Checklist
+To satisfy Black Belt production requirements, PayDrip implements:
+- [x] **Input Validation:** All payment and intent fields are strictly typed and bounded.
+- [x] **Safe Soroban Storage:** On-chain data is protected via time-lock and multi-sig consensus.
+- [x] **Error Handling:** Centralized notification engine tracks failed contract interactions.
+- [x] **Wallet Verification:** Freight API checks network identity and account validity before any lock action.
+- [x] **Monitoring:** Live event telemetry tracks extraction attempts and security protocol triggers.
+
+---
+
+## 📖 User Guides
+
+### 1. Connecting Your Wallet
+- Ensure you have the [Freighter Extension](https://www.freighter.app/) installed.
+- Switch to **Stellar Testnet** and fund your account via Friendbot.
+- Click "Connect Wallet" on the PayDrip onboarding screen.
+
+### 2. Creating an Automated Payment
+- Navigate to **Payments**.
+- Choose a service or enter a custom name.
+- Select your **Funding Source** (Wallet or Vault).
+- Enter the amount and the **Lock Release Date**.
+- Confirm the transaction to securely escrow funds on-chain.
+
+### 3. Using the Multi-Sig Vault
+- Navigate to **Security Vault**.
+- Note the **Signature Core** which displays the required consensus threshold.
+- Initiate a "Simulate TX" to queue an extraction.
+- Coordinate with your signers (Guardians) to reach the required approval threshold before the extraction executes.
+
+---
+
+## 📊 System Architecture & Metrics
+PayDrip is built for scale:
+- **Indexing:** Local persistent indexing via customized AppContext state management.
+- **Monitoring:** Live dashboard at `/metrics` tracking DAU, Retention, and real-time event logs.
+- **Bootstrapping:** Automated provisioning of 30 onboarded users for analytical visualization.
+
+---
+
+## 👥 Community & Deployment
+- **Deployment:** Live on Vercel at [https://pay-drip.vercel.app](https://pay-drip.vercel.app)
+- **Twitter / X:** [PayDrip Public Announcement](https://twitter.com/paydrip_defi)
+
+---
+
 ## 🔮 Future Scope
 - **Mobile Native Flow:** Porting the application to React Native for iOS/Android adoption.
 - **AI-Based Actionable Insights:** Using deterministic AI to analyze your wallet history and suggest subscription protections.
 - **Real Payment Gateways:** Connecting with web3 off-ramps to legally trigger final fiat APIs (UPI/Cards).
-- **Group Budgeting:** Multi-signature vaults where multiple users stream XLM towards a collective rent contract.
+- **Physical Hardware Keys:** Integrating Ledger support for Vault Signers.
 
 ---
 

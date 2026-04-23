@@ -1,78 +1,121 @@
 import React, { useState } from 'react';
 import { useApp } from '../hooks/useApp';
-import { useWallet } from '../hooks/useWallet';
-import ActivityList from '../components/ActivityList';
-import { Filter } from 'lucide-react';
-
-const FILTERS = ['All', 'Sent', 'Received', 'Scheduled'];
+import { ArrowLeft, ExternalLink, Calendar, Search, Filter } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Activity() {
-  const { activityFeed } = useApp();
-  const { address } = useWallet();
+  const { schedules, dripFlows, dripLogs } = useApp();
+  const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
 
-  const filtered = activityFeed.filter(item => {
-    if (filter === 'All') return true;
-    if (filter === 'Sent')      return item.type === 'sent';
-    if (filter === 'Received')  return item.type === 'received';
-    if (filter === 'Scheduled') return item.type === 'scheduled';
-    return true;
-  });
+  const tabs = ['All', 'Smart Drips', 'Manual', 'Locked'];
 
   return (
     <div className="spatial-spread fade-up">
-      <div style={{ position:'relative', zIndex: 10, paddingLeft: 12, marginBottom:40 }}>
-        <h1 style={{ fontSize:32, fontWeight:800, letterSpacing:'-1px', marginBottom:8 }}>Activity Stream</h1>
-        <p style={{ color:'var(--text-2)', fontSize:16 }}>Observe the flow of your digital assets</p>
-      </div>
-
-      {/* Floating abstract filter clusters */}
-      <div style={{ display:'flex', alignItems: 'center', gap: 24, marginBottom: 48, flexWrap: 'wrap' }}>
-        <div style={{ display:'flex', alignItems:'center', gap:10, background: 'var(--surface-2)', padding: '12px 24px', borderRadius: '999px', boxShadow: 'var(--shadow-sm)' }}>
-          <Filter size={16} color="var(--primary)" />
-          <span style={{ fontSize:13, color:'var(--text)', fontWeight:800, textTransform: 'uppercase', letterSpacing: 1 }}>FILTER</span>
-        </div>
-        
-        <div className="organic-cluster" style={{ padding: 0, justifyContent: 'flex-start', flex: 1 }}>
-          {FILTERS.map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              style={{
-                padding:'14px 28px', fontSize:14, borderRadius: '40% 60% 50% 50% / 50% 50% 60% 40%',
-                background: filter===f ? 'var(--primary-dark)' : 'var(--surface)',
-                color: filter===f ? 'white' : 'var(--text)',
-                border: filter===f ? 'none' : '1px solid var(--border)',
-                boxShadow: filter===f ? '0 12px 24px rgba(139,92,246,0.2)' : 'var(--shadow-sm)',
-                fontWeight: 700,
-                cursor: 'pointer',
-                transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                transform: filter===f ? 'scale(1.1) translateY(-4px)' : 'scale(1)'
-              }}
-            >
-              {f}
-            </button>
-          ))}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 32 }}>
+        <button onClick={() => navigate(-1)} className="btn-icon"><ArrowLeft size={18} /></button>
+        <div>
+          <h1 style={{ fontSize: 32, fontWeight: 700, margin: '0 0 4px', letterSpacing: '-0.5px' }}>Activity Log</h1>
+          <p style={{ color: 'var(--text-3)', fontSize: 16 }}>Historical records and execution traces.</p>
         </div>
       </div>
 
-      {!address ? (
-        <div className="module module-blob" style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center', minHeight: 400 }}>
-          <div style={{ fontSize: 40, marginBottom: 16 }}>🔌</div>
-          <div style={{ fontWeight:700, color:'var(--text)', fontSize: 18 }}>Connect your wallet to observe the stream</div>
-        </div>
-      ) : (
-        <div className="module organic-panel" style={{ padding: '0', borderRadius: '40px' }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'32px 40px 16px', background: 'rgba(255,255,255,0.2)', borderBottom: '1px solid var(--border)' }}>
-            <span style={{ fontSize:14, fontWeight:800, color:'var(--text-2)', textTransform: 'uppercase', letterSpacing: 1 }}>
-              {filtered.length} {filtered.length===1 ? 'Stream' : 'Streams'} Detected
-            </span>
-          </div>
-          <div style={{ padding: '24px 40px 40px' }}>
-            <ActivityList items={filtered} />
+      {dripFlows.some(f => f.status === 'active') && (
+        <div style={{ marginBottom: 32 }}>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '1px' }}>Active Drip Streams</h3>
+          <div className="stitch-layout-grid" style={{ gap: 16 }}>
+            {dripFlows.filter(f => f.status === 'active').map(flow => {
+              const progress = ((flow.ticksCompleted / (flow.timelineWeeks * 7)) * 100).toFixed(0);
+              return (
+                <div key={flow.id} className="stitch-card" style={{ gridColumn: 'span 4', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, height: 2, background: 'var(--primary)', width: `${progress}%`, transition: 'width 0.5s' }} />
+                  <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Drip #{flow.id.slice(-4)}</span>
+                    <span style={{ color: 'var(--primary)' }}>{progress}%</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{flow.remainingAmount} / {flow.totalAmount} XLM Remaining</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 4 }}>Strategy: {flow.strategy.toUpperCase()}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
+
+      <div className="stitch-panel" style={{ padding: '32px' }}>
+        
+        {/* Filters and Search */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {tabs.map(t => (
+              <button 
+                key={t}
+                onClick={() => setFilter(t)}
+                className="btn"
+                style={{ 
+                  borderRadius: 999, padding: '8px 16px', fontSize: 13,
+                  background: filter === t ? 'var(--surface-2)' : 'transparent',
+                  color: filter === t ? 'var(--text)' : 'var(--text-3)',
+                  borderColor: filter === t ? 'var(--border)' : 'transparent'
+                }}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <div className="btn-icon" style={{ borderRadius: 8 }}><Search size={16} /></div>
+            <div className="btn-icon" style={{ borderRadius: 8 }}><Filter size={16} /></div>
+          </div>
+        </div>
+
+        {/* List Structure */}
+        {((filter === 'Smart Drips' ? dripLogs : schedules)).length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '64px 0', opacity: 0.5 }}>
+            <Calendar size={48} style={{ margin: '0 auto 16px' }} />
+            <p style={{ fontSize: 16 }}>No records found for this view.</p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {filter === 'Smart Drips' ? (
+              dripLogs.map((log, i) => (
+                <div key={i} className="stitch-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--success)' }} />
+                    <div style={{ fontSize: 14, color: 'var(--text)' }}>{log.message}</div>
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'monospace' }}>
+                    {new Date(log.timestamp).toLocaleTimeString()}
+                  </div>
+                </div>
+              ))
+            ) : (
+              schedules.map((s, i) => (
+                <div key={i} className="stitch-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ padding: 12, background: 'var(--surface)', borderRadius: 12, border: '1px solid var(--border)' }}>
+                      <Calendar size={20} color="var(--primary)" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>{s.service}</div>
+                      <div style={{ fontSize: 13, color: 'var(--text-3)' }}>{s.frequency.charAt(0).toUpperCase() + s.frequency.slice(1)} • {new Date(s.releaseAt).toLocaleDateString()}</div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 24, textAlign: 'right' }}>
+                    <div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>{s.amount} XLM</div>
+                      {s.inrAmount && <div style={{ fontSize: 12, color: 'var(--text-3)' }}>₹{s.inrAmount}</div>}
+                    </div>
+                    <a href={`https://testnet.stellarchain.io/transactions/${s.hash}`} target="_blank" rel="noreferrer" className="btn-icon" title="View on Explorer">
+                      <ExternalLink size={16} />
+                    </a>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

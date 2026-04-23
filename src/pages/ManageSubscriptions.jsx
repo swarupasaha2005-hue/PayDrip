@@ -4,32 +4,15 @@ import { useWallet } from '../hooks/useWallet';
 import { useApp } from '../hooks/useApp';
 import { useToast } from '../hooks/useToast';
 import { lockFundsOnChain } from '../utils/stellar';
-import { xlmToInr, inrToXlm, XLM_INR_RATE } from '../utils/formatters';
+import { xlmToInr, inrToXlm } from '../utils/formatters';
 import FeedbackModal from '../components/FeedbackModal';
-import { 
-  CreditCard, 
-  ArrowLeft, 
-  Loader2, 
-  Tv, 
-  Music, 
-  Home, 
-  BookOpen, 
-  CircleEllipsis,
-  AlertCircle
-} from 'lucide-react';
+import { CreditCard, ArrowLeft, Loader2, Tv, Music, Home, BookOpen, CircleEllipsis, Info } from 'lucide-react';
 
 const SERVICES = [
   { id: 'netflix', label: 'Netflix', icon: Tv, color: '#E50914' },
   { id: 'spotify', label: 'Spotify', icon: Music, color: '#1DB954' },
   { id: 'rent',    label: 'Rent',    icon: Home,  color: '#6366F1' },
-  { id: 'tuition', label: 'Tuition', icon: BookOpen, color: '#F59E0B' },
   { id: 'other',   label: 'Custom',  icon: CircleEllipsis, color: '#94A3B8' },
-];
-
-const FREQUENCIES = [
-  { id: 'one-time', label: 'One-time' },
-  { id: 'weekly',   label: 'Weekly' },
-  { id: 'monthly',  label: 'Monthly' },
 ];
 
 export default function ManageSubscriptions() {
@@ -44,6 +27,7 @@ export default function ManageSubscriptions() {
   const [amountXLM, setAmountXLM]             = useState('');
   const [amountINR, setAmountINR]             = useState('');
   const [frequency, setFrequency]             = useState('monthly');
+  const [source, setSource]                   = useState('Wallet');
   const [releaseAt, setReleaseAt]             = useState('');
   const [note, setNote]                       = useState('');
   const [isLocking, setIsLocking]             = useState(false);
@@ -53,7 +37,6 @@ export default function ManageSubscriptions() {
   const xlmValue = parseFloat(amountXLM || 0);
   const isInsufficient = xlmValue > walletBalance;
 
-  // Handle prefill from Smart Planner
   useEffect(() => {
     if (location.state?.prefill) {
       const p = location.state.prefill;
@@ -63,11 +46,10 @@ export default function ManageSubscriptions() {
       setAmountINR(p.inrAmount);
       setFrequency(p.frequency.toLowerCase());
       setNote(p.note);
-      
+      setSource('Intent Agent');
       const nextWeek = new Date();
       nextWeek.setDate(nextWeek.getDate() + 7);
       setReleaseAt(nextWeek.toISOString().split('T')[0]);
-      
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location, navigate]);
@@ -87,7 +69,7 @@ export default function ManageSubscriptions() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!address) { toast.error("Please connect your wallet first."); return; }
-    if (isInsufficient) { toast.error("Insufficient XLM balance."); return; }
+    if (source === 'Wallet' && isInsufficient) { toast.error("Insufficient XLM balance."); return; }
     if (!amountXLM || parseFloat(amountXLM) <= 0) { toast.error("Amount must be greater than 0 XLM."); return; }
     if (!releaseAt) { toast.error("Please specify a due date."); return; }
 
@@ -98,203 +80,169 @@ export default function ManageSubscriptions() {
 
     setIsLocking(true);
     try {
-      const response = await lockFundsOnChain(address, amountXLM, releaseTimestamp);
+      if (source === 'Wallet') {
+        const response = await lockFundsOnChain(address, amountXLM, releaseTimestamp);
+        await updateBalance(address);
+        setModal({ open:true, type:'success', message:`Successfully locked ${amountXLM} XLM for ${selectedService.label}.`, txHash: response.hash });
+      } else {
+        setModal({ open:true, type:'success', message:`Intent registered. Standing by for Vault/Agent execution.`, txHash: 'simulated_tx_' + Date.now() });
+      }
+      
       addSchedule({
         service: selectedService.id === 'other' ? customService : selectedService.label,
         amount: amountXLM,
         inrAmount: amountINR,
-        frequency: frequency,
+        frequency,
         releaseAt,
         note,
-        hash: response.hash
+        source,
+        hash: 'tx_' + Date.now()
       });
       
-      await updateBalance(address);
-      setModal({ open:true, type:'success', message:`Successfully locked ${amountXLM} XLM for ${selectedService.label}.`, txHash: response.hash });
     } catch (err) {
-      const errorMsg = err?.message || (typeof err === 'string' ? err : JSON.stringify(err)) || 'Failed to setup payment intent';
-      setModal({ open: true, type: 'error', message: errorMsg, txHash: '' });
+      setModal({ open: true, type: 'error', message: err.message || 'Failed processing request', txHash: '' });
     } finally {
       setIsLocking(false);
     }
   };
 
-  const handleSimulate = () => {
-    addSchedule({
-      service: selectedService.id === 'other' ? customService : selectedService.label,
-      amount: amountXLM,
-      inrAmount: amountINR,
-      frequency: frequency,
-      releaseAt,
-      note,
-      hash: 'simulated_tx_' + Date.now()
-    });
-    setModal({ open: false, type: 'success', message: '', txHash: '' });
-    toast.success('Simulation successful. Plan added.');
-    navigate('/dashboard');
-  };
-
-  const fieldStyle = {
-    padding:'16px 20px', borderRadius:'999px', border:'none',
-    background:'var(--bg)', fontSize:15, fontFamily:'Inter,sans-serif',
-    color:'var(--text)', outline:'none', width:'100%', transition:'all 0.4s',
-    boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.04)'
-  };
-
   return (
     <div className="spatial-spread fade-up">
-      <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:40, position:'relative', zIndex: 10 }}>
+      <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:24 }}>
         <button onClick={() => navigate(-1)} className="btn-icon"><ArrowLeft size={18} /></button>
         <div>
-          <h1 style={{ fontSize:28, fontWeight:800, letterSpacing:'-0.5px' }}>Construct Payment</h1>
-          <p style={{ color:'var(--text-2)', fontSize:14 }}>Secure funds for upcoming payments</p>
+          <h1 style={{ fontSize:32, fontWeight:700, margin:'0 0 4px', letterSpacing:'-0.5px' }}>Construct Payment</h1>
+          <p style={{ color:'var(--text-3)', fontSize:16 }}>Schedule and lock funds for upcoming drips.</p>
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 40, alignItems: 'flex-start' }}>
-        
-        {/* Abstract Configuration Panel */}
-        <div className="module" style={{ flex: '1 1 400px', padding: '48px', alignItems:'stretch', borderRadius: 32, background: 'linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01))', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', boxShadow: '0 0 40px rgba(255, 0, 255, 0.15)' }}>
-          {!address ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', opacity: 0.8 }}>
-              <div style={{ fontSize: 40, marginBottom: 16 }}>🔑</div>
-              <div style={{ fontWeight:700, color:'var(--text)' }}>Wallet not connected</div>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:28 }}>
-              
-              {/* Floating Service Clusters */}
-              <div>
-                <label style={{ fontSize: 13, fontWeight: 700, opacity: 0.6, marginBottom: 12, display: 'block', textTransform:'uppercase' }}>Select Service</label>
-                <div className="organic-cluster" style={{ padding: 0, justifyContent: 'flex-start', gap: 12 }}>
+      <div className="stitch-layout-grid">
+        <div style={{ gridColumn: 'span 8' }}>
+          <form onSubmit={handleSubmit} className="stitch-panel">
+            <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 24 }}>Payment Configuration</h3>
+            
+            {/* Service & Funding Row */}
+            <div className="stitch-layout-grid" style={{ marginBottom: 24, gap: 24 }}>
+              <div style={{ gridColumn: 'span 6' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Service Target</label>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {SERVICES.map(s => (
                     <div 
                       key={s.id}
                       onClick={() => setSelectedService(s)}
                       style={{
-                        padding: '12px 20px',
-                        borderRadius: '999px',
+                        padding: '10px 16px',
+                        borderRadius: '12px',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 10,
-                        background: selectedService.id === s.id ? `${s.color}15` : 'var(--bg)',
-                        color: selectedService.id === s.id ? s.color : 'var(--text-3)',
+                        gap: 8,
+                        background: selectedService.id === s.id ? 'var(--primary)' : 'var(--surface-2)',
+                        color: selectedService.id === s.id ? '#FFFFFF' : 'var(--text-2)',
                         cursor: 'pointer',
-                        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                        transform: selectedService.id === s.id ? 'scale(1.05)' : 'scale(1)',
-                        boxShadow: selectedService.id === s.id ? `0 8px 24px ${s.color}25` : 'none'
+                        fontWeight: 600,
+                        fontSize: 13,
+                        transition: 'all 0.2s'
                       }}
                     >
-                      <s.icon size={18} />
-                      <div style={{ fontSize:14, fontWeight:700 }}>{s.label}</div>
+                      <s.icon size={16} /> {s.label}
+                    </div>
+                  ))}
+                </div>
+                {selectedService.id === 'other' && (
+                  <input 
+                    value={customService} onChange={e => setCustomService(e.target.value)}
+                    placeholder="Enter service name..." className="stitch-input" style={{ marginTop: 12 }} required
+                  />
+                )}
+              </div>
+
+              <div style={{ gridColumn: 'span 6' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Funding Source</label>
+                <div style={{ display: 'flex', background: 'var(--surface-2)', borderRadius: 12, padding: 4 }}>
+                  {['Wallet', 'Vault', 'Intent Agent'].map(fs => (
+                    <div 
+                      key={fs} 
+                      onClick={() => setSource(fs)}
+                      style={{ 
+                        flex: 1, textAlign: 'center', padding: '10px', 
+                        borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                        background: source === fs ? 'var(--surface)' : 'transparent', 
+                        color: source === fs ? 'var(--text)' : 'var(--text-3)', transition: 'all 0.2s' 
+                      }}
+                    >
+                      {fs}
                     </div>
                   ))}
                 </div>
               </div>
+            </div>
 
-              {selectedService.id === 'other' && (
-                <div>
-                  <input 
-                    value={customService} onChange={e => setCustomService(e.target.value)}
-                    placeholder="e.g. Electric Node" style={fieldStyle} required
-                  />
-                </div>
-              )}
-
-              {/* Amount Fluid Inputs */}
-              <div>
-                <label style={{ fontSize: 13, fontWeight: 700, opacity: 0.6, marginBottom: 12, display: 'block', textTransform:'uppercase' }}>Amount</label>
-                <div style={{ display:'flex', flexWrap: 'wrap', gap:16 }}>
-                  <div style={{ flex: 1, position:'relative' }}>
-                    <input
-                      type="number" value={amountINR} onChange={e => handleInrChange(e.target.value)}
-                      placeholder="0.00" style={{...fieldStyle, paddingLeft: 40}}
-                    />
-                    <span style={{ position:'absolute', left:18, top:'50%', transform:'translateY(-50%)', fontWeight:800, color:'var(--text-3)' }}>₹</span>
-                  </div>
-                  <div style={{ flex: 1, position:'relative' }}>
-                    <input
-                      type="number" value={amountXLM} onChange={e => handleXLMChange(e.target.value)}
-                      placeholder="0.00" required style={{ ...fieldStyle, background: isInsufficient ? 'var(--error)' : 'var(--bg)', paddingRight: 50 }}
-                    />
-                    <span style={{ position:'absolute', right:20, top:'50%', transform:'translateY(-50%)', fontWeight:800, color:'var(--primary)' }}>XLM</span>
-                  </div>
-                </div>
-                {isInsufficient && (
-                  <p style={{ color:'var(--error-text)', fontSize:12, fontWeight:700, marginTop:12, marginLeft: 16 }}>
-                     ⚠️ Volume exceeds limits (Avail: {walletBalance.toFixed(2)} XLM)
-                  </p>
+            {/* Amounts */}
+            <div className="stitch-layout-grid" style={{ marginBottom: 24, gap: 24 }}>
+              <div style={{ gridColumn: 'span 6' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Amount INR (Optional)</label>
+                <input type="number" value={amountINR} onChange={e => handleInrChange(e.target.value)} placeholder="0.00" className="stitch-input" />
+              </div>
+              <div style={{ gridColumn: 'span 6' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Amount XLM</label>
+                <input type="number" value={amountXLM} onChange={e => handleXLMChange(e.target.value)} placeholder="0.00" required className="stitch-input" style={{ borderColor: isInsufficient && source==='Wallet' ? 'var(--error)' : 'var(--border)' }} />
+                {isInsufficient && source === 'Wallet' && (
+                  <p style={{ color:'var(--error-text)', fontSize:12, marginTop:8 }}>Insufficient Wallet Balance</p>
                 )}
               </div>
+            </div>
 
-              <div style={{ display:'flex', flexWrap: 'wrap', gap:16 }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: 11, fontWeight: 700, opacity: 0.6, marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Frequency</label>
-                  <select value={frequency} onChange={e => setFrequency(e.target.value)} style={fieldStyle}>
-                    {FREQUENCIES.map(f => <option key={f.id} value={f.id}>{f.label}</option>)}
-                  </select>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: 11, fontWeight: 700, opacity: 0.6, marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Due Date</label>
-                  <input
-                    type="date" value={releaseAt} onChange={e => setReleaseAt(e.target.value)}
-                    required style={fieldStyle} min={new Date().toISOString().split('T')[0]}
-                  />
-                </div>
+            {/* Schedule */}
+            <div className="stitch-layout-grid" style={{ marginBottom: 24, gap: 24 }}>
+              <div style={{ gridColumn: 'span 6' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Frequency</label>
+                <select value={frequency} onChange={e => setFrequency(e.target.value)} className="stitch-input" style={{ cursor: 'pointer' }}>
+                  <option value="one-time">One-time</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
               </div>
-
-              <div>
-                <input
-                  value={note} onChange={e => setNote(e.target.value)}
-                  placeholder="Note (Optional)" maxLength={40} style={{...fieldStyle, background: 'transparent', borderBottom: '2px solid rgba(255,255,255,0.4)', borderRadius: 0, boxShadow: 'none', paddingLeft: 4}}
-                />
+              <div style={{ gridColumn: 'span 6' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Lock Release Date</label>
+                <input type="date" value={releaseAt} onChange={e => setReleaseAt(e.target.value)} required className="stitch-input" min={new Date().toISOString().split('T')[0]} />
               </div>
+            </div>
 
-              <button
-                type="submit" disabled={isLocking || isInsufficient}
-                className="btn-primary"
-                style={{ 
-                  padding:'20px 32px', fontSize:16, border:'none',
-                  borderRadius:'999px', marginTop:24, width: '100%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
-                  boxShadow: '0 20px 48px rgba(139,92,246,0.25)' 
-                }}
-              >
-                {isLocking
-                  ? <><Loader2 size={20} className="spinning" /> Channeling Funds…</>
-                  : <><CreditCard size={20} /> Setup Payment</>
-                }
-              </button>
-            </form>
-          )}
+            {/* Note */}
+            <div style={{ marginBottom: 32 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Description Note</label>
+              <input value={note} onChange={e => setNote(e.target.value)} placeholder="Brief description..." maxLength={40} className="stitch-input" />
+            </div>
+
+            <button type="submit" disabled={isLocking || (source==='Wallet' && isInsufficient)} className="btn btn-primary" style={{ width: '100%', padding: '16px' }}>
+              {isLocking ? <><Loader2 size={18} className="spinning" /> Processing...</> : <><CreditCard size={18} /> Schedule Payment</>}
+            </button>
+          </form>
         </div>
 
-        {/* Educational Module */}
-        <div className="module" style={{ flex: '1 1 300px', background: 'linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01))', color: 'white', borderRadius: 32, border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', boxShadow: '0 0 40px rgba(255, 0, 255, 0.15)', padding: '40px' }}>
-          <div style={{ fontSize:13, fontWeight:800, letterSpacing:1, marginBottom:24, display:'flex', alignItems:'center', gap:10, opacity: 0.9 }}>
-            <AlertCircle size={18} /> HOW IT WORKS
-          </div>
-          <p style={{ fontSize:15, lineHeight:1.6, marginBottom:24, opacity: 0.9 }}>
-            PayDrip secures your budget. We time-lock funds so you don't accidentally spend money meant for bills.
-          </p>
-          <div style={{ display:'flex', flexDirection:'column', gap:16, opacity: 0.8 }}>
-            {[
-              'Set aside funds strictly for a specific bill',
-              'The required XLM is securely escrowed on the Stellar blockchain',
-              'Funds are automatically unlocked on the due date'
-            ].map((t, i) => (
-              <div key={i} style={{ fontSize:13, display:'flex', gap:12, alignItems: 'flex-start' }}>
-                <div style={{ background: 'rgba(255,255,255,0.2)', width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent:'center', flexShrink: 0, fontWeight: 700, fontSize: 10 }}>{i+1}</div>
-                <div style={{ paddingTop: 3 }}>{t}</div>
-              </div>
-            ))}
+        <div style={{ gridColumn: 'span 4' }}>
+          <div className="stitch-panel" style={{ height: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+              <Info size={18} color="var(--primary)" />
+              <h3 style={{ fontSize: 16, fontWeight: 600 }}>Payment Drips</h3>
+            </div>
+            <p style={{ color: 'var(--text-2)', fontSize: 14, lineHeight: 1.6, marginBottom: 24 }}>
+              By scheduling a Smart Drip, you are actively time-locking liquidity. This guarantees that your required funds are natively escrowed and perfectly timed for their release date without manual intervention.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {['Guaranteed execution', 'Immutable time-locks', 'On-chain security'].map((t, i) => (
+                <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <div style={{ background: 'var(--surface-2)', width: 24, height: 24, borderRadius: 8, display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700 }}>{i+1}</div>
+                  <span style={{ fontSize: 14 }}>{t}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       <FeedbackModal
         isOpen={modal.open} type={modal.type} message={modal.message} txHash={modal.txHash}
-        onSimulate={modal.type === 'error' ? handleSimulate : undefined}
         onClose={() => { setModal(m => ({ ...m, open:false })); if (modal.type==='success') navigate('/dashboard'); }}
       />
     </div>
