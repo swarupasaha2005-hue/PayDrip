@@ -10,21 +10,25 @@ import ContractView from './pages/ContractView';
 import Vault from './pages/Vault';
 import Metrics from './pages/Metrics';
 
+import { StarsBackground } from './components/ui/stars';
+
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Onboarding />} />
-      <Route element={<Layout />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/subscriptions" element={<ManageSubscriptions />} />
-        <Route path="/planner" element={<SmartPlanner />} />
-        <Route path="/vault" element={<Vault />} />
-        <Route path="/activity" element={<Activity />} />
-        <Route path="/metrics" element={<Metrics />} />
-        <Route path="/contract-view" element={<ContractView />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <StarsBackground className="min-h-screen">
+      <Routes>
+        <Route path="/" element={<Onboarding />} />
+        <Route element={<Layout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/subscriptions" element={<ManageSubscriptions />} />
+          <Route path="/planner" element={<SmartPlanner />} />
+          <Route path="/vault" element={<Vault />} />
+          <Route path="/activity" element={<Activity />} />
+          <Route path="/metrics" element={<Metrics />} />
+          <Route path="/contract-view" element={<ContractView />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </StarsBackground>
   );
 }
 

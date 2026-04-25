@@ -31,11 +31,6 @@ export default function Onboarding() {
   if (step === 1) {
     return (
       <>
-        <div className="blob-container">
-          <div className="blob blob-1"></div>
-          <div className="blob blob-2"></div>
-          <div className="blob blob-3"></div>
-        </div>
         <div style={{ minHeight:'100vh', background:'transparent', display:'flex', alignItems:'center', justifyContent:'center', padding:32, position: 'relative', zIndex: 10 }}>
           <div className="fade-up" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:64, maxWidth:960, width:'100%', alignItems:'center' }}>
           <div>
@@ -83,11 +78,6 @@ export default function Onboarding() {
 
   return (
     <>
-      <div className="blob-container">
-        <div className="blob blob-1"></div>
-        <div className="blob blob-2"></div>
-        <div className="blob blob-3"></div>
-      </div>
       <div style={{ minHeight:'100vh', background:'transparent', display:'flex', alignItems:'center', justifyContent:'center', padding:32, position: 'relative', zIndex: 10 }}>
         <div className="card-glass fade-up" style={{ maxWidth:440, width:'100%', padding:40, textAlign:'center' }}>
         <div style={{ margin:'0 auto 24px', width:56, height:56, borderRadius:'50%', background:'var(--surface-2)', display:'flex', alignItems:'center', justifyContent:'center' }}>

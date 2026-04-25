@@ -6,13 +6,6 @@ import NotificationPanel from './NotificationPanel';
 export default function Layout() {
   return (
     <>
-      {/* Background Liquids */}
-      <div className="blob-container">
-        <div className="blob blob-1"></div>
-        <div className="blob blob-2"></div>
-        <div className="blob blob-3"></div>
-      </div>
-
       {/* Main Glass App Overlay */}
       <div className="app-layout">
         <Sidebar />
