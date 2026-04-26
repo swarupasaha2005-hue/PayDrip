@@ -4,10 +4,10 @@ import { useUser } from '../hooks/useUser';
 const ThemeContext = createContext();
 
 const GENDER_ACCENTS = {
-  female: { '--primary': '#EC4899', '--primary-dark': '#BE185D', '--accent': '#FBCFE8' },
-  male:   { '--primary': '#3B82F6', '--primary-dark': '#1D4ED8', '--accent': '#BFDBFE' },
-  other:  { '--primary': '#10B981', '--primary-dark': '#047857', '--accent': '#A7F3D0' },
-  default:{ '--primary': '#8B5CF6', '--primary-dark': '#6D28D9', '--accent': '#DDD6FE' }
+  female: { '--primary': '#EC4899', '--primary-rgb': '236, 72, 153', '--primary-dark': '#BE185D', '--accent': '#FBCFE8' },
+  male:   { '--primary': '#3B82F6', '--primary-rgb': '59, 130, 246', '--primary-dark': '#1D4ED8', '--accent': '#BFDBFE' },
+  other:  { '--primary': '#10B981', '--primary-rgb': '16, 185, 129', '--primary-dark': '#047857', '--accent': '#A7F3D0' },
+  default:{ '--primary': '#8B5CF6', '--primary-rgb': '139, 92, 246', '--primary-dark': '#6D28D9', '--accent': '#DDD6FE' }
 };
 
 const MODE_VARS = {

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { connectWallet, fetchBalance, fetchLockedAmount } from '../utils/stellar';
 import { WalletContext } from './ContextObjects';
+import { useLoading } from '../hooks/useLoading';
 
 export function WalletProvider({ children }) {
+  const { startLoading, stopLoading, withLoading } = useLoading();
   const [address, setAddress]         = useState(() => localStorage.getItem('pd_wallet') || null);
   const [provider, setProvider]       = useState(() => localStorage.getItem('pd_wallet_provider') || 'freighter');
   const [balance, setBalance]         = useState('0');
@@ -15,19 +17,20 @@ export function WalletProvider({ children }) {
     
     // Fetch primary XLM balance
     try {
-      const bal = await fetchBalance(pubKey);
-      setBalance(bal);
-    } catch (err) {
-      console.error('Fetch base balance error', err);
-    }
+      await withLoading(async () => {
+        const bal = await fetchBalance(pubKey);
+        setBalance(bal);
 
-    // Fetch contract-specific data in background
-    Promise.all([
-      fetchLockedAmount(pubKey).catch(e => { console.error('Fetch locked error', e); return '0'; })
-    ]).then(([locked]) => {
-      setLockedBalance(locked);
-    });
-  }, []);
+        // Fetch contract-specific data in background
+        const [locked] = await Promise.all([
+          fetchLockedAmount(pubKey).catch(e => { console.error('Fetch locked error', e); return '0'; })
+        ]);
+        setLockedBalance(locked);
+      });
+    } catch (err) {
+      console.error('Fetch balance error', err);
+    }
+  }, [withLoading]);
 
   // Hydrate balance when address loads
   useEffect(() => {
@@ -52,15 +55,17 @@ export function WalletProvider({ children }) {
       // Simulate real connection for albedo / walletconnect logic.
       // If selectedProvider is 'freighter', use actual stellar helper, else simulate an address.
       let pubKey;
-      if (selectedProvider === 'freighter') {
-         pubKey = await connectWallet();
-      } else if (selectedProvider === 'albedo') {
-         await new Promise(r => setTimeout(r, 1000));
-         pubKey = 'G...' + Math.random().toString(36).substring(2, 10).toUpperCase();
-      } else if (selectedProvider === 'walletconnect') {
-         await new Promise(r => setTimeout(r, 1200));
-         pubKey = 'G...' + Math.random().toString(36).substring(2, 10).toUpperCase();
-      }
+      await withLoading(async () => {
+        if (selectedProvider === 'freighter') {
+           pubKey = await connectWallet();
+        } else if (selectedProvider === 'albedo') {
+           await new Promise(r => setTimeout(r, 1000));
+           pubKey = 'G...' + Math.random().toString(36).substring(2, 10).toUpperCase();
+        } else if (selectedProvider === 'walletconnect') {
+           await new Promise(r => setTimeout(r, 1200));
+           pubKey = 'G...' + Math.random().toString(36).substring(2, 10).toUpperCase();
+        }
+      });
       
       setProvider(selectedProvider);
       setAddress(pubKey);

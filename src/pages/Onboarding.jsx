@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
-import { Droplets, ShieldCheck, Zap, Globe, User, Check, Sparkles } from 'lucide-react';
+import { Droplets, ShieldCheck, Zap, Globe, User, Check, Sparkles, UserCircle } from 'lucide-react';
 
 const features = [
   { icon: ShieldCheck, title: 'Self-custodial', sub: 'Your keys, your funds via Freighter', color: '#B8A8FF' },
@@ -9,30 +9,22 @@ const features = [
   { icon: Globe,       title: 'Schedule Payments', sub: 'Lock and release funds by date', color: '#F8BBD0' },
 ];
 
-const GENDERS = [
-  { id: 'female', label: 'Female' },
-  { id: 'male',   label: 'Male' },
-  { id: 'other',  label: 'Others' }
-];
-
 export default function Onboarding() {
   const navigate = useNavigate();
   const { name, setName, gender, setGender } = useUser();
   const [step, setStep] = useState(1);
 
-  const canContinue = name.trim().length > 0 && gender;
-
-  const fieldStyle = {
-    padding:'16px 20px', borderRadius:14, border:'2px solid var(--border)',
-    background:'var(--surface)', fontSize:16, fontFamily:'Inter,sans-serif',
-    color:'var(--text)', outline:'none', width:'100%', transition:'border-color 0.2s',
+  const handleFinish = (e) => {
+    e.preventDefault();
+    if (name.trim() && gender) {
+      navigate('/dashboard');
+    }
   };
 
   if (step === 1) {
     return (
-      <>
-        <div style={{ minHeight:'100vh', background:'transparent', display:'flex', alignItems:'center', justifyContent:'center', padding:32, position: 'relative', zIndex: 10 }}>
-          <div className="fade-up" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:64, maxWidth:960, width:'100%', alignItems:'center' }}>
+      <div style={{ minHeight:'100vh', background:'transparent', display:'flex', alignItems:'center', justifyContent:'center', padding:32, position: 'relative', zIndex: 10 }}>
+        <div className="fade-up" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:64, maxWidth:960, width:'100%', alignItems:'center' }}>
           <div>
             <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:32 }}>
               <div style={{ width:44, height:44, borderRadius:14, background:'var(--logo-grad)', display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -72,61 +64,211 @@ export default function Onboarding() {
           </div>
         </div>
       </div>
-      </>
     );
   }
 
   return (
-    <>
-      <div style={{ minHeight:'100vh', background:'transparent', display:'flex', alignItems:'center', justifyContent:'center', padding:32, position: 'relative', zIndex: 10 }}>
-        <div className="card-glass fade-up" style={{ maxWidth:440, width:'100%', padding:40, textAlign:'center' }}>
-        <div style={{ margin:'0 auto 24px', width:56, height:56, borderRadius:'50%', background:'var(--surface-2)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-          <User size={24} color="var(--primary)" />
-        </div>
-        <h2 style={{ fontSize:26, fontWeight:800, marginBottom:8 }}>Setup Profile</h2>
-        <p style={{ color:'var(--text-2)', fontSize:14, marginBottom:32 }}>Tailor your dashboard experience.</p>
-
-        <div style={{ textAlign:'left', marginBottom:28 }}>
-          <label style={{ fontSize:12, fontWeight:700, color:'var(--text-2)', opacity:0.6, marginBottom:8, display:'block', textTransform:'uppercase', letterSpacing:0.5 }}>Display Name</label>
+    <div className="onboarding-container fade-up">
+      <form className="form" onSubmit={handleFinish}>
+        <p id="heading">Initialize Identity</p>
+        
+        <div className="field">
+          <User className="input-icon" />
           <input 
-            value={name} onChange={e => setName(e.target.value)} 
-            placeholder="e.g. Alex" style={fieldStyle}
+            autoComplete="off" 
+            placeholder="Legal Name" 
+            className="input-field" 
+            type="text" 
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
           />
         </div>
 
-        <div style={{ textAlign:'left', marginBottom:36 }}>
-          <label style={{ fontSize:12, fontWeight:700, color:'var(--text-2)', opacity:0.6, marginBottom:12, display:'block', textTransform:'uppercase', letterSpacing:0.5 }}>UI Aesthetics</label>
-          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-            {GENDERS.map(g => (
-              <div 
-                key={g.id} 
-                onClick={() => setGender(g.id)}
-                className={`card-glass ${gender === g.id ? 'active-theme' : ''}`}
-                style={{ 
-                  display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px 20px', cursor:'pointer',
-                  border: gender === g.id ? '2px solid var(--primary)' : '1px solid var(--border)',
-                  background: gender === g.id ? 'var(--surface)' : 'transparent',
-                  transition: 'all 0.2s', borderRadius:14
-                }}
-              >
-                <div style={{ fontWeight:700, fontSize:15, color:'var(--text)' }}>{g.label}</div>
-                {gender === g.id && <Check size={18} color="var(--primary)" />}
-              </div>
-            ))}
+        <div style={{ marginTop: '20px' }}>
+          <p style={{ color: 'white', fontSize: '13px', textAlign: 'center', marginBottom: '15px', opacity: 0.7 }}>SELECT GENDER</p>
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+            <button 
+              type="button"
+              className="button1" 
+              style={{ background: gender === 'male' ? 'var(--primary)' : '#252525', border: gender === 'male' ? '1px solid white' : 'none' }}
+              onClick={() => setGender('male')}
+            >
+              Male
+            </button>
+            <button 
+              type="button"
+              className="button2" 
+              style={{ background: gender === 'female' ? 'var(--primary)' : '#252525', border: gender === 'female' ? '1px solid white' : 'none' }}
+              onClick={() => setGender('female')}
+            >
+              Female
+            </button>
           </div>
         </div>
 
         <button 
-          onClick={() => navigate('/dashboard')}
-          disabled={!canContinue}
-          className="btn btn-primary"
-          style={{ width:'100%', padding:'18px', fontSize:15, borderRadius:16, opacity: canContinue ? 1 : 0.5 }}
+          type="button"
+          className="button3" 
+          style={{ 
+            marginTop: '15px',
+            background: gender === 'other' ? 'var(--primary)' : '#252525', 
+            border: gender === 'other' ? '1px solid white' : 'none',
+            marginBottom: '10px'
+          }}
+          onClick={() => setGender('other')}
         >
-          Explore Dashboard <Sparkles size={14} style={{ marginLeft:6 }} />
+          Non-Binary / Others
         </button>
-      </div>
+
+        <div className="btn">
+          <button 
+            type="submit" 
+            className="button2" 
+            style={{ width: '100%', padding: '12px', background: 'var(--primary)', color: 'white', opacity: (name.trim() && gender) ? 1 : 0.5 }}
+            disabled={!name.trim() || !gender}
+          >
+            Finalize Profile
+          </button>
+        </div>
+      </form>
+
+      <style jsx="true">{`
+        .onboarding-container {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          background: transparent;
+          position: relative;
+          z-index: 10;
+        }
+
+        /* From Uiverse.io by Praashoo7 */ 
+        .form {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          padding-left: 2em;
+          padding-right: 2em;
+          padding-bottom: 2em;
+          background-color: #171717;
+          border-radius: 25px;
+          transition: .4s ease-in-out;
+          width: 1000px;
+          max-width: 400px;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+          border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .form:hover {
+          transform: scale(1.02);
+          border-color: var(--primary);
+        }
+
+        #heading {
+          text-align: center;
+          margin: 2em;
+          color: rgb(255, 255, 255);
+          font-size: 1.5em;
+          font-weight: 700;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+        }
+
+        .field {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.8em;
+          border-radius: 25px;
+          padding: 1em;
+          border: none;
+          outline: none;
+          color: white;
+          background-color: #171717;
+          box-shadow: inset 2px 5px 10px rgb(5, 5, 5);
+          border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .input-icon {
+          height: 1.3em;
+          width: 1.3em;
+          color: var(--primary);
+        }
+
+        .input-field {
+          background: none;
+          border: none;
+          outline: none;
+          width: 100%;
+          color: #d3d3d3;
+          font-family: inherit;
+        }
+
+        .form .btn {
+          display: flex;
+          justify-content: center;
+          flex-direction: row;
+          margin-top: 1em;
+        }
+
+        .button1, .button2, .button3 {
+          font-family: inherit;
+          cursor: pointer;
+        }
+
+        .button1 {
+          padding: 0.8em;
+          padding-left: 1.5em;
+          padding-right: 1.5em;
+          border-radius: 12px;
+          border: none;
+          outline: none;
+          transition: .4s ease-in-out;
+          background-color: #252525;
+          color: white;
+        }
+
+        .button1:hover {
+          background-color: black;
+          color: var(--primary);
+        }
+
+        .button2 {
+          padding: 0.8em;
+          padding-left: 1.5em;
+          padding-right: 1.5em;
+          border-radius: 12px;
+          border: none;
+          outline: none;
+          transition: .4s ease-in-out;
+          background-color: #252525;
+          color: white;
+        }
+
+        .button2:hover {
+          background-color: black;
+          color: var(--primary);
+        }
+
+        .button3 {
+          padding: 0.8em;
+          border-radius: 12px;
+          border: none;
+          outline: none;
+          transition: .4s ease-in-out;
+          background-color: #252525;
+          color: white;
+          width: 100%;
+        }
+
+        .button3:hover {
+          background-color: #2e2e2e;
+          border-color: var(--primary);
+        }
+      `}</style>
     </div>
-    </>
   );
 }
-

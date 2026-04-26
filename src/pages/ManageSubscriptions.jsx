@@ -6,7 +6,7 @@ import { useToast } from '../hooks/useToast';
 import { lockFundsOnChain } from '../utils/stellar';
 import { xlmToInr, inrToXlm } from '../utils/formatters';
 import FeedbackModal from '../components/FeedbackModal';
-import { CreditCard, ArrowLeft, Loader2, Tv, Music, Home, BookOpen, CircleEllipsis, Info } from 'lucide-react';
+import { CreditCard, ArrowLeft, Loader2, Tv, Music, Home, BookOpen, CircleEllipsis, Info, Zap, Wallet, Landmark } from 'lucide-react';
 
 const SERVICES = [
   { id: 'netflix', label: 'Netflix', icon: Tv, color: '#E50914' },
@@ -40,7 +40,7 @@ export default function ManageSubscriptions() {
   useEffect(() => {
     if (location.state?.prefill) {
       const p = location.state.prefill;
-      setSelectedService(SERVICES.find(s => s.id === 'other'));
+      setSelectedService(SERVICES.find(s => s.id === 'other') || SERVICES[0]);
       setCustomService(p.service);
       setAmountXLM(p.amount);
       setAmountINR(p.inrAmount);
@@ -108,7 +108,7 @@ export default function ManageSubscriptions() {
 
   return (
     <div className="spatial-spread fade-up">
-      <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:24 }}>
+      <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:32 }}>
         <button onClick={() => navigate(-1)} className="btn-icon"><ArrowLeft size={18} /></button>
         <div>
           <h1 style={{ fontSize:32, fontWeight:700, margin:'0 0 4px', letterSpacing:'-0.5px' }}>Construct Payment</h1>
@@ -118,124 +118,190 @@ export default function ManageSubscriptions() {
 
       <div className="stitch-layout-grid">
         <div style={{ gridColumn: 'span 8' }}>
-          <form onSubmit={handleSubmit} className="stitch-panel">
-            <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 24 }}>Payment Configuration</h3>
+          <form onSubmit={handleSubmit} className="pd-card-v2" style={{ borderTop: '4px solid var(--primary)' }}>
+            <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 32, letterSpacing: '-0.5px' }}>Payment Configuration</h3>
             
-            {/* Service & Funding Row */}
-            <div className="stitch-layout-grid" style={{ marginBottom: 24, gap: 24 }}>
-              <div style={{ gridColumn: 'span 6' }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Service Target</label>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  {SERVICES.map(s => (
+            {/* Service Target - Custom Row */}
+            <div style={{ marginBottom: 32 }}>
+              <label className="pd-field-label">Service Target</label>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
+                {SERVICES.map(s => {
+                  const Icon = s.icon;
+                  const isSelected = selectedService.id === s.id;
+                  return (
                     <div 
                       key={s.id}
                       onClick={() => setSelectedService(s)}
                       style={{
-                        padding: '10px 16px',
-                        borderRadius: '12px',
+                        padding: '12px 20px',
+                        borderRadius: '20px',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 8,
-                        background: selectedService.id === s.id ? 'var(--primary)' : 'var(--surface-2)',
-                        color: selectedService.id === s.id ? '#FFFFFF' : 'var(--text-2)',
+                        gap: 10,
+                        background: isSelected ? 'var(--primary)' : 'var(--surface-2)',
+                        color: isSelected ? '#FFFFFF' : 'var(--text-2)',
                         cursor: 'pointer',
                         fontWeight: 600,
-                        fontSize: 13,
-                        transition: 'all 0.2s'
+                        fontSize: 14,
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        boxShadow: isSelected ? '0 4px 12px rgba(var(--primary-rgb), 0.3)' : 'none',
+                        border: '1px solid transparent',
+                        borderColor: isSelected ? 'var(--primary-dark)' : 'var(--border)'
                       }}
                     >
-                      <s.icon size={16} /> {s.label}
+                      <Icon size={18} /> {s.label}
                     </div>
-                  ))}
-                </div>
-                {selectedService.id === 'other' && (
+                  );
+                })}
+              </div>
+              {selectedService.id === 'other' && (
+                <div className="pd-field" style={{ marginTop: 16 }}>
                   <input 
                     value={customService} onChange={e => setCustomService(e.target.value)}
-                    placeholder="Enter service name..." className="stitch-input" style={{ marginTop: 12 }} required
+                    placeholder="Enter service name..." className="pd-input" required
                   />
+                </div>
+              )}
+            </div>
+
+            {/* Funding Source - Segmented Control */}
+            <div style={{ marginBottom: 32 }}>
+              <label className="pd-field-label">Funding Source</label>
+              <div style={{ 
+                display: 'flex', 
+                background: 'var(--surface-2)', 
+                borderRadius: '24px', 
+                padding: '6px', 
+                marginTop: 12,
+                boxShadow: 'inset 1px 2px 5px rgba(0,0,0,0.1)'
+              }}>
+                {[
+                  { id: 'Wallet', icon: Wallet },
+                  { id: 'Vault', icon: Landmark },
+                  { id: 'Intent Agent', icon: Zap }
+                ].map(fs => (
+                  <div 
+                    key={fs.id} 
+                    onClick={() => setSource(fs.id)}
+                    style={{ 
+                      flex: 1, 
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      padding: '12px', 
+                      borderRadius: '18px', 
+                      cursor: 'pointer', 
+                      fontSize: 13, 
+                      fontWeight: 700,
+                      background: source === fs.id ? 'var(--surface)' : 'transparent', 
+                      color: source === fs.id ? 'var(--primary)' : 'var(--text-3)', 
+                      transition: 'all 0.2s ease',
+                      boxShadow: source === fs.id ? '0 2px 8px rgba(0,0,0,0.1)' : 'none'
+                    }}
+                  >
+                    <fs.icon size={14} /> {fs.id}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Double Field Row: Amounts */}
+            <div className="stitch-layout-grid" style={{ marginBottom: 32, gap: 24 }}>
+              <div style={{ gridColumn: 'span 6' }} className="pd-field-container">
+                <label className="pd-field-label">Amount INR (Optional)</label>
+                <div className="pd-field">
+                  <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-3)' }}>₹</span>
+                  <input type="number" value={amountINR} onChange={e => handleInrChange(e.target.value)} placeholder="0.00" className="pd-input" />
+                </div>
+              </div>
+              <div style={{ gridColumn: 'span 6' }} className="pd-field-container">
+                <label className="pd-field-label">Amount XLM</label>
+                <div className="pd-field" style={{ borderColor: isInsufficient && source==='Wallet' ? 'var(--error)' : 'var(--border)' }}>
+                  <input type="number" value={amountXLM} onChange={e => handleXLMChange(e.target.value)} placeholder="0.00" required className="pd-input" />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>XLM</span>
+                </div>
+                {isInsufficient && source === 'Wallet' && (
+                  <p style={{ color:'var(--error-text)', fontSize:11, paddingLeft: 12 }}>Insufficient Balance</p>
                 )}
               </div>
+            </div>
 
-              <div style={{ gridColumn: 'span 6' }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Funding Source</label>
-                <div style={{ display: 'flex', background: 'var(--surface-2)', borderRadius: 12, padding: 4 }}>
-                  {['Wallet', 'Vault', 'Intent Agent'].map(fs => (
-                    <div 
-                      key={fs} 
-                      onClick={() => setSource(fs)}
-                      style={{ 
-                        flex: 1, textAlign: 'center', padding: '10px', 
-                        borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600,
-                        background: source === fs ? 'var(--surface)' : 'transparent', 
-                        color: source === fs ? 'var(--text)' : 'var(--text-3)', transition: 'all 0.2s' 
-                      }}
-                    >
-                      {fs}
-                    </div>
-                  ))}
+            {/* Double Field Row: Schedule */}
+            <div className="stitch-layout-grid" style={{ marginBottom: 32, gap: 24 }}>
+              <div style={{ gridColumn: 'span 6' }} className="pd-field-container">
+                <label className="pd-field-label">Frequency</label>
+                <div className="pd-field">
+                  <select value={frequency} onChange={e => setFrequency(e.target.value)} className="pd-input" style={{ appearance: 'none', cursor: 'pointer' }}>
+                    <option value="one-time">One-time</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+              </div>
+              <div style={{ gridColumn: 'span 6' }} className="pd-field-container">
+                <label className="pd-field-label">Lock Release Date</label>
+                <div className="pd-field">
+                  <input type="date" value={releaseAt} onChange={e => setReleaseAt(e.target.value)} required className="pd-input" min={new Date().toISOString().split('T')[0]} />
                 </div>
               </div>
             </div>
 
-            {/* Amounts */}
-            <div className="stitch-layout-grid" style={{ marginBottom: 24, gap: 24 }}>
-              <div style={{ gridColumn: 'span 6' }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Amount INR (Optional)</label>
-                <input type="number" value={amountINR} onChange={e => handleInrChange(e.target.value)} placeholder="0.00" className="stitch-input" />
-              </div>
-              <div style={{ gridColumn: 'span 6' }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Amount XLM</label>
-                <input type="number" value={amountXLM} onChange={e => handleXLMChange(e.target.value)} placeholder="0.00" required className="stitch-input" style={{ borderColor: isInsufficient && source==='Wallet' ? 'var(--error)' : 'var(--border)' }} />
-                {isInsufficient && source === 'Wallet' && (
-                  <p style={{ color:'var(--error-text)', fontSize:12, marginTop:8 }}>Insufficient Wallet Balance</p>
-                )}
+            {/* Note Field */}
+            <div className="pd-field-container" style={{ marginBottom: 40 }}>
+              <label className="pd-field-label">Description Note</label>
+              <div className="pd-field">
+                <input value={note} onChange={e => setNote(e.target.value)} placeholder="Brief description..." maxLength={40} className="pd-input" />
               </div>
             </div>
 
-            {/* Schedule */}
-            <div className="stitch-layout-grid" style={{ marginBottom: 24, gap: 24 }}>
-              <div style={{ gridColumn: 'span 6' }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Frequency</label>
-                <select value={frequency} onChange={e => setFrequency(e.target.value)} className="stitch-input" style={{ cursor: 'pointer' }}>
-                  <option value="one-time">One-time</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
-                </select>
-              </div>
-              <div style={{ gridColumn: 'span 6' }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Lock Release Date</label>
-                <input type="date" value={releaseAt} onChange={e => setReleaseAt(e.target.value)} required className="stitch-input" min={new Date().toISOString().split('T')[0]} />
-              </div>
-            </div>
-
-            {/* Note */}
-            <div style={{ marginBottom: 32 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, display: 'block', textTransform:'uppercase' }}>Description Note</label>
-              <input value={note} onChange={e => setNote(e.target.value)} placeholder="Brief description..." maxLength={40} className="stitch-input" />
-            </div>
-
-            <button type="submit" disabled={isLocking || (source==='Wallet' && isInsufficient)} className="btn btn-primary" style={{ width: '100%', padding: '16px' }}>
-              {isLocking ? <><Loader2 size={18} className="spinning" /> Processing...</> : <><CreditCard size={18} /> Schedule Payment</>}
+            <button type="submit" disabled={isLocking || (source==='Wallet' && isInsufficient)} className="pd-btn pd-btn-primary" style={{ width: '100%', padding: '18px', borderRadius: '22px' }}>
+              {isLocking ? <><Loader2 size={18} className="spinning" /> Processing Intent...</> : <><CreditCard size={18} /> Authorize & Secure Funds</>}
             </button>
           </form>
         </div>
 
         <div style={{ gridColumn: 'span 4' }}>
-          <div className="stitch-panel" style={{ height: '100%' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-              <Info size={18} color="var(--primary)" />
-              <h3 style={{ fontSize: 16, fontWeight: 600 }}>Payment Drips</h3>
+          <div className="pd-card-v2" style={{ height: '100%', background: 'linear-gradient(135deg, var(--surface) 0%, var(--surface-2) 100%)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
+              <div style={{ background: 'var(--primary-dark)', padding: '8px', borderRadius: '12px' }}>
+                <Info size={20} color="white" />
+              </div>
+              <h3 style={{ fontSize: 18, fontWeight: 700 }}>Telemetry Insights</h3>
             </div>
-            <p style={{ color: 'var(--text-2)', fontSize: 14, lineHeight: 1.6, marginBottom: 24 }}>
-              By scheduling a Smart Drip, you are actively time-locking liquidity. This guarantees that your required funds are natively escrowed and perfectly timed for their release date without manual intervention.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {['Guaranteed execution', 'Immutable time-locks', 'On-chain security'].map((t, i) => (
-                <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                  <div style={{ background: 'var(--surface-2)', width: 24, height: 24, borderRadius: 8, display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700 }}>{i+1}</div>
-                  <span style={{ fontSize: 14 }}>{t}</span>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              <p style={{ color: 'var(--text-2)', fontSize: 14, lineHeight: 1.7 }}>
+                By scheduling a Smart Drip, you are actively time-locking liquidity. This guarantees that your required funds are natively escrowed.
+              </p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {[
+                  { t: 'Guaranteed execution', d: 'Deterministic on-chain triggers' },
+                  { t: 'Immutable time-locks', d: 'Enhanced security layers' },
+                  { t: 'Atomic Settlements', d: 'Trustless value transfer' }
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                    <div style={{ background: 'var(--surface)', width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, border: '1px solid var(--border)', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                      {i+1}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>{item.t}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{item.d}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ marginTop: 'auto', padding: '20px', borderRadius: '18px', background: 'rgba(var(--primary-rgb), 0.05)', border: '1px dashed var(--primary)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <Landmark size={14} color="var(--primary)" />
+                  <span style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', color: 'var(--primary)' }}>Vault Status</span>
                 </div>
-              ))}
+                <div style={{ fontSize: 13, color: 'var(--text-2)' }}>
+                  Signer Threshold: <span style={{ fontWeight: 700, color: 'var(--text)' }}>Verified</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

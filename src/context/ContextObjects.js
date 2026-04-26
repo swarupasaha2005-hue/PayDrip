@@ -9,3 +9,4 @@ export const AppContext    = createContext();
 export const ToastContext  = createContext();
 export const UserContext   = createContext();
 export const WalletContext  = createContext();
+export const LoadingContext = createContext();

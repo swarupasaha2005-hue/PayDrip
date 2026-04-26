@@ -11,10 +11,12 @@ import Vault from './pages/Vault';
 import Metrics from './pages/Metrics';
 
 import { StarsBackground } from './components/ui/stars';
+import Loader from './components/Loader';
 
 function App() {
   return (
     <StarsBackground className="min-h-screen">
+      <Loader />
       <Routes>
         <Route path="/" element={<Onboarding />} />
         <Route element={<Layout />}>

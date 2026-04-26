@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../hooks/useApp';
-import { ArrowLeft, ExternalLink, Calendar, Search, Filter } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Calendar, Search, Filter, Layers, ListChecks, History } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Activity() {
@@ -21,20 +21,23 @@ export default function Activity() {
       </div>
 
       {dripFlows.some(f => f.status === 'active') && (
-        <div style={{ marginBottom: 32 }}>
-          <h3 style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '1px' }}>Active Drip Streams</h3>
-          <div className="stitch-layout-grid" style={{ gap: 16 }}>
+        <div style={{ marginBottom: 40 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+            <Layers size={18} color="var(--primary)" />
+            <h3 style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '1px' }}>Active Drip Streams</h3>
+          </div>
+          <div className="stitch-layout-grid" style={{ gap: 20 }}>
             {dripFlows.filter(f => f.status === 'active').map(flow => {
               const progress = ((flow.ticksCompleted / (flow.timelineWeeks * 7)) * 100).toFixed(0);
               return (
-                <div key={flow.id} className="stitch-card" style={{ gridColumn: 'span 4', position: 'relative', overflow: 'hidden' }}>
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, height: 2, background: 'var(--primary)', width: `${progress}%`, transition: 'width 0.5s' }} />
-                  <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Drip #{flow.id.slice(-4)}</span>
-                    <span style={{ color: 'var(--primary)' }}>{progress}%</span>
+                <div key={flow.id} className="pd-card-v2" style={{ gridColumn: 'span 4', padding: '24px', position: 'relative', overflow: 'hidden', borderStyle: 'dashed' }}>
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, height: 4, background: 'var(--primary)', width: `${progress}%`, transition: 'width 1s ease-in-out' }} />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-3)' }}>STREAM #{flow.id.slice(-4)}</div>
+                    <div style={{ padding: '4px 10px', borderRadius: '10px', background: 'rgba(var(--primary-rgb), 0.1)', color: 'var(--primary)', fontSize: 11, fontWeight: 800 }}>{progress}% ACTIVE</div>
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{flow.remainingAmount} / {flow.totalAmount} XLM Remaining</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 4 }}>Strategy: {flow.strategy.toUpperCase()}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text)', marginBottom: 4 }}>{flow.remainingAmount} / {flow.totalAmount} XLM</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-3)', fontWeight: 600 }}>STRATEGY: <span style={{ color: 'var(--primary)' }}>{flow.strategy.toUpperCase()}</span></div>
                 </div>
               );
             })}
@@ -42,21 +45,22 @@ export default function Activity() {
         </div>
       )}
 
-      <div className="stitch-panel" style={{ padding: '32px' }}>
+      <div className="pd-card-v2" style={{ padding: '32px' }}>
         
-        {/* Filters and Search */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
-          <div style={{ display: 'flex', gap: 8 }}>
+        {/* Filters and Search - Styled as Control Bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32, flexWrap: 'wrap', gap: 20 }}>
+          <div className="pd-field" style={{ padding: '6px', borderRadius: '18px', background: 'var(--surface-2)', borderStyle: 'solid' }}>
             {tabs.map(t => (
               <button 
                 key={t}
                 onClick={() => setFilter(t)}
-                className="btn"
+                className="pd-btn"
                 style={{ 
-                  borderRadius: 999, padding: '8px 16px', fontSize: 13,
-                  background: filter === t ? 'var(--surface-2)' : 'transparent',
-                  color: filter === t ? 'var(--text)' : 'var(--text-3)',
-                  borderColor: filter === t ? 'var(--border)' : 'transparent'
+                  borderRadius: '12px', padding: '8px 16px', fontSize: 12, fontWeight: 700,
+                  background: filter === t ? 'var(--surface)' : 'transparent',
+                  color: filter === t ? 'var(--primary)' : 'var(--text-3)',
+                  boxShadow: filter === t ? '0 2px 6px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
               >
                 {t}
@@ -64,49 +68,62 @@ export default function Activity() {
             ))}
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
-            <div className="btn-icon" style={{ borderRadius: 8 }}><Search size={16} /></div>
-            <div className="btn-icon" style={{ borderRadius: 8 }}><Filter size={16} /></div>
+            <div className="pd-field" style={{ padding: '8px 16px', borderRadius: '15px' }}>
+              <Search size={16} color="var(--text-3)" />
+              <input placeholder="Filter events..." className="pd-input" style={{ fontSize: 13, width: '120px' }} />
+            </div>
           </div>
         </div>
 
         {/* List Structure */}
         {((filter === 'Smart Drips' ? dripLogs : schedules)).length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '64px 0', opacity: 0.5 }}>
-            <Calendar size={48} style={{ margin: '0 auto 16px' }} />
-            <p style={{ fontSize: 16 }}>No records found for this view.</p>
+          <div style={{ textAlign: 'center', padding: '80px 0', opacity: 0.5 }}>
+            <div style={{ background: 'var(--surface-2)', width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+              <History size={32} color="var(--text-3)" />
+            </div>
+            <p style={{ fontSize: 15, fontWeight: 600 }}>Chronicle synchronized. No entries found.</p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {filter === 'Smart Drips' ? (
               dripLogs.map((log, i) => (
-                <div key={i} className="stitch-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px' }}>
+                <div key={i} className="pd-field" style={{ justifyContent: 'space-between', padding: '16px 20px', borderStyle: 'solid', background: 'var(--bg)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--success)' }} />
-                    <div style={{ fontSize: 14, color: 'var(--text)' }}>{log.message}</div>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)', boxShadow: '0 0 8px var(--primary)' }} />
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{log.message}</div>
                   </div>
-                  <div style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'monospace' }}>
-                    {new Date(log.timestamp).toLocaleTimeString()}
+                  <div style={{ fontSize: 11, color: 'var(--text-3)', fontWeight: 700, fontFamily: 'monospace' }}>
+                    {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
               ))
             ) : (
               schedules.map((s, i) => (
-                <div key={i} className="stitch-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                    <div style={{ padding: 12, background: 'var(--surface)', borderRadius: 12, border: '1px solid var(--border)' }}>
+                <div key={i} className="pd-field" style={{ justifyContent: 'space-between', padding: '20px 24px', borderStyle: 'solid', background: 'var(--bg)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                    <div style={{ padding: 12, background: 'var(--surface)', borderRadius: '16px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', border: '1px solid var(--border)' }}>
                       <Calendar size={20} color="var(--primary)" />
                     </div>
                     <div>
-                      <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>{s.service}</div>
-                      <div style={{ fontSize: 13, color: 'var(--text-3)' }}>{s.frequency.charAt(0).toUpperCase() + s.frequency.slice(1)} • {new Date(s.releaseAt).toLocaleDateString()}</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)', marginBottom: 2 }}>{s.service}</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        {s.frequency} • {new Date(s.releaseAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </div>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 24, textAlign: 'right' }}>
-                    <div>
-                      <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>{s.amount} XLM</div>
-                      {s.inrAmount && <div style={{ fontSize: 12, color: 'var(--text-3)' }}>₹{s.inrAmount}</div>}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 32, textAlign: 'right' }}>
+                    <div style={{ background: 'var(--surface-2)', padding: '10px 18px', borderRadius: '14px', border: '1px solid var(--border)' }}>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)' }}>{s.amount} <span style={{ fontSize: 11, color: 'var(--primary)' }}>XLM</span></div>
+                      {s.inrAmount && <div style={{ fontSize: 11, color: 'var(--text-3)', fontWeight: 700 }}>₹{s.inrAmount}</div>}
                     </div>
-                    <a href={`https://testnet.stellarchain.io/transactions/${s.hash}`} target="_blank" rel="noreferrer" className="btn-icon" title="View on Explorer">
+                    <a 
+                      href={`https://testnet.stellarchain.io/transactions/${s.hash}`} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="pd-btn pd-btn-ghost" 
+                      style={{ padding: '10px', borderRadius: '12px' }}
+                      title="View Ledger Trace"
+                    >
                       <ExternalLink size={16} />
                     </a>
                   </div>

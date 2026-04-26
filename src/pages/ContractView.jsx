@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useWallet } from '../hooks/useWallet';
 import { VAULT_CONTRACT_ID, fetchLockedAmount } from '../utils/stellar';
-import { Code, ExternalLink, RefreshCw, Database, Terminal } from 'lucide-react';
+import { Code, ExternalLink, RefreshCw, Database, Terminal, Cpu, ShieldCheck } from 'lucide-react';
 
 export default function ContractView() {
   const { address } = useWallet();
@@ -29,68 +29,98 @@ export default function ContractView() {
 
   return (
     <div className="spatial-spread fade-up">
-      <div style={{ position: 'relative', zIndex: 10, paddingLeft: 12, marginBottom: 40 }}>
-        <h1 style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-1px', marginBottom: 8 }}>Contract Explorer</h1>
-        <p style={{ color: 'var(--text-2)', fontSize: 16 }}>Direct conduit to the PayVault Soroban logic node</p>
+      <div style={{ marginBottom: 40 }}>
+        <h1 style={{ fontSize: 32, fontWeight: 700, margin: '0 0 4px', letterSpacing: '-0.5px' }}>Contract Explorer</h1>
+        <p style={{ color: 'var(--text-3)', fontSize: 16 }}>Direct conduit to the PayVault Soroban logic node.</p>
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 40 }}>
+      <div className="stitch-layout-grid">
         
-        {/* Left Blob Interface */}
-        <div className="module module-blob" style={{ flex: '1 1 350px', background: 'var(--surface)', color: 'var(--text)', padding: '48px', alignItems: 'flex-start', textAlign: 'left', borderRadius: '40% 60% 50% 50% / 50% 50% 60% 40%' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
-            <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--card-grad)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-sm)' }}>
-              <Code size={24} color="white" />
+        {/* Left Side: Contract Identity Card */}
+        <div style={{ gridColumn: 'span 5' }}>
+          <div className="pd-card-v2" style={{ height: '100%', background: 'linear-gradient(135deg, var(--surface) 0%, var(--surface-2) 100%)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 40 }}>
+              <div style={{ width: 64, height: 64, borderRadius: '22px', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(var(--primary-rgb), 0.3)' }}>
+                <Code size={32} color="white" />
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-3)', letterSpacing: 1, textTransform: 'uppercase' }}>Active Protocol</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)' }}>PayVault Core Engine</div>
+              </div>
             </div>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-3)', letterSpacing: 1 }}>ACTIVE NODE</div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)' }}>PayVault Engine</div>
+
+            <div className="pd-field" style={{ flexDirection: 'column', alignItems: 'stretch', padding: '24px', gap: 16, marginBottom: 32, borderStyle: 'solid' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <ShieldCheck size={16} color="var(--primary)" />
+                <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Soroban Contract ID</span>
+              </div>
+              <div style={{ fontSize: 13, fontFamily: 'monospace', wordBreak: 'break-all', color: 'var(--primary-dark)', fontWeight: 700, lineHeight: 1.6, background: 'var(--bg)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                {VAULT_CONTRACT_ID}
+              </div>
+              <a 
+                href={`https://stellar.expert/explorer/testnet/contract/${VAULT_CONTRACT_ID}`}
+                target="_blank"
+                rel="noreferrer"
+                className="pd-btn pd-btn-ghost"
+                style={{ fontSize: 12, padding: '10px', borderRadius: '14px', width: '100%', gap: 8 }}
+              >
+                <ExternalLink size={14} /> Explorer Trace
+              </a>
+            </div>
+
+            <div className="pd-field-container">
+              <button 
+                onClick={checkContract}
+                disabled={checking || !address}
+                className="pd-btn pd-btn-primary"
+                style={{ width: '100%', padding: '20px', borderRadius: '22px', fontSize: 16 }}
+              >
+                {checking ? <RefreshCw size={20} className="spinning" /> : <Database size={20} />}
+                Query Live Telemetry
+              </button>
+              {!address && (
+                <p style={{ fontSize: 12, color: 'var(--error)', textAlign: 'center', marginTop: 12, fontWeight: 700 }}>
+                  AUTHENTICATION REQUIRED: CONNECT WALLET
+                </p>
+              )}
             </div>
           </div>
-
-          <div style={{ background: 'var(--surface-2)', borderRadius: '32px', padding: '24px 32px', marginBottom: 32, width: '100%', boxShadow: 'inset 0 4px 12px rgba(0,0,0,0.02)' }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-3)', marginBottom: 12, letterSpacing: 1 }}>CONTRACT HASH</div>
-            <div style={{ fontSize: 13, fontFamily: 'monospace', wordBreak: 'break-all', color: 'var(--primary-dark)', marginBottom: 20, lineHeight: 1.6 }}>
-              {VAULT_CONTRACT_ID}
-            </div>
-            <a 
-              href={`https://stellar.expert/explorer/testnet/contract/${VAULT_CONTRACT_ID}`}
-              target="_blank"
-              rel="noreferrer"
-              className="btn btn-ghost"
-              style={{ padding: '12px 20px', fontSize: 13, gap: 8, width: '100%', borderRadius: '999px' }}
-            >
-              <ExternalLink size={16} /> Inspect on Stellar Expert
-            </a>
-          </div>
-
-          <button 
-            onClick={checkContract}
-            disabled={checking || !address}
-            className="btn btn-primary"
-            style={{ width: '100%', padding: '20px', borderRadius: '999px', gap: 12, fontSize: 15 }}
-          >
-            {checking ? <RefreshCw size={20} className="spinning" /> : <Database size={20} />}
-            Query Live Telemetry
-          </button>
-          {!address && (
-            <p style={{ fontSize: 13, color: 'var(--error-text)', textAlign: 'center', marginTop: 16, fontWeight: 600 }}>
-              Connect wallet to authenticate telemetry.
-            </p>
-          )}
         </div>
 
-        {/* Right Dark Organic Terminal */}
-        <div className="module" style={{ flex: '2 1 500px', background: '#0F172A', border: '1px solid rgba(167,243,208,0.2)', borderRadius: 'var(--shape-organic)', display: 'flex', flexDirection: 'column', minHeight: 500, padding: 48, boxShadow: '0 24px 64px rgba(0,0,0,0.4), inset 0 0 40px rgba(167,243,208,0.05)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingBottom: 24, borderBottom: '1px solid rgba(167,243,208,0.1)', marginBottom: 24 }}>
-            <Terminal size={20} color="#A7F3D0" />
-            <span style={{ fontSize: 13, fontWeight: 800, color: '#A7F3D0', letterSpacing: 2 }}>RAW SENSOR STREAM</span>
-          </div>
-          
-          <div style={{ flex: 1, fontFamily: 'monospace', fontSize: 14, color: '#6EE7B7', whiteSpace: 'pre-wrap', lineHeight: 1.8, opacity: 0.9 }}>
-            {rawResult ? JSON.stringify(rawResult, null, 2) : '// No connection established.\n// Initiate "Query Live Telemetry" to ping Soroban network.'}
+        {/* Right Side: RAW Sensor Stream */}
+        <div style={{ gridColumn: 'span 7' }}>
+          <div className="pd-card-v2" style={{ background: '#0F172A', height: '100%', borderColor: 'rgba(var(--primary-rgb), 0.2)', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <Terminal size={18} color="var(--primary)" />
+                <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--primary)', letterSpacing: '2px', textTransform: 'uppercase' }}>Raw Sensor Stream</span>
+              </div>
+              <div style={{ display: 'flex', gap: 4 }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF4444' }} />
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F59E0B' }} />
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' }} />
+              </div>
+            </div>
+            
+            <div style={{ 
+              background: 'rgba(0,0,0,0.3)', borderRadius: '16px', padding: '24px', 
+              fontFamily: 'monospace', fontSize: 14, color: 'var(--primary)', 
+              whiteSpace: 'pre-wrap', lineHeight: 1.8, height: '400px', overflowY: 'auto',
+              border: '1px solid rgba(255,255,255,0.03)', boxShadow: 'inset 2px 4px 12px rgba(0,0,0,0.5)'
+            }}>
+              {rawResult ? JSON.stringify(rawResult, null, 2) : (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', opacity: 0.4 }}>
+                  <Cpu size={48} style={{ marginBottom: 16 }} />
+                  <div style={{ textAlign: 'center' }}>
+                    // Connection idle.<br />
+                    // Initiate telemetry handshake to synchronize.
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
+
       </div>
     </div>
   );

@@ -1,111 +1,145 @@
 import React from 'react';
 import { useWallet } from '../hooks/useWallet';
-import { Activity, ShieldCheck, Zap, ArrowUpRight, Clock, Plus, Settings } from 'lucide-react';
+import { useApp } from '../hooks/useApp';
+import { Activity, ShieldCheck, Zap, ArrowUpRight, Clock, Plus, Settings, TrendingUp, ChevronRight, BarChart3 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
   const { balance } = useWallet();
+  const { productionLogs } = useApp();
+  const navigate = useNavigate();
   const xlm = parseFloat(balance || 0);
-
-  const logs = [
-    { id: 1, time: '10:42 AM', action: 'Vault Threshold Validated', tag: 'System' },
-    { id: 2, time: '09:15 AM', action: 'Intent Agent Adjusted Drift', tag: 'Agent' },
-    { id: 3, time: 'Yesterday', action: 'Smart Drip Deployed', tag: 'Execution' },
-    { id: 4, time: 'Yesterday', action: 'Yield Strategy Optimized', tag: 'System' }
-  ];
 
   return (
     <div className="spatial-spread fade-up">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
         <div>
           <h1 style={{ fontSize: 32, fontWeight: 700, margin: '0 0 4px', letterSpacing: '-0.5px' }}>Dashboard</h1>
           <p style={{ color: 'var(--text-3)', fontSize: 16 }}>Financial overview and agent telemetry.</p>
         </div>
-        <button className="btn btn-ghost" onClick={() => window.location.href='/subscriptions'}>
-          <Plus size={16} /> New Intent
+        <button className="pd-btn pd-btn-primary" onClick={() => navigate('/subscriptions')}>
+          <Plus size={16} /> Construct Intent
         </button>
       </div>
 
       <div className="stitch-layout-grid">
         
         {/* Left Column: Agent Log */}
-        <div style={{ gridColumn: 'span 3', display: 'flex', flexDirection: 'column', gap: 24 }}>
-          <div className="stitch-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 20, color: 'var(--text-2)', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Clock size={16} /> Agent Log
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {logs.map(log => (
-                <div key={log.id} style={{ display: 'flex', flexDirection: 'column', gap: 4, borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: 16 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 12, color: 'var(--text-3)' }}>{log.time}</span>
-                    <span style={{ fontSize: 10, background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: 4, color: 'var(--text-2)' }}>{log.tag}</span>
-                  </div>
-                  <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text)' }}>
-                    {log.action}
-                  </div>
+        <div style={{ gridColumn: 'span 3', display: 'flex', flexDirection: 'column', gap: 32 }}>
+          <div className="pd-card-v2" style={{ flex: 1, padding: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
+              <Clock size={16} color="var(--primary)" />
+              <h3 style={{ fontSize: 14, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Agent Log</h3>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {productionLogs.length === 0 ? (
+                <div style={{ padding: '20px', textAlign: 'center', fontSize: 13, color: 'var(--text-3)', opacity: 0.6 }}>
+                  No automated events recorded.
                 </div>
-              ))}
+              ) : (
+                productionLogs.slice(0, 6).map(log => (
+                  <div key={log.id} className="pd-field" style={{ flexDirection: 'column', alignItems: 'flex-start', padding: '16px', gap: 8, background: 'var(--bg)', borderStyle: 'solid' }}>
+                    <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 10, color: 'var(--text-3)', fontWeight: 700 }}>{new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="badge" style={{ fontSize: 9, background: 'rgba(var(--primary-rgb), 0.1)', color: 'var(--primary)', border: '1px solid rgba(var(--primary-rgb), 0.2)' }}>{log.type}</span>
+                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>
+                      {log.message}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
 
         {/* Center Column: Yield Performance */}
-        <div style={{ gridColumn: 'span 6', display: 'flex', flexDirection: 'column', gap: 24 }}>
-          <div className="stitch-panel stitch-panel-hover" style={{ flex: 1, padding: 0, position: 'relative' }}>
-            <div style={{ padding: '32px 32px 0' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-2)' }}>Yield Performance</h3>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginTop: 12 }}>
-                <span style={{ fontSize: 48, fontWeight: 700 }}>+4.2%</span>
-                <span style={{ fontSize: 14, color: 'var(--success-text)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <ArrowUpRight size={14} /> APY Delta
-                </span>
+        <div style={{ gridColumn: 'span 6', display: 'flex', flexDirection: 'column', gap: 32 }}>
+          <div className="pd-card-v2" style={{ flex: 1, padding: '0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '32px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <label className="pd-field-label" style={{ paddingLeft: 0 }}>Yield Performance</label>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginTop: 12 }}>
+                    <span style={{ fontSize: 56, fontWeight: 800, letterSpacing: '-2px' }}>+4.2%</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--success)', fontWeight: 800, fontSize: 14, background: 'rgba(16, 185, 129, 0.1)', padding: '4px 10px', borderRadius: '10px' }}>
+                      <ArrowUpRight size={16} /> APY
+                    </div>
+                  </div>
+                </div>
+                <div style={{ background: 'var(--surface-2)', padding: '12px', borderRadius: '16px' }}>
+                  <TrendingUp size={24} color="var(--primary)" />
+                </div>
               </div>
             </div>
+            
             {/* Wavy Chart Area */}
-            <svg style={{ width: '100%', height: 200, display: 'block', marginTop: 'auto' }} viewBox="0 0 400 150" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.3"/>
-                  <stop offset="100%" stopColor="var(--primary)" stopOpacity="0"/>
-                </linearGradient>
-              </defs>
-              <path d="M0,150 L0,80 Q50,40 100,70 T200,60 T300,90 T400,20 L400,150 Z" fill="url(#chartGrad)"/>
-              <path d="M0,80 Q50,40 100,70 T200,60 T300,90 T400,20" fill="none" stroke="var(--primary)" strokeWidth="3" vectorEffect="non-scaling-stroke"/>
-            </svg>
+            <div style={{ flex: 1, position: 'relative', minHeight: '200px' }}>
+              <svg style={{ width: '100%', height: '100%', display: 'block', position: 'absolute', bottom: 0 }} viewBox="0 0 400 150" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.4"/>
+                    <stop offset="100%" stopColor="var(--primary)" stopOpacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0,150 L0,100 Q50,60 100,90 T200,80 T300,110 T400,40 L400,150 Z" fill="url(#chartGrad)"/>
+                <path d="M0,100 Q50,60 100,90 T200,80 T300,110 T400,40" fill="none" stroke="var(--primary)" strokeWidth="4" strokeLinecap="round" vectorEffect="non-scaling-stroke"/>
+              </svg>
+            </div>
+
+            <div style={{ padding: '24px 32px', background: 'var(--surface-2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontSize: 13, color: 'var(--text-3)', fontWeight: 600 }}>Active Intent Distribution</div>
+              <button className="pd-btn pd-btn-ghost" style={{ padding: '6px 12px', fontSize: 11, borderRadius: '8px' }}>
+                Detailed Report <ChevronRight size={14} />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Right Column: Quick Actions & Spotlight */}
-        <div style={{ gridColumn: 'span 3', display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <div style={{ gridColumn: 'span 3', display: 'flex', flexDirection: 'column', gap: 32 }}>
           
-          <div className="stitch-panel">
-            <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 20, color: 'var(--text-2)' }}>Quick Actions</h3>
+          <div className="pd-card-v2" style={{ padding: '24px' }}>
+            <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 20, textTransform: 'uppercase', letterSpacing: '1px' }}>Operations</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div className="stitch-card" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }} onClick={() => window.location.href='/vault'}>
-                <div style={{ background: 'var(--surface)', padding: 10, borderRadius: 12, border: '1px solid var(--border)' }}>
-                  <ShieldCheck size={20} color="var(--success-text)" />
+              <div 
+                className="pd-field" 
+                style={{ cursor: 'pointer', padding: '16px', borderStyle: 'solid', background: 'var(--bg)' }} 
+                onClick={() => navigate('/vault')}
+              >
+                <div style={{ background: 'var(--surface)', padding: 10, borderRadius: 14, boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
+                  <ShieldCheck size={20} color="var(--success)" />
                 </div>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 600 }}>Access Vault</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Review Approvals</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700 }}>Security Vault</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-3)', fontWeight: 600 }}>Review Consensuses</div>
                 </div>
+                <ChevronRight size={16} color="var(--text-3)" />
               </div>
-              <div className="stitch-card" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }} onClick={() => window.location.href='/planner'}>
-                <div style={{ background: 'var(--surface)', padding: 10, borderRadius: 12, border: '1px solid var(--border)' }}>
-                  <Zap size={20} color="var(--error-text)" />
+              
+              <div 
+                className="pd-field" 
+                style={{ cursor: 'pointer', padding: '16px', borderStyle: 'solid', background: 'var(--bg)' }} 
+                onClick={() => navigate('/planner')}
+              >
+                <div style={{ background: 'var(--surface)', padding: 10, borderRadius: 14, boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
+                  <Zap size={20} color="var(--accent)" />
                 </div>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 600 }}>Intent Flow</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Agent Trajectory</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700 }}>Planner Flow</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-3)', fontWeight: 600 }}>Agent Execution</div>
                 </div>
+                <ChevronRight size={16} color="var(--text-3)" />
               </div>
             </div>
           </div>
 
-          <div className="stitch-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-            <Activity size={32} color="var(--primary)" style={{ marginBottom: 16 }} />
-            <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 4 }}>{xlm.toFixed(2)}</div>
-            <div style={{ fontSize: 13, color: 'var(--text-3)' }}>Available XLM</div>
+          <div className="pd-card-v2" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', background: 'linear-gradient(135deg, var(--surface) 0%, var(--surface-2) 100%)' }}>
+            <div style={{ width: 64, height: 64, background: 'var(--bg)', borderRadius: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, boxShadow: 'inset 2px 4px 8px rgba(0,0,0,0.1)' }}>
+              <BarChart3 size={32} color="var(--primary)" />
+            </div>
+            <div style={{ fontSize: 36, fontWeight: 800, marginBottom: 4, letterSpacing: '-1px' }}>{xlm.toFixed(2)}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '1px' }}>Available XLM</div>
           </div>
 
         </div>

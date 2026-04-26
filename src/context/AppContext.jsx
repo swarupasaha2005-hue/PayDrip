@@ -1,28 +1,35 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { AppContext } from './ContextObjects';
+import { useLoading } from '../hooks/useLoading';
+import { useWallet } from '../hooks/useWallet';
+import { useUser } from '../hooks/useUser';
 import { loadLS, saveLS } from '../utils/storage';
 import { XLM_INR_RATE as DEFAULT_RATE } from '../utils/formatters';
 
 export function AppProvider({ children }) {
+  const { withLoading } = useLoading();
+  const { address } = useWallet();
+  const { name, gender } = useUser();
   const [transactions, setTransactions] = useState(() => loadLS('pd_transactions', []));
   const [schedules, setSchedules]       = useState(() => loadLS('pd_schedules', []));
   const [notifications, setNotifications] = useState(() => loadLS('pd_notifications', []));
   const [inrRate, setInrRate] = useState(DEFAULT_RATE);
 
   // Black Belt Upgrade: Vault State
-  const [vaultSigners, setVaultSigners] = useState(() => loadLS('pd_vault_signers', [
-    { id: '1', address: 'GXYZ...7890', role: 'Primary' },
-    { id: '2', address: 'GABC...1234', role: 'Guardian' }
-  ]));
+  const [vaultSigners, setVaultSigners] = useState(() => loadLS('pd_vault_signers', []));
   const [vaultThreshold, setVaultThreshold] = useState(() => loadLS('pd_vault_threshold', 2));
   const [vaultPendingTx, setVaultPendingTx] = useState(() => loadLS('pd_vault_pending_tx', []));
 
   // Black Belt Upgrade: Metrics & Production Monitoring
-  const [onboardedUsers, setOnboardedUsers] = useState(() => loadLS('pd_users', []));
+  const [onboardedUsers, setOnboardedUsers] = useState(() => {
+    const cached = loadLS('pd_users', []);
+    // Automatically purge any phantom/legacy mock users that got trapped in localStorage
+    return cached.filter(u => !(u.name && u.name.match(/^User \d+$/)));
+  });
   const [productionLogs, setProductionLogs] = useState(() => loadLS('pd_logs', []));
 
   // Drip Engine Upgrade: Internal Wallet & Automated Flows
-  const [internalWalletBalance, setInternalWalletBalance] = useState(() => loadLS('pd_internal_wallet', 5000)); // Default mock balance
+  const [internalWalletBalance, setInternalWalletBalance] = useState(() => loadLS('pd_internal_wallet', 0)); 
   const [dripFlows, setDripFlows] = useState(() => loadLS('pd_drip_flows', []));
   const [dripLogs, setDripLogs] = useState(() => loadLS('pd_drip_logs', []));
 
@@ -40,20 +47,11 @@ export function AppProvider({ children }) {
   useEffect(() => { saveLS('pd_drip_flows', dripFlows) }, [dripFlows]);
   useEffect(() => { saveLS('pd_drip_logs', dripLogs) }, [dripLogs]);
 
-  /** Bootstrapping 30 Dummy Users for Retention / DAU Metrics */
-  useEffect(() => {
-    if (onboardedUsers.length === 0) {
-      const dummyUsers = Array.from({ length: 30 }).map((_, i) => ({
-        id: `usr_${Date.now()}_${i}`,
-        name: `User ${i + 1}`,
-        address: `G${Math.random().toString(36).substring(2, 12).toUpperCase()}...`,
-        joinedAt: new Date(Date.now() - Math.floor(Math.random() * 10000000000)).toISOString(),
-        activeRecently: Math.random() > 0.3,
-      }));
-      setOnboardedUsers(dummyUsers);
-      logEvent('SYSTEM', 'Bootstrapped 30 initial onboarded users.');
-    }
-  }, [onboardedUsers.length]);
+  // Shorten helper
+  function shorten(a, len = 6) {
+    if (!a) return '';
+    return `${a.slice(0, len)}...${a.slice(-4)}`;
+  }
 
   /** Production Monitoring Logger */
   const logEvent = useCallback((type, message) => {
@@ -67,6 +65,39 @@ export function AppProvider({ children }) {
       return [newLog, ...prev].slice(0, 50); // Keep last 50 logs
     });
   }, []);
+
+  // The registry now only populates from real wallet connections
+  const registerUser = useCallback((user) => {
+    setOnboardedUsers(prev => {
+      // Check if user already exists to avoid duplicates
+      const exists = prev.find(u => u.address === user.address);
+      if (exists) return prev;
+      
+      const newUser = {
+        id: `usr_${Date.now()}`,
+        name: user.name,
+        address: user.address,
+        gender: user.gender,
+        joinedAt: new Date().toISOString(),
+        activeRecently: true,
+      };
+      logEvent('SYSTEM', `New user registered: ${shorten(user.address, 8)}`);
+      return [newUser, ...prev];
+    });
+  }, [logEvent]);
+
+  // Auto-register connected wallet
+  useEffect(() => {
+    if (address) {
+      registerUser({
+        address,
+        name: name,
+        gender: gender
+      });
+    }
+  }, [address, name, gender, registerUser]);
+
+
 
   /** Notification Helpers */
   const addNotification = useCallback((type, message) => {
@@ -201,39 +232,46 @@ export function AppProvider({ children }) {
   }, [addNotification, logEvent]);
 
   /** Funding Entry Point */
-  const addInternalFunds = useCallback((amount) => {
-    setInternalWalletBalance(prev => prev + parseFloat(amount));
-    addNotification('success', `Wallet funded: +${amount} XLM (via UPI Simulation)`);
-    logEvent('WALLET', `Internal wallet topped up with ${amount} XLM.`);
-  }, [addNotification, logEvent]);
+  const addInternalFunds = useCallback(async (amount) => {
+    await withLoading(async () => {
+      await new Promise(r => setTimeout(r, 1200)); // Simulate processing
+      setInternalWalletBalance(prev => prev + parseFloat(amount));
+      addNotification('success', `Wallet funded: +${amount} XLM (via UPI Simulation)`);
+      logEvent('WALLET', `Internal wallet topped up with ${amount} XLM.`);
+    });
+  }, [addNotification, logEvent, withLoading]);
 
   /** Intent Execution (Start Drip) */
-  const startDripFlow = useCallback((intent) => {
-    const total = parseFloat(intent.target);
-    if (internalWalletBalance < total) {
-      addNotification('error', 'Insufficient internal wallet balance for this intent.');
-      return false;
-    }
+  const startDripFlow = useCallback(async (intent) => {
+    return await withLoading(async () => {
+      await new Promise(r => setTimeout(r, 1500)); // Simulate engine initialization
+      
+      const total = parseFloat(intent.target);
+      if (internalWalletBalance < total) {
+        addNotification('error', 'Insufficient internal wallet balance for this intent.');
+        return false;
+      }
 
-    const newFlow = {
-      id: `flow_${Date.now()}`,
-      totalAmount: total,
-      remainingAmount: total,
-      timelineWeeks: parseInt(intent.timeline),
-      strategy: intent.risk,
-      flexibility: intent.flexibility,
-      ticksCompleted: 0,
-      status: 'active',
-      nextTick: Date.now() + 5000,
-      createdAt: new Date().toISOString()
-    };
+      const newFlow = {
+        id: `flow_${Date.now()}`,
+        totalAmount: total,
+        remainingAmount: total,
+        timelineWeeks: parseInt(intent.timeline),
+        strategy: intent.risk,
+        flexibility: intent.flexibility,
+        ticksCompleted: 0,
+        status: 'active',
+        nextTick: Date.now() + 5000,
+        createdAt: new Date().toISOString()
+      };
 
-    setInternalWalletBalance(prev => prev - total);
-    setDripFlows(prev => [newFlow, ...prev]);
-    addNotification('success', `Drip engine initiated: ${total} XLM locked and streaming.`);
-    logEvent('VAULT', `Intent activated: ${total} XLM scheduled over ${intent.timeline} weeks.`);
-    return true;
-  }, [internalWalletBalance, addNotification, logEvent]);
+      setInternalWalletBalance(prev => prev - total);
+      setDripFlows(prev => [newFlow, ...prev]);
+      addNotification('success', `Drip engine initiated: ${total} XLM locked and streaming.`);
+      logEvent('VAULT', `Intent activated: ${total} XLM scheduled over ${intent.timeline} weeks.`);
+      return true;
+    });
+  }, [internalWalletBalance, addNotification, logEvent, withLoading]);
 
   /** Combined activity feed sorted newest first */
   const activityFeed = [...transactions, ...schedules].sort(
@@ -252,7 +290,7 @@ export function AppProvider({ children }) {
       
       onboardedUsers, productionLogs, logEvent,
       internalWalletBalance, dripFlows, dripLogs,
-      addInternalFunds, startDripFlow
+      addInternalFunds, startDripFlow, registerUser
     }}>
       {children}
     </AppContext.Provider>

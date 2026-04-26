@@ -223,3 +223,96 @@ a, button, .btn, .stitch-card, select, input[type="range"] {
   }
   .stitch-layout-grid { display: flex; flex-direction: column; }
 }
+
+/* ─── PayDrip V2 Design System (High Fidelity) ────────────────── */
+.pd-field-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pd-field-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding-left: 12px;
+}
+
+.pd-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 20px;
+  padding: 12px 18px;
+  background-color: var(--surface);
+  box-shadow: inset 2px 4px 8px rgba(0,0,0,0.12);
+  border: 1px solid var(--border);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pd-field:focus-within {
+  border-color: var(--primary);
+  box-shadow: inset 1px 2px 4px rgba(0,0,0,0.08), 0 0 15px rgba(var(--primary-rgb), 0.1);
+}
+
+.pd-input {
+  background: none;
+  border: none;
+  outline: none;
+  width: 100%;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.pd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 24px;
+  border-radius: 16px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.pd-btn-primary {
+  background: var(--primary);
+  color: #FFFFFF;
+}
+
+.pd-btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.pd-btn-ghost {
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+.pd-btn-ghost:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.pd-card-v2 {
+  background: var(--surface);
+  border-radius: 28px;
+  padding: 32px;
+  border: 1px solid var(--border);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.pd-card-v2:hover {
+  border-color: var(--primary);
+  transform: translateY(-4px);
+}
