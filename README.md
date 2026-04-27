@@ -48,17 +48,17 @@ PayDrip bridges the gap between raw blockchain utility and everyday consumer fin
 
 ## 📸 Screenshots
 
-<img src="screenshots/dashboard.png" width="800"/>
-<br/>
-<img src="screenshots/payments.png" width="800"/>
-<br/>
-<img src="screenshots/planner.png" width="800"/>
-<br/>
-<img src="screenshots/activity.png" width="800"/>
-<br/>
-<img src="screenshots/contract.png" width="800"/>
+## 📸 DApp Preview
 
----
+<p align="center">
+  <img src="./screenshots/dashboard.png" width="45%" />
+  <img src="./screenshots/planner.png" width="45%" />
+</p>
+
+<p align="center">
+  <img src="./screenshots/payments.png" width="45%" />
+  <img src="./screenshots/vault.png" width="45%" />
+</p>
 
 ## 🔗 Smart Contract
 

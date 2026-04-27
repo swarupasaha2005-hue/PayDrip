@@ -26,11 +26,23 @@ export default function Onboarding() {
       <div style={{ minHeight:'100vh', background:'transparent', display:'flex', alignItems:'center', justifyContent:'center', padding:32, position: 'relative', zIndex: 10 }}>
         <div className="fade-up" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:64, maxWidth:960, width:'100%', alignItems:'center' }}>
           <div>
-            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:32 }}>
-              <div style={{ width:44, height:44, borderRadius:14, background:'var(--logo-grad)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <Droplets size={22} color="white" />
-              </div>
-              <span style={{ fontWeight:800, fontSize:20, color:'var(--text)' }}>PayDrip</span>
+            <div style={{ display:'flex', alignItems:'center', marginBottom:32 }}>
+               <div style={{ 
+                width: '140px', 
+                height: '40px',
+                backgroundColor: gender === 'male' ? '#2F4BA2' : (gender === 'other' ? '#10B981' : '#E947F5'),
+                backgroundImage: `linear-gradient(135deg, ${gender === 'male' ? '#2F4BA2' : (gender === 'other' ? '#10B981' : '#E947F5')}, ${gender === 'male' ? '#4BA5FA' : (gender === 'other' ? '#34D399' : '#FF8AFB')})`,
+                maskImage: 'url(/logo.png)',
+                WebkitMaskImage: 'url(/logo.png)',
+                maskSize: 'contain',
+                WebkitMaskSize: 'contain',
+                maskRepeat: 'no-repeat',
+                WebkitMaskRepeat: 'no-repeat',
+                maskPosition: 'left center',
+                WebkitMaskPosition: 'left center',
+                transition: 'background 0.8s ease, filter 0.8s ease',
+                filter: `drop-shadow(0 4px 16px ${gender === 'male' ? '#2F4BA2' : (gender === 'other' ? '#10B981' : '#E947F5')}88)`
+              }} />
             </div>
             <h1 style={{ fontSize:48, fontWeight:800, lineHeight:1.1, color:'var(--text)', marginBottom:20 }}>
               Automate your<br />
