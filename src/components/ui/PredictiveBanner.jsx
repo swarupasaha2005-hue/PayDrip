@@ -18,7 +18,9 @@ export default function PredictiveBanner() {
       });
     } else {
       // If no suggestions, smoothly slide out before nulling
-      setIsVisible(false);
+      requestAnimationFrame(() => {
+        setIsVisible(false);
+      });
       const timer = setTimeout(() => setActiveSuggestion(null), 300);
       return () => clearTimeout(timer);
     }

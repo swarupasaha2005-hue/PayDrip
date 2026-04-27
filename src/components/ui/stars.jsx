@@ -1,9 +1,8 @@
 "use client";
 
 import * as React from "react";
-// eslint-disable-next-line no-unused-vars
 import {
-  motion,
+  motion as Motion,
   useMotionValue,
   useSpring,
 } from "motion/react";
@@ -35,7 +34,7 @@ function StarLayer({
   }, [count, starColor]);
 
   return (
-    <motion.div
+    <Motion.div
       data-slot="star-layer"
       animate={{ y: [0, -4000] }}
       transition={transition}
@@ -58,7 +57,7 @@ function StarLayer({
           boxShadow: boxShadow,
         }}
       />
-    </motion.div>
+    </Motion.div>
   );
 }
 
@@ -102,7 +101,7 @@ export function StarsBackground({
       onMouseMove={handleMouseMove}
       {...props}
     >
-      <motion.div style={{ x: springX, y: springY }} className="absolute inset-0">
+      <Motion.div style={{ x: springX, y: springY }} className="absolute inset-0">
         <StarLayer
           count={1200}
           size={1}
@@ -129,7 +128,7 @@ export function StarsBackground({
           }}
           starColor={starColor}
         />
-      </motion.div>
+      </Motion.div>
       <div style={{ position: 'relative', zIndex: 1 }}>
         {children}
       </div>

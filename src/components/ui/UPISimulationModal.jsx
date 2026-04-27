@@ -59,8 +59,6 @@ export default function UPISimulationModal({
     }, 1200);
   };
 
-  const isDark = true;
-  
   return (
     <div 
       style={{

@@ -9,6 +9,7 @@ export default function Activity() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
   const [upiConfig, setUpiConfig] = useState(null);
+  const now = Date.now();
 
   const tabs = ['All', 'Smart Drips', 'Manual', 'Locked'];
 
@@ -101,7 +102,7 @@ export default function Activity() {
               ))
             ) : (
               schedules.map((s, i) => {
-                const daysToDue = (new Date(s.releaseAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+                const daysToDue = (new Date(s.releaseAt).getTime() - now) / (1000 * 60 * 60 * 24);
                 let badgeText = s.status;
                 let badgeColor = 'var(--text-3)';
                 let badgeBg = 'var(--surface-2)';
