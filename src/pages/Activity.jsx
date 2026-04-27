@@ -9,7 +9,7 @@ export default function Activity() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
   const [upiConfig, setUpiConfig] = useState(null);
-  const now = Date.now();
+  const [now] = useState(() => Date.now());
 
   const tabs = ['All', 'Smart Drips', 'Manual', 'Locked'];
 
