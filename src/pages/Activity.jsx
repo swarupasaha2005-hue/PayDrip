@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useApp } from '../hooks/useApp';
-import { ArrowLeft, ExternalLink, Calendar, Search, Filter, Layers, ListChecks, History } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Calendar, Search, Filter, Layers, History, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import UPISimulationModal from '../components/ui/UPISimulationModal';
 
 export default function Activity() {
-  const { schedules, dripFlows, dripLogs } = useApp();
+  const { schedules, dripFlows, dripLogs, updateSchedule } = useApp();
   const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
+  const [upiConfig, setUpiConfig] = useState(null);
 
   const tabs = ['All', 'Smart Drips', 'Manual', 'Locked'];
 
@@ -98,41 +100,107 @@ export default function Activity() {
                 </div>
               ))
             ) : (
-              schedules.map((s, i) => (
-                <div key={i} className="pd-field" style={{ justifyContent: 'space-between', padding: '20px 24px', borderStyle: 'solid', background: 'var(--bg)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-                    <div style={{ padding: 12, background: 'var(--surface)', borderRadius: '16px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', border: '1px solid var(--border)' }}>
-                      <Calendar size={20} color="var(--primary)" />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)', marginBottom: 2 }}>{s.service}</div>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        {s.frequency} • {new Date(s.releaseAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+              schedules.map((s, i) => {
+                const daysToDue = (new Date(s.releaseAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+                let badgeText = s.status;
+                let badgeColor = 'var(--text-3)';
+                let badgeBg = 'var(--surface-2)';
+                let showUpiBtn = false;
+                
+                if (s.status === 'Paid via UPI') {
+                   badgeText = 'Paid via UPI';
+                   badgeColor = '#10B981';
+                   badgeBg = 'rgba(16, 185, 129, 0.1)';
+                } else if (s.status === 'Executed via App') {
+                   badgeText = 'Executed via App';
+                   badgeColor = 'var(--primary)';
+                   badgeBg = 'rgba(var(--primary-rgb), 0.1)';
+                } else {
+                   if (daysToDue > 2) {
+                      badgeText = 'Upcoming';
+                   } else if (daysToDue <= 2 && daysToDue > 0) {
+                      badgeText = 'Due Soon';
+                      badgeColor = '#F59E0B';
+                      badgeBg = 'rgba(245, 158, 11, 0.1)';
+                      showUpiBtn = true;
+                   } else if (daysToDue <= 0) {
+                      badgeText = 'Processing Fallback...';
+                   }
+                }
+
+                return (
+                  <div key={i} className="pd-field" style={{ justifyContent: 'space-between', padding: '20px 24px', borderStyle: 'solid', background: 'var(--bg)', flexWrap: 'wrap', gap: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                      <div style={{ padding: 12, background: 'var(--surface)', borderRadius: '16px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', border: '1px solid var(--border)' }}>
+                        <Calendar size={20} color="var(--primary)" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)', marginBottom: 4 }}>
+                          {s.service}
+                        </div>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
+                          {s.frequency} • {new Date(s.releaseAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </div>
+                        <span style={{ padding: '4px 10px', borderRadius: '8px', fontSize: 10, fontWeight: 800, background: badgeBg, color: badgeColor, border: `1px solid ${badgeColor}22`, display: 'inline-block' }}>
+                          {badgeText}
+                        </span>
                       </div>
                     </div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 32, textAlign: 'right' }}>
-                    <div style={{ background: 'var(--surface-2)', padding: '10px 18px', borderRadius: '14px', border: '1px solid var(--border)' }}>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)' }}>{s.amount} <span style={{ fontSize: 11, color: 'var(--primary)' }}>XLM</span></div>
-                      {s.inrAmount && <div style={{ fontSize: 11, color: 'var(--text-3)', fontWeight: 700 }}>₹{s.inrAmount}</div>}
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, textAlign: 'right' }}>
+                      {showUpiBtn && (
+                        <button 
+                          className="btn" 
+                          style={{ background: '#3b82f6', color: 'white', padding: '10px 16px', fontSize: 12, borderRadius: '12px', fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                          onClick={() => {
+                            setUpiConfig({
+                              amountINR: s.inrAmount,
+                              amountXLM: s.amount,
+                              recipient: s.service,
+                              onConfirm: async () => {
+                                updateSchedule(s.id, { status: 'Paid via UPI' });
+                              }
+                            });
+                          }}
+                        >
+                          Pay Now <ExternalLink size={14} />
+                        </button>
+                      )}
+                      
+                      <div style={{ background: 'var(--surface-2)', padding: '10px 18px', borderRadius: '14px', border: '1px solid var(--border)' }}>
+                        <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)' }}>{s.amount} <span style={{ fontSize: 11, color: 'var(--primary)' }}>XLM</span></div>
+                        {s.inrAmount && <div style={{ fontSize: 11, color: 'var(--text-3)', fontWeight: 700 }}>₹{s.inrAmount}</div>}
+                      </div>
+
+                      {s.hash && s.status !== 'Paid via UPI' && (
+                        <a 
+                          href={`https://testnet.stellarchain.io/transactions/${s.hash}`} 
+                          target="_blank" 
+                          rel="noreferrer" 
+                          className="pd-btn pd-btn-ghost" 
+                          style={{ padding: '10px', borderRadius: '12px' }}
+                          title="View Ledger Trace"
+                        >
+                          <ExternalLink size={16} />
+                        </a>
+                      )}
                     </div>
-                    <a 
-                      href={`https://testnet.stellarchain.io/transactions/${s.hash}`} 
-                      target="_blank" 
-                      rel="noreferrer" 
-                      className="pd-btn pd-btn-ghost" 
-                      style={{ padding: '10px', borderRadius: '12px' }}
-                      title="View Ledger Trace"
-                    >
-                      <ExternalLink size={16} />
-                    </a>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         )}
       </div>
+
+      <UPISimulationModal 
+        isOpen={!!upiConfig} 
+        onClose={() => setUpiConfig(null)} 
+        amountINR={upiConfig?.amountINR} 
+        amountXLM={upiConfig?.amountXLM} 
+        recipient={upiConfig?.recipient} 
+        onConfirm={upiConfig?.onConfirm} 
+      />
     </div>
   );
 }

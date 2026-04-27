@@ -40,6 +40,7 @@ const makeCursor = (fill, stroke, scale = 1.3) => {
   return `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="${scaledWidth}" height="${scaledWidth}" viewBox="0 0 24 24" shape-rendering="crispEdges"><path d="M0 0v15h4v-3h3l3 5h4l-3-6h5L0 0z" fill="${encodeURIComponent(fill)}" stroke="${encodeURIComponent(stroke)}" stroke-width="1"/></svg>') 0 0`;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTheme() {
   return useContext(ThemeContext);
 }

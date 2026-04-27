@@ -38,18 +38,20 @@ export default function GlobalFloatingLines() {
     targets.current.bend = Math.max(-0.6, Math.min(-0.3, -0.4 - (activeUsers * 0.01))) * intensity;
 
     // Gender Colors
-    const gen = gender ? gender.toLowerCase() : '';
-    if (gen === 'male') setGradient(['#2F4BA2', '#4BA5FA']);
-    else if (gen === 'female' || !gen) setGradient(['#E947F5', '#FF8AFB']);
-    else setGradient(['#10B981', '#34D399']); // Other
+    requestAnimationFrame(() => {
+      const gen = gender ? gender.toLowerCase() : '';
+      if (gen === 'male') setGradient(['#2F4BA2', '#4BA5FA']);
+      else if (gen === 'female' || !gen) setGradient(['#E947F5', '#FF8AFB']);
+      else setGradient(['#10B981', '#34D399']); // Other
 
-    // Risk based waves
-    const hasHigh = dripFlows.some(f => f.strategy === 'aggressive' && f.status === 'active');
-    const hasMed = dripFlows.some(f => f.strategy === 'balanced' && f.status === 'active');
+      // Risk based waves
+      const hasHigh = dripFlows.some(f => f.strategy === 'aggressive' && f.status === 'active');
+      const hasMed = dripFlows.some(f => f.strategy === 'balanced' && f.status === 'active');
 
-    if (hasHigh) setWaves(['top', 'middle', 'bottom']);
-    else if (hasMed) setWaves(['top', 'middle']);
-    else setWaves(['middle']); // Conservative
+      if (hasHigh) setWaves(['top', 'middle', 'bottom']);
+      else if (hasMed) setWaves(['top', 'middle']);
+      else setWaves(['middle']); // Conservative
+    });
 
   }, [activityFeed.length, activityFeed, onboardedUsers.length, dripFlows, gender, location.pathname]);
 

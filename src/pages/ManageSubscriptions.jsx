@@ -6,6 +6,7 @@ import { useToast } from '../hooks/useToast';
 import { lockFundsOnChain } from '../utils/stellar';
 import { xlmToInr, inrToXlm } from '../utils/formatters';
 import FeedbackModal from '../components/FeedbackModal';
+import UPISimulationModal from '../components/ui/UPISimulationModal';
 import { CreditCard, ArrowLeft, Loader2, Tv, Music, Home, BookOpen, CircleEllipsis, Info, Zap, Wallet, Landmark } from 'lucide-react';
 
 const SERVICES = [
@@ -32,6 +33,7 @@ export default function ManageSubscriptions() {
   const [note, setNote]                       = useState('');
   const [isLocking, setIsLocking]             = useState(false);
   const [modal, setModal]                     = useState({ open:false, type:'success', message:'', txHash:'' });
+  const [upiConfig, setUpiConfig]             = useState(null);
 
   const walletBalance = parseFloat(balance || 0);
   const xlmValue = parseFloat(amountXLM || 0);
@@ -66,8 +68,7 @@ export default function ManageSubscriptions() {
     else setAmountINR('');
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleExecute = async (mode) => {
     if (!address) { toast.error("Please connect your wallet first."); return; }
     if (source === 'Wallet' && isInsufficient) { toast.error("Insufficient XLM balance."); return; }
     if (!amountXLM || parseFloat(amountXLM) <= 0) { toast.error("Amount must be greater than 0 XLM."); return; }
@@ -78,12 +79,37 @@ export default function ManageSubscriptions() {
     
     if (releaseTimestamp <= now) { toast.error('Payment date must be in the future.'); return; }
 
+    if (mode === 'upi') {
+      setUpiConfig({
+        amountINR: amountINR || xlmToInr(amountXLM),
+        amountXLM,
+        recipient: selectedService.id === 'other' ? customService : selectedService.label,
+        onConfirm: async () => {
+          setTimeout(() => {
+            setModal({ open:true, type:'success', message:`Payment completed instantly via UPI Bridge.`, txHash: 'simulated_upi_tx_' + Date.now() });
+          }, 800);
+          addSchedule({
+            service: selectedService.id === 'other' ? customService : selectedService.label,
+            amount: amountXLM,
+            inrAmount: amountINR,
+            frequency,
+            releaseAt,
+            note,
+            source,
+            hash: 'upi_tx_' + Date.now(),
+            statusOverride: 'Paid via UPI'
+          });
+        }
+      });
+      return;
+    }
+
     setIsLocking(true);
     try {
       if (source === 'Wallet') {
         const response = await lockFundsOnChain(address, amountXLM, releaseTimestamp);
         await updateBalance(address);
-        setModal({ open:true, type:'success', message:`Successfully locked ${amountXLM} XLM for ${selectedService.label}.`, txHash: response.hash });
+        setModal({ open:true, type:'success', message:`Successfully locked ${amountXLM} XLM for ${selectedService.id === 'other' ? customService : selectedService.label}.`, txHash: response.hash });
       } else {
         setModal({ open:true, type:'success', message:`Payment scheduled. Standing by for Smart Planner execution.`, txHash: 'simulated_tx_' + Date.now() });
       }
@@ -96,7 +122,8 @@ export default function ManageSubscriptions() {
         releaseAt,
         note,
         source,
-        hash: 'tx_' + Date.now()
+        hash: 'tx_' + Date.now(),
+        statusOverride: 'Locked'
       });
       
     } catch (err) {
@@ -118,7 +145,7 @@ export default function ManageSubscriptions() {
 
       <div className="stitch-layout-grid">
         <div style={{ gridColumn: 'span 8' }}>
-          <form onSubmit={handleSubmit} className="pd-card-v2" style={{ borderTop: '4px solid var(--primary)' }}>
+          <form onSubmit={(e) => e.preventDefault()} className="pd-card-v2" style={{ borderTop: '4px solid var(--primary)' }}>
             <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 32, letterSpacing: '-0.5px' }}>Payment Configuration</h3>
             
             {/* Service Target - Custom Row */}
@@ -255,9 +282,14 @@ export default function ManageSubscriptions() {
               </div>
             </div>
 
-            <button type="submit" disabled={isLocking || (source==='Wallet' && isInsufficient)} className="pd-btn pd-btn-primary" style={{ width: '100%', padding: '18px', borderRadius: '22px' }}>
-              {isLocking ? <><Loader2 size={18} className="spinning" /> Processing Plan...</> : <><CreditCard size={18} /> Authorize & Secure Funds</>}
-            </button>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button type="button" onClick={() => handleExecute('upi')} disabled={isLocking || (source==='Wallet' && isInsufficient)} className="pd-btn" style={{ flex: 1, padding: '18px', borderRadius: '16px', background: '#3b82f6', color: 'white', border: 'none', fontWeight: 800 }}>
+                Pay Now via UPI
+              </button>
+              <button type="button" onClick={() => handleExecute('lock')} disabled={isLocking || (source==='Wallet' && isInsufficient)} className="pd-btn pd-btn-primary" style={{ flex: 1, padding: '18px', borderRadius: '16px' }}>
+                {isLocking ? <><Loader2 size={18} className="spinning" /> Processing...</> : <><CreditCard size={18} /> Continue & Lock in App</>}
+              </button>
+            </div>
           </form>
         </div>
 
@@ -310,6 +342,15 @@ export default function ManageSubscriptions() {
       <FeedbackModal
         isOpen={modal.open} type={modal.type} message={modal.message} txHash={modal.txHash}
         onClose={() => { setModal(m => ({ ...m, open:false })); if (modal.type==='success') navigate('/dashboard'); }}
+      />
+      
+      <UPISimulationModal 
+        isOpen={!!upiConfig} 
+        onClose={() => setUpiConfig(null)} 
+        amountINR={upiConfig?.amountINR} 
+        amountXLM={upiConfig?.amountXLM} 
+        recipient={upiConfig?.recipient} 
+        onConfirm={upiConfig?.onConfirm} 
       />
     </div>
   );

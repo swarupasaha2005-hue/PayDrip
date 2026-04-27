@@ -91,10 +91,12 @@ export function AppProvider({ children }) {
   // Auto-register connected wallet
   useEffect(() => {
     if (address) {
-      registerUser({
-        address,
-        name: name,
-        gender: gender
+      requestAnimationFrame(() => {
+        registerUser({
+          address,
+          name: name,
+          gender: gender
+        });
       });
     }
   }, [address, name, gender, registerUser]);
@@ -150,7 +152,7 @@ export function AppProvider({ children }) {
       releaseAt:   s.releaseAt,           // ISO date string
       note:        s.note || '',
       date:        new Date().toISOString(),
-      status:      'Locked',              // 'Locked' | 'Due' | 'Paid'
+      status:      s.statusOverride || 'Locked',              // 'Locked' | 'Due' | 'Paid via UPI' | 'Executed via App'
       txHash:      s.hash || '',
     };
     setSchedules(prev => [entry, ...prev]);
@@ -162,7 +164,7 @@ export function AppProvider({ children }) {
     setSchedules(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
   }, []);
 
-  /** Auto-pay simulation loop */
+  /** Auto-pay tracking loop (UPI Bridge Mode / Fallback Execution) */
   useEffect(() => {
     const interval = setInterval(() => {
       setSchedules(prev => {
@@ -171,9 +173,9 @@ export function AppProvider({ children }) {
         const updated = prev.map(s => {
           if ((s.status === 'Locked' || s.status === 'Due') && new Date(s.releaseAt) <= now) {
             changed = true;
-            // Schedule notification to be added outside of render loop
-            setTimeout(() => addNotification('time', `Autopay successful for ${s.service} (₹${s.inrAmount})`), 0);
-            return { ...s, status: 'Paid' };
+            // The time has passed without user intervention -> Execute the Fallback natively
+            setTimeout(() => addNotification('success', `Automated Fallback: ${s.service} subscription paid via locked funds.`), 0);
+            return { ...s, status: 'Executed via App' };
           }
           return s;
         });

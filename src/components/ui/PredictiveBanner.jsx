@@ -12,8 +12,10 @@ export default function PredictiveBanner() {
   useEffect(() => {
     if (suggestions && suggestions.length > 0) {
       // If we gain a suggestion, slide it in
-      setActiveSuggestion(suggestions[0]);
-      setIsVisible(true);
+      requestAnimationFrame(() => {
+        setActiveSuggestion(suggestions[0]);
+        setIsVisible(true);
+      });
     } else {
       // If no suggestions, smoothly slide out before nulling
       setIsVisible(false);

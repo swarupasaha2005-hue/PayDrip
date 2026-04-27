@@ -1,14 +1,18 @@
 import React from 'react';
 import { useWallet } from '../hooks/useWallet';
 import { useApp } from '../hooks/useApp';
-import { Activity, ShieldCheck, Zap, ArrowUpRight, Clock, Plus, Settings, TrendingUp, ChevronRight, BarChart3 } from 'lucide-react';
+import { Activity, ShieldCheck, Zap, ArrowUpRight, Clock, Plus, Settings, TrendingUp, ChevronRight, BarChart3, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import UPISimulationModal from '../components/ui/UPISimulationModal';
 
 export default function Dashboard() {
   const { balance } = useWallet();
-  const { productionLogs } = useApp();
+  const { productionLogs, schedules, updateSchedule } = useApp();
   const navigate = useNavigate();
+  const [upiConfig, setUpiConfig] = React.useState(null);
+  
   const xlm = parseFloat(balance || 0);
+  const dueSchedules = schedules.filter(s => s.status === 'Due');
 
   return (
     <div className="spatial-spread fade-up">
@@ -98,7 +102,39 @@ export default function Dashboard() {
 
         {/* Right Column: Quick Actions & Spotlight */}
         <div style={{ gridColumn: 'span 3', display: 'flex', flexDirection: 'column', gap: 32 }}>
-          
+          {dueSchedules.length > 0 && (
+            <div className="fade-up" style={{ padding: '20px', borderRadius: '24px', border: '2px solid var(--accent)', background: 'linear-gradient(135deg, var(--bg), var(--surface-2))', boxShadow: '0 12px 30px rgba(0,0,0,0.1)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                <AlertCircle size={18} color="var(--accent)" />
+                <h3 style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--accent)' }}>Action Required</h3>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {dueSchedules.map(s => (
+                  <div key={s.id} style={{ background: 'var(--surface)', padding: '16px', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)', marginBottom: 4 }}>{s.service}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 16 }}>Due: ₹{s.inrAmount} ({s.amount} XLM)</div>
+                    <button 
+                      className="btn" 
+                      style={{ background: 'var(--accent)', color: 'white', width: '100%', padding: '12px', fontSize: 13, borderRadius: '12px', fontWeight: 700, border: 'none', cursor: 'pointer' }}
+                      onClick={() => {
+                        setUpiConfig({
+                          amountINR: s.inrAmount,
+                          amountXLM: s.amount,
+                          recipient: s.service,
+                          onConfirm: async () => {
+                            updateSchedule(s.id, { status: 'Paid' });
+                          }
+                        });
+                      }}
+                    >
+                      Pay Now
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="pd-card-v2" style={{ padding: '24px' }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 20, textTransform: 'uppercase', letterSpacing: '1px' }}>Operations</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -144,6 +180,15 @@ export default function Dashboard() {
 
         </div>
       </div>
+
+      <UPISimulationModal 
+        isOpen={!!upiConfig} 
+        onClose={() => setUpiConfig(null)} 
+        amountINR={upiConfig?.amountINR} 
+        amountXLM={upiConfig?.amountXLM} 
+        recipient={upiConfig?.recipient} 
+        onConfirm={upiConfig?.onConfirm} 
+      />
     </div>
   );
 }

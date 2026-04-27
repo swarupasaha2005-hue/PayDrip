@@ -250,19 +250,19 @@ export default function FloatingLines({
   // Hold a ref to the uniforms so we can mutate them without rebuilding the context
   const uniformsRef = useRef(null);
 
-  const getLineCount = waveType => {
+  const getLineCount = React.useCallback(waveType => {
     if (typeof lineCount === 'number') return lineCount;
     if (!enabledWaves.includes(waveType)) return 0;
     const index = enabledWaves.indexOf(waveType);
     return lineCount[index] ?? 6;
-  };
+  }, [lineCount, enabledWaves]);
 
-  const getLineDistance = waveType => {
+  const getLineDistance = React.useCallback(waveType => {
     if (typeof lineDistance === 'number') return lineDistance;
     if (!enabledWaves.includes(waveType)) return 0.1;
     const index = enabledWaves.indexOf(waveType);
     return lineDistance[index] ?? 0.1;
-  };
+  }, [lineDistance, enabledWaves]);
 
   // 1. Initial WebGL Setup (Runs exactly once)
   useEffect(() => {
@@ -458,7 +458,8 @@ export default function FloatingLines({
     linesGradient, enabledWaves, lineCount, lineDistance,
     topWavePosition, middleWavePosition, bottomWavePosition,
     animationSpeed, interactive, bendRadius, bendStrength,
-    mouseDamping, parallax, parallaxStrength
+    mouseDamping, parallax, parallaxStrength,
+    getLineCount, getLineDistance
   ]);
 
   return (
