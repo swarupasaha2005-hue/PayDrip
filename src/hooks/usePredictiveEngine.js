@@ -14,25 +14,27 @@ export function usePredictiveEngine() {
     const activeFlows = dripFlows.filter(f => f.status === 'active');
     const totalDripRemaining = activeFlows.reduce((acc, f) => acc + parseFloat(f.remainingAmount), 0);
     
-    // Heuristic 1: Drip Engine Liquidity Crisis
+    // Heuristic 1: Automated Balance Shortfall
     if (activeFlows.length > 0 && totalDripRemaining > internalWalletBalance) {
       newSuggestions.push({
         id: 'low_internal_balance',
         level: 'warning',
-        message: 'Your internal engine balance cannot sustain your active Smart Plans to completion. Consider topping up to prevent workflow failure.',
-        actionLabel: 'Top Up Engine',
-        actionRoute: '/dashboard' // Could open funding modal
+        message: 'Your automated balance is too low to cover your upcoming scheduled payments. Top up to ensure your plans continue running smoothly.',
+        actionLabel: 'Top Up Balance',
+        actionType: 'allocate_funds',
+        actionRoute: '/dashboard'
       });
     }
 
-    // Heuristic 2: Capital Inactivity
+    // Heuristic 2: Capital Inactivity (Connected but not Allocated)
     const externalBalance = parseFloat(balance || 0);
     if (externalBalance > 100 && internalWalletBalance === 0 && activeFlows.length === 0) {
       newSuggestions.push({
         id: 'fund_engine',
         level: 'info',
-        message: 'You have idle capital sitting externally. Transfer XLM into the Drip Engine to begin executing automated flows.',
-        actionLabel: 'Allocate Funds',
+        message: "Your wallet is connected, but these funds aren't yet set aside for automated payments. Start your first automated flow by moving them to your internal balance.",
+        actionLabel: 'Setup Automated Funds',
+        actionType: 'allocate_funds',
         actionRoute: '/dashboard'
       });
     }
