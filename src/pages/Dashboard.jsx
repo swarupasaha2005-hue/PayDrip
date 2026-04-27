@@ -18,7 +18,7 @@ export default function Dashboard() {
           <p style={{ color: 'var(--text-3)', fontSize: 16 }}>Financial overview and agent telemetry.</p>
         </div>
         <button className="pd-btn pd-btn-primary" onClick={() => navigate('/subscriptions')}>
-          <Plus size={16} /> Construct Intent
+          <Plus size={16} /> Construct Plan
         </button>
       </div>
 
@@ -111,8 +111,8 @@ export default function Dashboard() {
                   <ShieldCheck size={20} color="var(--success)" />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700 }}>Security Vault</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-3)', fontWeight: 600 }}>Review Consensuses</div>
+                  <div style={{ fontSize: 14, fontWeight: 700 }}>Payment Protection</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-3)', fontWeight: 600 }}>Review Approvals</div>
                 </div>
                 <ChevronRight size={16} color="var(--text-3)" />
               </div>
@@ -126,8 +126,8 @@ export default function Dashboard() {
                   <Zap size={20} color="var(--accent)" />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700 }}>Planner Flow</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-3)', fontWeight: 600 }}>Agent Execution</div>
+                  <div style={{ fontSize: 14, fontWeight: 700 }}>Smart Planner</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-3)', fontWeight: 600 }}>Auto Execution</div>
                 </div>
                 <ChevronRight size={16} color="var(--text-3)" />
               </div>

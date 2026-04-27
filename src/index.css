@@ -31,7 +31,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body, #root {
-  height: 100%;
+  min-height: 100%;
   font-family: 'Share Tech Mono', monospace;
   background: var(--bg);
   color: var(--text);
@@ -53,31 +53,16 @@ a, button, .btn, .stitch-card, select, input[type="range"] {
 /* ─── Desktop Layout ───────────────────────────────────── */
 .app-layout {
   display: flex;
-  height: 100vh;
-  overflow: hidden;
+  flex-direction: column;
+  min-height: 100vh;
   position: relative;
   z-index: 1;
 }
 
-.sidebar {
-  width: var(--sidebar-w);
-  flex-shrink: 0;
-  height: 100vh;
-  overflow-y: auto;
-  background: var(--bg);
-  display: flex;
-  flex-direction: column;
-  padding: 32px 24px;
-  gap: 12px;
-  position: relative;
-  z-index: 10;
-  border-right: 1px solid var(--border);
-}
 
 .main-content {
   flex: 1;
-  height: 100vh;
-  overflow-y: auto;
+  min-height: 100vh;
   padding: 0;
   position: relative;
   z-index: 5;
@@ -216,11 +201,6 @@ a, button, .btn, .stitch-card, select, input[type="range"] {
 /* ─── Responsive Adjustments ───────────────────────────── */
 @media (max-width: 1024px) {
   .app-layout { flex-direction: column; }
-  .sidebar {
-    width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border);
-    flex-direction: row; padding: 16px 20px; gap: 16px; overflow-x: auto;
-    position: sticky; top: 0; z-index: 100;
-  }
   .stitch-layout-grid { display: flex; flex-direction: column; }
 }
 

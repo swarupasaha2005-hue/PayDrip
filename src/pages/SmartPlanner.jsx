@@ -40,7 +40,7 @@ export default function SmartPlanner() {
     <div className="spatial-spread fade-up">
       <div style={{ marginBottom: 32 }}>
         <h1 style={{ fontSize: 32, fontWeight: 700, margin: '0 0 4px', letterSpacing: '-0.5px' }}>Smart Planner</h1>
-        <p style={{ color: 'var(--text-3)', fontSize: 16 }}>Configure automated intent schedules and risk bounds.</p>
+        <p style={{ color: 'var(--text-3)', fontSize: 16 }}>Configure automated payment schedules and risk bounds.</p>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
@@ -51,7 +51,7 @@ export default function SmartPlanner() {
             <div style={{ background: 'var(--primary)', padding: '10px', borderRadius: '15px', boxShadow: '0 4px 15px rgba(var(--primary-rgb), 0.2)' }}>
               <Cpu size={22} color="white" />
             </div>
-            <h3 style={{ fontSize: 20, fontWeight: 700 }}>Intent Core Parameters</h3>
+            <h3 style={{ fontSize: 20, fontWeight: 700 }}>Plan Parameters</h3>
           </div>
           
           <div className="stitch-layout-grid">
@@ -189,7 +189,7 @@ export default function SmartPlanner() {
         {/* Action Row */}
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <button className="pd-btn pd-btn-primary" onClick={pushIntent} style={{ padding: '20px 60px', borderRadius: '30px', fontSize: 16 }}>
-            Deploy Autonomous Intent <ArrowRight size={20} />
+            Deploy Auto Plan <ArrowRight size={20} />
           </button>
         </div>
 

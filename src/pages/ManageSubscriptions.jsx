@@ -46,7 +46,7 @@ export default function ManageSubscriptions() {
       setAmountINR(p.inrAmount);
       setFrequency(p.frequency.toLowerCase());
       setNote(p.note);
-      setSource('Intent Agent');
+      setSource('Smart Planner');
       const nextWeek = new Date();
       nextWeek.setDate(nextWeek.getDate() + 7);
       setReleaseAt(nextWeek.toISOString().split('T')[0]);
@@ -85,7 +85,7 @@ export default function ManageSubscriptions() {
         await updateBalance(address);
         setModal({ open:true, type:'success', message:`Successfully locked ${amountXLM} XLM for ${selectedService.label}.`, txHash: response.hash });
       } else {
-        setModal({ open:true, type:'success', message:`Intent registered. Standing by for Vault/Agent execution.`, txHash: 'simulated_tx_' + Date.now() });
+        setModal({ open:true, type:'success', message:`Payment scheduled. Standing by for Smart Planner execution.`, txHash: 'simulated_tx_' + Date.now() });
       }
       
       addSchedule({
@@ -177,8 +177,8 @@ export default function ManageSubscriptions() {
               }}>
                 {[
                   { id: 'Wallet', icon: Wallet },
-                  { id: 'Vault', icon: Landmark },
-                  { id: 'Intent Agent', icon: Zap }
+                  { id: 'Secure Funds', icon: Landmark },
+                  { id: 'Smart Planner', icon: Zap }
                 ].map(fs => (
                   <div 
                     key={fs.id} 
@@ -256,7 +256,7 @@ export default function ManageSubscriptions() {
             </div>
 
             <button type="submit" disabled={isLocking || (source==='Wallet' && isInsufficient)} className="pd-btn pd-btn-primary" style={{ width: '100%', padding: '18px', borderRadius: '22px' }}>
-              {isLocking ? <><Loader2 size={18} className="spinning" /> Processing Intent...</> : <><CreditCard size={18} /> Authorize & Secure Funds</>}
+              {isLocking ? <><Loader2 size={18} className="spinning" /> Processing Plan...</> : <><CreditCard size={18} /> Authorize & Secure Funds</>}
             </button>
           </form>
         </div>
@@ -296,10 +296,10 @@ export default function ManageSubscriptions() {
               <div style={{ marginTop: 'auto', padding: '20px', borderRadius: '18px', background: 'rgba(var(--primary-rgb), 0.05)', border: '1px dashed var(--primary)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                   <Landmark size={14} color="var(--primary)" />
-                  <span style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', color: 'var(--primary)' }}>Vault Status</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', color: 'var(--primary)' }}>Protection Status</span>
                 </div>
                 <div style={{ fontSize: 13, color: 'var(--text-2)' }}>
-                  Signer Threshold: <span style={{ fontWeight: 700, color: 'var(--text)' }}>Verified</span>
+                  Approval Rules: <span style={{ fontWeight: 700, color: 'var(--text)' }}>Active</span>
                 </div>
               </div>
             </div>

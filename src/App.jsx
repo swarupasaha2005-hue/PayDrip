@@ -12,6 +12,7 @@ import Metrics from './pages/Metrics';
 
 import { StarsBackground } from './components/ui/stars';
 import Loader from './components/Loader';
+import GlobalFloatingLines from './components/ui/GlobalFloatingLines';
 
 function App() {
   return (
@@ -19,7 +20,7 @@ function App() {
       <Loader />
       <Routes>
         <Route path="/" element={<Onboarding />} />
-        <Route element={<Layout />}>
+        <Route element={<><GlobalFloatingLines /><Layout /></>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/subscriptions" element={<ManageSubscriptions />} />
           <Route path="/planner" element={<SmartPlanner />} />

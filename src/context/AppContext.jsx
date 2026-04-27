@@ -15,10 +15,11 @@ export function AppProvider({ children }) {
   const [notifications, setNotifications] = useState(() => loadLS('pd_notifications', []));
   const [inrRate, setInrRate] = useState(DEFAULT_RATE);
 
-  // Black Belt Upgrade: Vault State
-  const [vaultSigners, setVaultSigners] = useState(() => loadLS('pd_vault_signers', []));
-  const [vaultThreshold, setVaultThreshold] = useState(() => loadLS('pd_vault_threshold', 2));
-  const [vaultPendingTx, setVaultPendingTx] = useState(() => loadLS('pd_vault_pending_tx', []));
+  // Payment Protection State
+  const [trustedContacts, setTrustedContacts] = useState(() => loadLS('pd_trusted_contacts', []));
+  const [approvalThreshold, setApprovalThreshold] = useState(() => loadLS('pd_approval_threshold', 2));
+  const [protectionRules, setProtectionRules] = useState(() => loadLS('pd_protection_rules', { amountLimit: 500, fallbackDelayHours: 24 }));
+  const [pendingApprovals, setPendingApprovals] = useState(() => loadLS('pd_pending_approvals', []));
 
   // Black Belt Upgrade: Metrics & Production Monitoring
   const [onboardedUsers, setOnboardedUsers] = useState(() => {
@@ -38,9 +39,10 @@ export function AppProvider({ children }) {
   useEffect(() => { saveLS('pd_schedules', schedules) }, [schedules]);
   useEffect(() => { saveLS('pd_notifications', notifications) }, [notifications]);
   
-  useEffect(() => { saveLS('pd_vault_signers', vaultSigners) }, [vaultSigners]);
-  useEffect(() => { saveLS('pd_vault_threshold', vaultThreshold) }, [vaultThreshold]);
-  useEffect(() => { saveLS('pd_vault_pending_tx', vaultPendingTx) }, [vaultPendingTx]);
+  useEffect(() => { saveLS('pd_trusted_contacts', trustedContacts) }, [trustedContacts]);
+  useEffect(() => { saveLS('pd_approval_threshold', approvalThreshold) }, [approvalThreshold]);
+  useEffect(() => { saveLS('pd_protection_rules', protectionRules) }, [protectionRules]);
+  useEffect(() => { saveLS('pd_pending_approvals', pendingApprovals) }, [pendingApprovals]);
   useEffect(() => { saveLS('pd_users', onboardedUsers) }, [onboardedUsers]);
   useEffect(() => { saveLS('pd_logs', productionLogs) }, [productionLogs]);
   useEffect(() => { saveLS('pd_internal_wallet', internalWalletBalance) }, [internalWalletBalance]);
@@ -242,7 +244,7 @@ export function AppProvider({ children }) {
   }, [addNotification, logEvent, withLoading]);
 
   /** Intent Execution (Start Drip) */
-  const startDripFlow = useCallback(async (intent) => {
+  const startDripFlow = useCallback(async (intent, bypassApproval = false) => {
     return await withLoading(async () => {
       await new Promise(r => setTimeout(r, 1500)); // Simulate engine initialization
       
@@ -250,6 +252,23 @@ export function AppProvider({ children }) {
       if (internalWalletBalance < total) {
         addNotification('error', 'Insufficient internal wallet balance for this intent.');
         return false;
+      }
+
+      // DRIP INTERCEPTOR: Smart Rules Fallback
+      if (!bypassApproval && protectionRules?.amountLimit && total >= parseFloat(protectionRules.amountLimit)) {
+        setPendingApprovals(prev => [...prev, {
+          id: Date.now(),
+          type: 'smart_plan',
+          intent: intent,
+          amount: total,
+          approvals: 1,
+          rejects: 0,
+          status: 'Pending Approval',
+          approvedBy: [address]
+        }]);
+        addNotification('info', `[Payment Protection] High-value Smart Plan (${total} XLM) routed to Approval Queue.`);
+        logEvent('SYSTEM', `Smart Planner intercept: ${total} XLM plan requires Multi-Approval.`);
+        return true; // Successfully queued.
       }
 
       const newFlow = {
@@ -267,11 +286,11 @@ export function AppProvider({ children }) {
 
       setInternalWalletBalance(prev => prev - total);
       setDripFlows(prev => [newFlow, ...prev]);
-      addNotification('success', `Drip engine initiated: ${total} XLM locked and streaming.`);
-      logEvent('VAULT', `Intent activated: ${total} XLM scheduled over ${intent.timeline} weeks.`);
+      addNotification('success', `Smart Plan engine initiated: ${total} XLM locked and streaming.`);
+      logEvent('SYSTEM', `Plan deployed: ${total} XLM scheduled over ${intent.timeline} weeks.`);
       return true;
     });
-  }, [internalWalletBalance, addNotification, logEvent, withLoading]);
+  }, [internalWalletBalance, addNotification, logEvent, withLoading, protectionRules, setPendingApprovals, address]);
 
   /** Combined activity feed sorted newest first */
   const activityFeed = [...transactions, ...schedules].sort(
@@ -284,9 +303,10 @@ export function AppProvider({ children }) {
       addTransaction, addSchedule, updateSchedule,
       addNotification, markAllRead, clearNotification,
       
-      vaultSigners, setVaultSigners, 
-      vaultThreshold, setVaultThreshold, 
-      vaultPendingTx, setVaultPendingTx,
+      trustedContacts, setTrustedContacts, 
+      approvalThreshold, setApprovalThreshold, 
+      protectionRules, setProtectionRules,
+      pendingApprovals, setPendingApprovals,
       
       onboardedUsers, productionLogs, logEvent,
       internalWalletBalance, dripFlows, dripLogs,
