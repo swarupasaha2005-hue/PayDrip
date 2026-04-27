@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Shield, Plus, Clock, Key, AlertTriangle, Send, RefreshCw, KeyRound, HardDrive, Minus, CheckCircle2, TrendingUp, X, Settings2, ShieldCheck, XCircle } from 'lucide-react';
 import { useWallet } from '../hooks/useWallet';
 import { useApp } from '../hooks/useApp';
@@ -225,7 +225,7 @@ export default function Vault() {
                </div>
                
                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
-                 {trustedContacts.map((contact, i) => (
+                 {trustedContacts.map((contact) => (
                    <div key={contact.id} className="pd-field" style={{ justifyContent: 'space-between', padding: '16px 20px' }}>
                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: contact.role === 'Primary' ? 'var(--primary)' : 'var(--accent)', boxShadow: `0 0 10px ${contact.role === 'Primary' ? 'var(--primary)' : 'var(--accent)'}` }} />

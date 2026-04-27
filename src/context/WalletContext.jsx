@@ -4,7 +4,7 @@ import { WalletContext } from './ContextObjects';
 import { useLoading } from '../hooks/useLoading';
 
 export function WalletProvider({ children }) {
-  const { startLoading, stopLoading, withLoading } = useLoading();
+  const { withLoading } = useLoading();
   const [address, setAddress]         = useState(() => localStorage.getItem('pd_wallet') || null);
   const [provider, setProvider]       = useState(() => localStorage.getItem('pd_wallet_provider') || 'freighter');
   const [balance, setBalance]         = useState('0');
@@ -74,7 +74,7 @@ export function WalletProvider({ children }) {
     } finally {
       setIsConnecting(false);
     }
-  }, []);
+  }, [withLoading]);
 
   const disconnect = useCallback(() => {
     setAddress(null);
