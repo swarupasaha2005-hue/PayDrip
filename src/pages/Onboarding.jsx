@@ -363,8 +363,9 @@ export default function Onboarding() {
               borderRadius: '25px', 
               fontSize: 15, 
               opacity: (name.trim() && gender) ? 1 : 0.4,
-              background: gender ? activeTheme.accent : '#252525',
+              background: gender ? 'var(--primary)' : '#252525',
               color: gender ? 'white' : '#d3d3d3',
+              boxShadow: gender ? '0 4px 24px var(--primary-glow)' : 'none',
               transition: 'all 0.5s ease'
             }}
             disabled={!name.trim() || !gender}

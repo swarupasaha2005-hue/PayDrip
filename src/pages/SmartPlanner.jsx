@@ -138,13 +138,13 @@ export default function SmartPlanner() {
                   style={{ 
                     padding: '32px',
                     cursor: 'pointer',
-                    borderColor: isSelected ? 'white' : 'var(--glass-border)',
-                    background: isSelected ? `rgba(255,255,255,0.05)` : 'rgba(255,255,255,0.01)',
+                    borderColor: isSelected ? 'var(--primary)' : 'var(--glass-border)',
+                    background: isSelected ? `rgba(var(--primary-rgb), 0.05)` : 'rgba(255,255,255,0.01)',
                   }}
                 >
                   <div style={{ 
                     width: '48px', height: '48px', borderRadius: '16px', 
-                    background: isSelected ? 'white' : 'rgba(255,255,255,0.03)',
+                    background: isSelected ? strategy.accent : 'rgba(255,255,255,0.03)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     marginBottom: 24, transition: 'all 0.3s ease'
                   }}>
@@ -187,7 +187,7 @@ export default function SmartPlanner() {
 
         {/* Action Row */}
         <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 80 }}>
-          <button className="dark-btn" onClick={pushIntent} style={{ padding: '20px 80px', borderRadius: '25px', fontSize: 18 }}>
+          <button className="dark-btn dark-btn-primary" onClick={pushIntent} style={{ padding: '20px 80px', borderRadius: '25px', fontSize: 18 }}>
             Deploy Autonomous Plan <ArrowRight size={20} />
           </button>
         </div>

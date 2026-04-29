@@ -43,6 +43,32 @@
   --shadow-glow: 0 0 60px -12px;
   --shadow-soft: 0 8px 32px -8px rgba(0,0,0,0.5);
   --shadow-card: 0 4px 24px -4px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.04);
+
+  /* Default Theme Variables */
+  --primary-grad: linear-gradient(135deg, rgba(236, 72, 153, 1), rgba(139, 92, 246, 1), rgba(59, 130, 246, 1));
+  --primary-glow: rgba(139, 92, 246, 0.3);
+}
+
+/* ─── Gender Themes ──────────────────────────────────────── */
+[data-gender='male'] {
+  --primary-grad: linear-gradient(135deg, #2563eb, #3b82f6, #60a5fa);
+  --primary-glow: rgba(37, 99, 235, 0.35);
+  --primary: #3b82f6;
+  --primary-rgb: 59, 130, 246;
+}
+
+[data-gender='female'] {
+  --primary-grad: linear-gradient(135deg, #db2777, #ec4899, #f472b6);
+  --primary-glow: rgba(219, 39, 119, 0.35);
+  --primary: #ec4899;
+  --primary-rgb: 236, 72, 153;
+}
+
+[data-gender='other'], [data-gender='others'] {
+  --primary-grad: linear-gradient(135deg, #059669, #10b981, #34d399);
+  --primary-glow: rgba(5, 150, 105, 0.35);
+  --primary: #10b981;
+  --primary-rgb: 16, 185, 129;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -193,10 +219,10 @@ p  { font-size: 16px; color: var(--text-2); line-height: 1.7; }
 }
 
 .pd-btn-primary {
-  background: linear-gradient(135deg, rgba(236, 72, 153, 1), rgba(139, 92, 246, 1), rgba(59, 130, 246, 1));
+  background: var(--primary-grad);
   background-size: 200% 200%;
   color: white;
-  box-shadow: 0 4px 24px rgba(139, 92, 246, 0.2), 0 2px 8px rgba(236, 72, 153, 0.12);
+  box-shadow: 0 4px 24px var(--primary-glow), 0 2px 8px rgba(0, 0, 0, 0.2);
   animation: btnGradientShift 8s ease infinite;
 }
 .pd-btn-primary:hover {
@@ -384,7 +410,9 @@ p  { font-size: 16px; color: var(--text-2); line-height: 1.7; }
 }
 
 .dark-btn-primary {
-  background-color: #333;
+  background: var(--primary-grad);
+  background-size: 200% 200%;
+  animation: btnGradientShift 8s ease infinite;
 }
 
 .dark-btn-danger:hover {

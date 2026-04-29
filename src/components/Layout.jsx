@@ -80,7 +80,9 @@ export default function Layout() {
       <div className="ambient-bg" />
       <GeometricSphere />
 
-      <div style={{ 
+      <div 
+        data-gender={gen}
+        style={{ 
         display: 'flex', 
         flexDirection: 'column', 
         minHeight: '100vh', 
@@ -115,8 +117,8 @@ export default function Layout() {
             <div style={{ 
               width: '160px', 
               height: '36px',
-              backgroundColor: logoGradient[0],
-              backgroundImage: `linear-gradient(135deg, ${logoGradient[0]}, ${logoGradient[1]})`,
+              backgroundColor: 'var(--primary)',
+              backgroundImage: 'var(--primary-grad)',
               maskImage: 'url(/logo.png)',
               WebkitMaskImage: 'url(/logo.png)',
               maskSize: 'contain',
@@ -126,7 +128,7 @@ export default function Layout() {
               maskPosition: 'left center',
               WebkitMaskPosition: 'left center',
               transition: 'background 0.8s ease, filter 0.8s ease',
-              filter: `drop-shadow(0 0 14px ${logoGradient[0]}44)`
+              filter: 'drop-shadow(0 0 14px var(--primary-glow))'
             }} />
 
             {/* Center: SlideTabs */}
@@ -151,7 +153,7 @@ export default function Layout() {
                     boxShadow: '0 2px 12px rgba(0,0,0,0.2)'
                   }}>
                     <div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: baseColor }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>
                         {parseFloat(internalWalletBalance||0).toFixed(2)} <span style={{fontSize: 10, opacity: 0.5}}>XLM</span>
                       </div>
                     </div>
