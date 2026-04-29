@@ -1,18 +1,6 @@
 import React from 'react';
-import { useUser } from '../../hooks/useUser';
 
 export default function CinematicHero({ children, height = 'auto', minHeight = '400px', padding = '80px 0', breakout = false }) {
-  const { gender } = useUser();
-
-  // Theme-based tint color
-  const getThemeColor = () => {
-    const gen = gender ? gender.toLowerCase() : '';
-    if (gen === 'male') return '#2F4BA2';
-    if (gen === 'female') return '#E947F5';
-    return '#10B981'; // Other
-  };
-
-  const themeColor = getThemeColor();
 
   return (
     <div style={{ 

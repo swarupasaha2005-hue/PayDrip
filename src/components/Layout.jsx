@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import NotificationPanel from './NotificationPanel';
 import { SlideTabs } from './ui/slide-tabs';
 import PredictiveBanner from './ui/PredictiveBanner';
@@ -11,9 +11,8 @@ import { Sun, Moon, Plus } from 'lucide-react';
 import GeometricSphere from './ui/geometric-sphere';
 
 export default function Layout() {
-  const location = useLocation();
   const { gender } = useUser();
-  const { address, balance } = useWallet();
+  const { address } = useWallet();
   const { internalWalletBalance, addInternalFunds } = useApp();
   const { themeMode, toggleTheme } = useTheme();
 
@@ -27,20 +26,7 @@ export default function Layout() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const short = (a) => a ? `${a.slice(0,6)}…${a.slice(-4)}` : '';
-
   const gen = gender ? gender.toLowerCase() : '';
-  
-  let baseColor = '#E947F5';
-  if (gen === 'male') baseColor = '#2F4BA2';
-  else if (gen === 'other' || gen === 'others') baseColor = '#10B981';
-
-  let logoGradient = ['#E947F5', '#FF8AFB'];
-  if (gen === 'male') {
-    logoGradient = ['#2F4BA2', '#4BA5FA'];
-  } else if (gen === 'other' || gen === 'others') {
-    logoGradient = ['#10B981', '#34D399'];
-  }
 
   const themeGradients = {
     male: {

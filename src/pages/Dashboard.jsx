@@ -7,7 +7,7 @@ import UPISimulationModal from '../components/ui/UPISimulationModal';
 
 export default function Dashboard() {
   const { balance } = useWallet();
-  const { productionLogs, schedules, updateSchedule } = useApp();
+  const { productionLogs } = useApp();
   const navigate = useNavigate();
   const [upiConfig, setUpiConfig] = React.useState(null);
   

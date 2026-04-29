@@ -141,6 +141,49 @@ const features = [
   { icon: Globe,       title: 'Schedule Payments', sub: 'Lock and release funds by date', color: '#F8BBD0' },
 ];
 
+// ─── Gender Selection Button ────────────────────────────────
+const THEME_COLORS = {
+  male: {
+    accent: '#3b82f6',
+    glow: 'rgba(59, 130, 246, 0.25)',
+    bg: 'rgba(59, 130, 246, 0.03)'
+  },
+  female: {
+    accent: '#ec4899',
+    glow: 'rgba(236, 72, 153, 0.25)',
+    bg: 'rgba(236, 72, 153, 0.03)'
+  },
+  other: {
+    accent: '#10b981',
+    glow: 'rgba(16, 185, 129, 0.25)',
+    bg: 'rgba(16, 185, 129, 0.03)'
+  }
+};
+
+function GenderButton({ value, label, gender, setGender }) {
+  const active = gender === value;
+  return (
+    <button 
+      type="button"
+      onClick={() => setGender(value)}
+      className="dark-btn"
+      style={{
+        width: '100%',
+        padding: '16px',
+        borderRadius: '25px',
+        backgroundColor: active ? '#222' : '#171717',
+        boxShadow: active ? `inset 2px 5px 15px rgb(0, 0, 0), 0 0 20px ${THEME_COLORS[value].glow}` : 'inset 2px 5px 10px rgb(5, 5, 5)',
+        border: active ? `1px solid ${THEME_COLORS[value].accent}` : '1px solid transparent',
+        color: active ? 'white' : '#d3d3d3',
+        transition: '.4s ease-in-out',
+        transform: active ? 'scale(1.05)' : 'scale(1)'
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
 // ─── Main Component ─────────────────────────────────────────
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -151,24 +194,6 @@ export default function Onboarding() {
     e.preventDefault();
     if (name.trim() && gender) {
       navigate('/dashboard');
-    }
-  };
-
-  const themeColors = {
-    male: {
-      accent: '#3b82f6',
-      glow: 'rgba(59, 130, 246, 0.25)',
-      bg: 'rgba(59, 130, 246, 0.03)'
-    },
-    female: {
-      accent: '#ec4899',
-      glow: 'rgba(236, 72, 153, 0.25)',
-      bg: 'rgba(236, 72, 153, 0.03)'
-    },
-    other: {
-      accent: '#10b981',
-      glow: 'rgba(16, 185, 129, 0.25)',
-      bg: 'rgba(16, 185, 129, 0.03)'
     }
   };
 
@@ -197,34 +222,10 @@ export default function Onboarding() {
 
   const curGrad = themeGradients[gender] || themeGradients.default;
 
-  const activeTheme = gender ? themeColors[gender] : {
+  const activeTheme = gender ? THEME_COLORS[gender] : {
     accent: 'rgba(255, 255, 255, 0.05)',
     glow: 'rgba(0, 0, 0, 0)',
     bg: 'transparent'
-  };
-
-  const GenderButton = ({ value, label }) => {
-    const active = gender === value;
-    return (
-      <button 
-        type="button"
-        onClick={() => setGender(value)}
-        className="dark-btn"
-        style={{
-          width: '100%',
-          padding: '16px',
-          borderRadius: '25px',
-          backgroundColor: active ? '#222' : '#171717',
-          boxShadow: active ? `inset 2px 5px 15px rgb(0, 0, 0), 0 0 20px ${themeColors[value].glow}` : 'inset 2px 5px 10px rgb(5, 5, 5)',
-          border: active ? `1px solid ${themeColors[value].accent}` : '1px solid transparent',
-          color: active ? 'white' : '#d3d3d3',
-          transition: '.4s ease-in-out',
-          transform: active ? 'scale(1.05)' : 'scale(1)'
-        }}
-      >
-        {label}
-      </button>
-    );
   };
 
   // ─── Step 1: Landing ────────────────────────────────────
@@ -349,10 +350,10 @@ export default function Onboarding() {
           <div style={{ marginBottom: 40 }}>
             <label className="pd-field-label" style={{ marginBottom: 16, display: 'block', marginLeft: '12px' }}>Identification</label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-              <GenderButton value="male" label="Male" />
-              <GenderButton value="female" label="Female" />
+              <GenderButton value="male" label="Male" gender={gender} setGender={setGender} />
+              <GenderButton value="female" label="Female" gender={gender} setGender={setGender} />
             </div>
-            <GenderButton value="other" label="Non-Binary / Other" />
+            <GenderButton value="other" label="Non-Binary / Other" gender={gender} setGender={setGender} />
           </div>
 
           <button 
