@@ -80,6 +80,56 @@ body {
   background-size: 256px 256px;
 }
 
+/* ─── Geometric Sphere (Ambient Background) ─────────────── */
+.geo-sphere-wrapper {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 700px;
+  height: 700px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.geo-sphere-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(236, 72, 153, 0.3) 0%,
+    rgba(59, 130, 246, 0.18) 40%,
+    rgba(16, 185, 129, 0.12) 70%,
+    transparent 100%
+  );
+  filter: blur(60px);
+}
+
+.geo-sphere-rotator {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  animation: sphereRotate 300s linear infinite;
+}
+
+.geo-sphere-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  transform-style: preserve-3d;
+}
+
+@keyframes sphereRotate {
+  from { transform: rotateY(0deg) rotateX(0deg); }
+  to   { transform: rotateY(360deg) rotateX(360deg); }
+}
 
 
 /* ─── Typography ────────────────────────────────────────── */
@@ -143,18 +193,26 @@ p  { font-size: 16px; color: var(--text-2); line-height: 1.7; }
 }
 
 .pd-btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  background: linear-gradient(135deg, rgba(236, 72, 153, 1), rgba(139, 92, 246, 1), rgba(59, 130, 246, 1));
+  background-size: 200% 200%;
   color: white;
-  box-shadow: 0 4px 20px rgba(var(--primary-rgb), 0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+  box-shadow: 0 4px 24px rgba(139, 92, 246, 0.2), 0 2px 8px rgba(236, 72, 153, 0.12);
+  animation: btnGradientShift 8s ease infinite;
 }
 .pd-btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(var(--primary-rgb), 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
-  filter: brightness(1.08);
+  box-shadow: 0 8px 36px rgba(139, 92, 246, 0.3), 0 4px 16px rgba(59, 130, 246, 0.2), 0 0 20px rgba(236, 72, 153, 0.15);
+  filter: brightness(1.1);
 }
 .pd-btn-primary:active {
   transform: translateY(0);
-  box-shadow: 0 2px 12px rgba(var(--primary-rgb), 0.3);
+  box-shadow: 0 2px 12px rgba(139, 92, 246, 0.25);
+}
+
+@keyframes btnGradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .pd-btn-ghost {
@@ -231,6 +289,34 @@ p  { font-size: 16px; color: var(--text-2); line-height: 1.7; }
   border-radius: 25px;
   transition: .4s ease-in-out;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.dark-form::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(236, 72, 153, 0.15) 0%,
+    rgba(139, 92, 246, 0.12) 35%,
+    rgba(59, 130, 246, 0.08) 60%,
+    transparent 100%
+  );
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dark-form > * {
+  position: relative;
+  z-index: 1;
 }
 
 .dark-form:hover {

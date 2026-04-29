@@ -8,6 +8,7 @@ import { useWallet } from '../hooks/useWallet';
 import { useApp } from '../hooks/useApp';
 import { useTheme } from './ThemeProvider';
 import { Sun, Moon, Plus } from 'lucide-react';
+import GeometricSphere from './ui/geometric-sphere';
 
 export default function Layout() {
   const location = useLocation();
@@ -77,6 +78,7 @@ export default function Layout() {
     <>
       {/* Ambient Background — always visible */}
       <div className="ambient-bg" />
+      <GeometricSphere />
 
       <div style={{ 
         display: 'flex', 

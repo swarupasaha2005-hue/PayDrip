@@ -5,6 +5,7 @@ import { ShieldCheck, Zap, Globe, User, UserCircle } from 'lucide-react';
 import { Canvas, useFrame, extend } from '@react-three/fiber';
 import { shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
+import GeometricSphere from '../components/ui/geometric-sphere';
 
 // ─── Inline Fluid Shader (the living blob) ──────────────────
 const FluidMaterial = shaderMaterial(
@@ -241,6 +242,7 @@ export default function Onboarding() {
         '--h-grad-end': curGrad.end,
         '--h-glow': curGrad.glow
       }}>
+        <GeometricSphere />
           <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, maxWidth: 1100, width: '100%', alignItems: 'center' }}>
             <div style={{ paddingRight: 40 }}>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: 56 }}>
@@ -306,6 +308,7 @@ export default function Onboarding() {
       '--h-grad-end': curGrad.end,
       '--h-glow': curGrad.glow
     }}>
+      <GeometricSphere />
         <form 
           className="dark-form" 
           onSubmit={handleFinish} 
