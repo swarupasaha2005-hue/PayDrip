@@ -128,61 +128,61 @@ export default function Vault() {
   };
 
   return (
-    <div className="spatial-spread fade-up">
-       <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: 32, fontWeight: 700, margin: '0 0 4px', letterSpacing: '-0.5px' }}>Payment Protection</h1>
-        <p style={{ color: 'var(--text-3)', fontSize: 16 }}>Secure your funds with multi-approval rules and trusted backups.</p>
+    <div className="fade-up" style={{ maxWidth: '1200px', margin: '0 auto', paddingTop: '40px' }}>
+       <div style={{ marginBottom: 64 }}>
+        <h1 style={{ color: 'white' }}>Payment Protection</h1>
+        <p style={{ color: 'var(--text-3)', fontSize: 20, fontWeight: 500 }}>Secure your funds with multi-approval rules and trusted backups.</p>
        </div>
 
-       <div className="stitch-layout-grid">
+       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 40 }}>
          
          {/* Left Column: Smart Rules & Threshold */}
-         <div style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column', gap: 32 }}>
-            <div className="pd-card-v2" style={{ textAlign: 'center' }}>
-               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32 }}>
+         <div style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column', gap: 40 }}>
+            <div className="glass-panel" style={{ textAlign: 'center', padding: '48px 32px' }}>
+               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 40 }}>
                  <ShieldCheck size={20} color="var(--primary)" />
-                 <h3 style={{ fontSize: 16, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Multi-Approval Factor</h3>
+                 <h3 style={{ fontSize: 14, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '2px' }}>Multi-Approval Factor</h3>
                </div>
                
-               <div style={{ position: 'relative', width: 220, height: 220, margin: '0 auto 32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)', filter: 'drop-shadow(0 0 8px rgba(var(--primary-rgb), 0.2))' }}>
-                    <circle cx="50" cy="50" r="44" fill="none" stroke="var(--surface-2)" strokeWidth="8" />
+               <div style={{ position: 'relative', width: 220, height: 220, margin: '0 auto 40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)', filter: 'drop-shadow(0 0 20px rgba(var(--primary-rgb), 0.3))' }}>
+                    <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="6" />
                     <circle 
-                      cx="50" cy="50" r="44" fill="none" stroke="var(--primary)" strokeWidth="8" 
+                      cx="50" cy="50" r="44" fill="none" stroke="var(--primary)" strokeWidth="6" 
                       strokeDasharray="276.5" strokeDashoffset={276.5 - (276.5 * (approvalThreshold / Math.max(1, trustedContacts.length)))} 
                       strokeLinecap="round" style={{ transition: 'stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1)' }} 
                     />
                   </svg>
                   <div style={{ position: 'absolute', textAlign: 'center' }}>
-                     <Shield size={32} color="var(--primary)" style={{ marginBottom: 8 }} />
-                     <div style={{ fontSize: 42, fontWeight: 800, lineHeight: 1, color: 'var(--text)' }}>{approvalThreshold}</div>
-                     <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', marginTop: 4 }}>of {trustedContacts.length} Req.</div>
+                     <Shield size={32} color="var(--primary)" style={{ marginBottom: 12, opacity: 0.8 }} />
+                     <div style={{ fontSize: 48, fontWeight: 800, lineHeight: 1, color: 'white' }}>{approvalThreshold}</div>
+                     <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', marginTop: 6, letterSpacing: '1px' }}>of {trustedContacts.length} Req.</div>
                   </div>
                </div>
 
-               <div className="pd-field" style={{ padding: '8px', borderRadius: '15px', background: 'var(--surface-2)' }}>
-                 <button disabled={!isPrimary} className="pd-btn pd-btn-ghost" style={{ flex: 1, borderRadius: '12px', padding: '10px' }} onClick={() => setApprovalThreshold(Math.max(1, approvalThreshold - 1))}>
+               <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.03)', borderRadius: '100px', border: '1px solid var(--glass-border)', padding: '6px' }}>
+                 <button disabled={!isPrimary} className="pd-btn pd-btn-ghost" style={{ width: 44, height: 44, padding: 0, borderRadius: '50%' }} onClick={() => setApprovalThreshold(Math.max(1, approvalThreshold - 1))}>
                    <Minus size={16} />
                  </button>
-                 <div style={{ flex: 2, fontSize: 14, fontWeight: 800, color: 'var(--text)' }}>APPROVALS NEEDED</div>
-                 <button disabled={!isPrimary} className="pd-btn pd-btn-ghost" style={{ flex: 1, borderRadius: '12px', padding: '10px' }} onClick={() => setApprovalThreshold(Math.min(trustedContacts.length, approvalThreshold + 1))}>
+                 <div style={{ flex: 1, fontSize: 11, fontWeight: 800, color: 'white', letterSpacing: '1px' }}>THRESHOLD</div>
+                 <button disabled={!isPrimary} className="pd-btn pd-btn-ghost" style={{ width: 44, height: 44, padding: 0, borderRadius: '50%' }} onClick={() => setApprovalThreshold(Math.min(trustedContacts.length, approvalThreshold + 1))}>
                    <Plus size={16} />
                  </button>
                </div>
             </div>
 
-            <div className="pd-card-v2" style={{ background: 'var(--bg)', borderStyle: 'solid' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                <Settings2 size={20} color="var(--primary)" />
-                <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Smart Payment Rules</span>
+            <div className="dark-form" style={{ padding: '32px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
+                <Settings2 size={18} color="var(--primary)" />
+                <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '1px' }}>Smart Payment Rules</span>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                 <div>
-                  <label className="pd-field-label">Require Multi-Approval Above</label>
-                  <div className="pd-field">
+                  <label className="pd-field-label" style={{ marginBottom: 8, display: 'block' }}>Require Multi-Approval Above</label>
+                  <div className="dark-field">
                     <input 
                       type="number" 
-                      className="pd-input" 
+                      className="dark-input" 
                       value={protectionRules.amountLimit} 
                       onChange={(e) => setProtectionRules({...protectionRules, amountLimit: e.target.value})}
                       disabled={!isPrimary}
@@ -191,11 +191,11 @@ export default function Vault() {
                   </div>
                 </div>
                 <div>
-                  <label className="pd-field-label">Auto-Execute Delay (No Response)</label>
-                  <div className="pd-field">
+                  <label className="pd-field-label" style={{ marginBottom: 8, display: 'block' }}>Auto-Execute Delay (No Response)</label>
+                  <div className="dark-field">
                     <input 
                       type="number" 
-                      className="pd-input" 
+                      className="dark-input" 
                       value={protectionRules.fallbackDelayHours} 
                       onChange={(e) => setProtectionRules({...protectionRules, fallbackDelayHours: e.target.value})}
                       disabled={!isPrimary}
@@ -208,37 +208,37 @@ export default function Vault() {
          </div>
 
          {/* Right Side: Trusted Contacts and Pending Approvals */}
-         <div style={{ gridColumn: 'span 8', display: 'flex', flexDirection: 'column', gap: 32 }}>
+         <div style={{ gridColumn: 'span 8', display: 'flex', flexDirection: 'column', gap: 40 }}>
             
             {/* Trusted Contacts Manager */}
-            <div className="pd-card-v2">
-               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
-                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div className="glass-panel" style={{ padding: '40px' }}>
+               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 40 }}>
+                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                    <Key size={20} color="var(--text-3)" />
-                   <h3 style={{ fontSize: 18, fontWeight: 700 }}>Manage Access: Trusted Contacts</h3>
+                   <h3 style={{ fontSize: 20, fontWeight: 700 }}>Trusted Access</h3>
                  </div>
                  {isPrimary && (
-                   <button className="pd-btn pd-btn-primary" onClick={addContact} style={{ padding: '8px 18px', fontSize: 12, borderRadius: '12px' }}>
-                     <Plus size={14} /> Add Trusted Contact
+                   <button className="pd-btn pd-btn-primary" onClick={addContact} style={{ padding: '10px 24px', fontSize: 13 }}>
+                     <Plus size={16} /> Add Contact
                    </button>
                  )}
                </div>
                
-               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
+               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>
                  {trustedContacts.map((contact) => (
-                   <div key={contact.id} className="pd-field" style={{ justifyContent: 'space-between', padding: '16px 20px' }}>
-                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                       <div style={{ width: 10, height: 10, borderRadius: '50%', background: contact.role === 'Primary' ? 'var(--primary)' : 'var(--accent)', boxShadow: `0 0 10px ${contact.role === 'Primary' ? 'var(--primary)' : 'var(--accent)'}` }} />
-                       <span style={{ fontSize: 14, fontFamily: 'monospace', fontWeight: 600 }}>{short(contact.address)}</span>
-                       {contact.address === address && <span className="badge" style={{ fontSize: 9 }}>YOU</span>}
+                   <div key={contact.id} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 24px' }}>
+                     <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                       <div style={{ width: 10, height: 10, borderRadius: '50%', background: contact.role === 'Primary' ? 'var(--primary)' : 'var(--accent)', boxShadow: `0 0 12px ${contact.role === 'Primary' ? 'var(--primary)' : 'var(--accent)'}` }} />
+                       <span style={{ fontSize: 14, fontFamily: 'monospace', fontWeight: 600, color: 'white' }}>{short(contact.address)}</span>
+                       {contact.address === address && <span style={{ fontSize: 9, fontWeight: 800, background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '4px' }}>YOU</span>}
                      </div>
                      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                       <span className="badge" style={{ borderRadius: '10px', fontSize: 10, padding: '4px 10px' }}>
-                         {contact.role === 'Primary' ? 'Owner' : 'Backup Backup'}
+                       <span style={{ borderRadius: '100px', fontSize: 10, padding: '4px 12px', background: 'rgba(255,255,255,0.03)', color: 'var(--text-3)', fontWeight: 700 }}>
+                         {contact.role === 'Primary' ? 'OWNER' : 'BACKUP'}
                        </span>
                        {isPrimary && contact.role !== 'Primary' && (
-                         <button onClick={() => removeContact(contact.id)} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }} title="Remove Contact">
-                           <XCircle size={18} color="var(--error)" />
+                         <button onClick={() => removeContact(contact.id)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', opacity: 0.6 }} title="Remove Contact">
+                           <X size={18} color="var(--error)" />
                          </button>
                        )}
                      </div>
@@ -248,23 +248,23 @@ export default function Vault() {
             </div>
 
             {/* Approvals Queue */}
-            <div className="pd-card-v2" style={{ flex: 1 }}>
-               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
-                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div className="glass-panel" style={{ flex: 1, padding: '40px' }}>
+               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 40 }}>
+                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                    <HardDrive size={20} color="var(--text-3)" />
-                   <h3 style={{ fontSize: 18, fontWeight: 700 }}>Approval Queue</h3>
+                   <h3 style={{ fontSize: 20, fontWeight: 700 }}>Approval Queue</h3>
                  </div>
-                 <button className="pd-btn pd-btn-ghost" onClick={simulateTx} title="Simulate Mock Payment" style={{ padding: '8px', width: 36, height: 36, borderRadius: '10px' }}>
-                   <Send size={16} />
+                 <button className="pd-btn pd-btn-ghost" onClick={simulateTx} title="Simulate Mock Payment" style={{ width: 44, height: 44, padding: 0, borderRadius: '50%' }}>
+                   <Send size={18} />
                  </button>
                </div>
 
                {pendingApprovals.length === 0 ? (
-                 <div style={{ textAlign: 'center', padding: '60px 0', background: 'var(--surface-2)', borderRadius: '24px', border: '2px dashed var(--border)' }}>
-                   <div style={{ background: 'var(--surface)', width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                 <div style={{ textAlign: 'center', padding: '80px 0', background: 'rgba(255,255,255,0.01)', borderRadius: '24px', border: '1px dashed var(--glass-border)' }}>
+                   <div style={{ background: 'rgba(255,255,255,0.03)', width: 80, height: 80, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', border: '1px solid var(--glass-border)' }}>
                      <Clock size={32} color="var(--text-3)" />
                    </div>
-                   <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-3)' }}>No Pending Payments.</p>
+                   <p style={{ fontSize: 18, fontWeight: 500, color: 'var(--text-3)' }}>No Pending Payments.</p>
                  </div>
                ) : (
                  <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -318,9 +318,17 @@ export default function Vault() {
                               </div>
                             ) : (
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: statusColor, fontSize: 13, fontWeight: 800, textTransform: 'uppercase' }}>
-                                {tx.status === 'Approved' ? <><CheckCircle2 size={16} /> EXECUTED</> : 
-                                 tx.status === 'Rejected' ? <><X size={16} /> REJECTED</> : 
-                                 hasApproved ? 'Waiting for others...' : 'Read Only'}
+                                {tx.hash && tx.status !== 'Paid via UPI' && (
+                                  <a 
+                                    href={`https://testnet.stellarchain.io/transactions/${tx.hash}`} 
+                                    target="_blank" 
+                                    rel="noreferrer" 
+                                    className="pd-btn pd-btn-ghost" 
+                                    style={{ width: 44, height: 44, padding: 0, borderRadius: '50%' }}
+                                  >
+                                    <ExternalLink size={18} />
+                                  </a>
+                                )}
                               </div>
                             )}
                           </div>

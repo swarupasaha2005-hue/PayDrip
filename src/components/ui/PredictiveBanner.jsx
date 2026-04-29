@@ -162,7 +162,7 @@ export default function PredictiveBanner() {
           background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
         }}>
-          <div className="pd-card-v2 fade-up" style={{ width: '100%', maxWidth: 460, padding: 32, position: 'relative' }}>
+          <div className="dark-form fade-up" style={{ width: '100%', maxWidth: 460, padding: 32, position: 'relative' }}>
             {!isProcessing && !isSuccess && (
               <button 
                 onClick={() => setShowAllocateModal(false)}
@@ -192,12 +192,12 @@ export default function PredictiveBanner() {
               <>
                 <div style={{ marginBottom: 32 }}>
                   <label className="pd-field-label">Amount (XLM)</label>
-                  <div className="pd-field">
+                  <div className="dark-field">
                     <input 
                       type="number" 
                       value={fundingAmount} 
                       onChange={e => setFundingAmount(e.target.value)}
-                      className="pd-input"
+                      className="dark-input"
                       placeholder="Enter amount..."
                     />
                     <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--primary)' }}>XLM</div>
@@ -212,16 +212,16 @@ export default function PredictiveBanner() {
                   <button 
                     onClick={executeFunding}
                     disabled={isProcessing || !fundingAmount || parseFloat(fundingAmount) > parseFloat(balance || 0)}
-                    className="pd-btn pd-btn-primary" 
-                    style={{ width: '100%', padding: '16px', borderRadius: 16 }}
+                    className="dark-btn dark-btn-primary" 
+                    style={{ width: '100%', padding: '16px', borderRadius: 25 }}
                   >
                     {isProcessing ? <><Loader2 size={18} className="spin" /> Processing...</> : 'Confirm Allocation'}
                   </button>
                   <button 
                     onClick={() => setShowAllocateModal(false)}
                     disabled={isProcessing}
-                    className="pd-btn pd-btn-ghost" 
-                    style={{ width: '100%', padding: '16px', borderRadius: 16 }}
+                    className="dark-btn" 
+                    style={{ width: '100%', padding: '16px', borderRadius: 25 }}
                   >
                     Cancel
                   </button>

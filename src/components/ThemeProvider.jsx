@@ -23,10 +23,10 @@ const MODE_VARS = {
     'cursor-stroke': '#FFFFFF'
   },
   dark: {
-    '--bg': '#0F172A',
-    '--surface': '#1E293B',
-    '--surface-2': '#334155',
-    '--border': '#334155',
+    '--bg': '#000000',
+    '--surface': '#0A0A0A',
+    '--surface-2': '#121212',
+    '--border': '#1F1F1F',
     '--text': '#F8FAFC',
     '--text-2': '#CBD5E1',
     '--text-3': '#94A3B8',

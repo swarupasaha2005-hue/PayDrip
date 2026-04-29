@@ -37,59 +37,59 @@ export default function SmartPlanner() {
   };
 
   return (
-    <div className="spatial-spread fade-up">
-      <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: 32, fontWeight: 700, margin: '0 0 4px', letterSpacing: '-0.5px' }}>Smart Planner</h1>
-        <p style={{ color: 'var(--text-3)', fontSize: 16 }}>Configure automated payment schedules and risk bounds.</p>
+    <div className="fade-up" style={{ maxWidth: '1100px', margin: '0 auto', paddingTop: '40px' }}>
+      <div style={{ marginBottom: 64 }}>
+        <h1 style={{ color: 'white' }}>Smart Planner</h1>
+        <p style={{ color: 'var(--text-3)', fontSize: 20, fontWeight: 500 }}>Configure automated payment schedules and risk bounds.</p>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 64 }}>
         
         {/* Top Configuration Module */}
-        <div className="pd-card-v2" style={{ background: 'var(--bg)', borderStyle: 'dashed' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
-            <div style={{ background: 'var(--primary)', padding: '10px', borderRadius: '15px', boxShadow: '0 4px 15px rgba(var(--primary-rgb), 0.2)' }}>
-              <Cpu size={22} color="white" />
+        <div className="dark-form" style={{ padding: '48px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 40 }}>
+            <div style={{ background: 'rgba(var(--primary-rgb), 0.1)', padding: '12px', borderRadius: '16px', border: '1px solid rgba(var(--primary-rgb), 0.2)' }}>
+              <Cpu size={24} color="var(--primary)" />
             </div>
             <h3 style={{ fontSize: 20, fontWeight: 700 }}>Plan Parameters</h3>
           </div>
           
-          <div className="stitch-layout-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 32 }}>
             <div style={{ gridColumn: 'span 4' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                <label className="pd-field-label" style={{ paddingLeft: 0 }}>Target Yield ({currencyMode})</label>
+                <label className="pd-field-label" style={{ paddingLeft: 0 }}>Target ({currencyMode})</label>
                 <div 
                   onClick={() => setCurrencyMode(prev => prev === 'XLM' ? 'INR' : 'XLM')}
                   style={{ 
                     fontSize: 10, fontWeight: 800, color: 'var(--primary)', cursor: 'pointer', 
-                    padding: '4px 10px', background: 'var(--surface)', borderRadius: '12px', 
-                    border: '1px solid var(--border)', textTransform: 'uppercase', letterSpacing: '0.5px' 
+                    padding: '4px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: '100px', 
+                    border: '1px solid var(--glass-border)', textTransform: 'uppercase', letterSpacing: '1px' 
                   }}
                 >
-                  {currencyMode === 'XLM' ? '→ INR' : '→ XLM'}
+                  {currencyMode === 'XLM' ? 'USE INR' : 'USE XLM'}
                 </div>
               </div>
-              <div className="pd-field" style={{ padding: '16px 20px' }}>
+              <div className="dark-field" style={{ padding: '16px 20px' }}>
                 <input 
                   type="number" 
-                  className="pd-input" 
+                  className="dark-input" 
                   placeholder={currencyMode === 'XLM' ? 'e.g. 500' : 'e.g. 4500'} 
                   value={intent.target} 
                   onChange={e => setIntent({ ...intent, target: e.target.value })} 
                 />
               </div>
-              <div style={{ marginTop: 12, fontSize: 13, color: 'var(--text-3)', fontWeight: 600, paddingLeft: 4 }}>
-                {intent.target && currencyMode === 'INR' && `Estimated: ${(parseFloat(intent.target) / inrRate).toFixed(2)} XLM`}
-                {intent.target && currencyMode === 'XLM' && `Estimated: ₹${(parseFloat(intent.target) * inrRate).toLocaleString()}`}
+              <div style={{ marginTop: 12, fontSize: 13, color: 'var(--text-3)', fontWeight: 600 }}>
+                {intent.target && currencyMode === 'INR' && `~ ${(parseFloat(intent.target) / inrRate).toFixed(2)} XLM`}
+                {intent.target && currencyMode === 'XLM' && `~ ₹${(parseFloat(intent.target) * inrRate).toLocaleString()}`}
               </div>
             </div>
             
             <div style={{ gridColumn: 'span 4' }}>
-              <label className="pd-field-label" style={{ display: 'block', marginBottom: 12, paddingLeft: 0 }}>Timeline Strategy</label>
-              <div className="pd-field" style={{ padding: '16px 20px', flexDirection: 'column', alignItems: 'stretch', gap: 12 }}>
+              <label className="pd-field-label" style={{ display: 'block', marginBottom: 12 }}>Timeline Strategy</label>
+              <div className="dark-field" style={{ padding: '16px 24px', flexDirection: 'column', alignItems: 'stretch', gap: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 14, fontWeight: 700 }}>{intent.timeline} Weeks</span>
-                  <TrendingUp size={14} color="var(--primary)" />
+                  <span style={{ fontSize: 15, fontWeight: 800, color: 'white' }}>{intent.timeline} Weeks</span>
+                  <TrendingUp size={16} color="var(--primary)" />
                 </div>
                 <input 
                   type="range" 
@@ -102,11 +102,11 @@ export default function SmartPlanner() {
             </div>
 
             <div style={{ gridColumn: 'span 4' }}>
-              <label className="pd-field-label" style={{ display: 'block', marginBottom: 12, paddingLeft: 0 }}>Drift Flexibility</label>
-              <div className="pd-field" style={{ padding: '16px 20px', flexDirection: 'column', alignItems: 'stretch', gap: 12 }}>
+              <label className="pd-field-label" style={{ display: 'block', marginBottom: 12 }}>Drift Flexibility</label>
+              <div className="dark-field" style={{ padding: '16px 24px', flexDirection: 'column', alignItems: 'stretch', gap: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 14, fontWeight: 700 }}>± {intent.flexibility}% Range</span>
-                  <BarChart3 size={14} color="var(--accent)" />
+                  <span style={{ fontSize: 15, fontWeight: 800, color: 'white' }}>± {intent.flexibility}% Range</span>
+                  <BarChart3 size={16} color="var(--accent)" />
                 </div>
                 <input 
                   type="range" 
@@ -122,11 +122,11 @@ export default function SmartPlanner() {
 
         {/* Risk Matrices Row */}
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
             <Gauge size={20} color="var(--text-3)" />
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-2)', letterSpacing: '-0.3px' }}>Execution Protocol</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '2px' }}>Execution Protocol</h3>
           </div>
-          <div className="stitch-layout-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
             {strategiesValid.map(strategy => {
               const isSelected = intent.risk === strategy.id;
               const Icon = strategy.icon;
@@ -134,25 +134,24 @@ export default function SmartPlanner() {
                 <div 
                   key={strategy.id} 
                   onClick={() => setIntent({ ...intent, risk: strategy.id })}
-                  className="pd-card-v2" 
+                  className="glass-panel" 
                   style={{ 
-                    gridColumn: 'span 4', 
+                    padding: '32px',
                     cursor: 'pointer',
-                    borderColor: isSelected ? strategy.accent : 'var(--border)',
-                    background: isSelected ? `rgba(var(--primary-rgb), 0.03)` : 'var(--surface)',
-                    boxShadow: isSelected ? `0 8px 30px rgba(0,0,0,0.1)` : 'none'
+                    borderColor: isSelected ? 'white' : 'var(--glass-border)',
+                    background: isSelected ? `rgba(255,255,255,0.05)` : 'rgba(255,255,255,0.01)',
                   }}
                 >
                   <div style={{ 
-                    width: '44px', height: '44px', borderRadius: '14px', 
-                    background: isSelected ? strategy.accent : 'var(--surface-2)',
+                    width: '48px', height: '48px', borderRadius: '16px', 
+                    background: isSelected ? 'white' : 'rgba(255,255,255,0.03)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    marginBottom: 20, transition: 'all 0.3s ease'
+                    marginBottom: 24, transition: 'all 0.3s ease'
                   }}>
-                    <Icon size={24} color={isSelected ? 'white' : 'var(--text-3)'} />
+                    <Icon size={24} color={isSelected ? 'black' : 'var(--text-3)'} />
                   </div>
-                  <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 8, color: 'var(--text)' }}>{strategy.label}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-3)', lineHeight: 1.6 }}>{strategy.desc}</div>
+                  <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 12, color: 'white' }}>{strategy.label}</div>
+                  <div style={{ fontSize: 14, color: 'var(--text-3)', lineHeight: 1.6, fontWeight: 500 }}>{strategy.desc}</div>
                 </div>
               );
             })}
@@ -160,26 +159,26 @@ export default function SmartPlanner() {
         </div>
 
         {/* How It Works Layer */}
-        <div style={{ marginTop: 8 }}>
-          <h3 className="pd-field-label" style={{ marginBottom: 24, paddingLeft: 0 }}>Engine Workflow</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16 }}>
+        <div>
+          <h3 style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: 24 }}>Engine Workflow</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 20 }}>
             {[
-              { t: 'Goal Anchor', d: 'Choose total extraction target' },
-              { t: 'Velocity Map', d: 'Define pay-over-time constraints' },
-              { t: 'Drift Bounds', d: 'Set adjustment flexibility buffers' },
-              { t: 'Risk Profile', d: 'Select execution strategy' },
-              { t: 'Live Streaming', d: 'Autonomous drip sequences' }
+              { t: 'Goal Anchor', d: 'Choose extraction target' },
+              { t: 'Velocity Map', d: 'Define time constraints' },
+              { t: 'Drift Bounds', d: 'Set flexibility buffers' },
+              { t: 'Risk Profile', d: 'Select strategy' },
+              { t: 'Sequencing', d: 'Autonomous drips' }
             ].map((step, i) => (
-              <div key={i} className="pd-field" style={{ 
-                flexDirection: 'column', alignItems: 'flex-start', padding: '20px', 
-                gap: 12, background: 'var(--surface)', borderRadius: '22px', borderStyle: 'solid' 
+              <div key={i} className="glass-card" style={{ 
+                padding: '24px', 
+                background: 'rgba(255,255,255,0.01)', borderRadius: '24px' 
               }}>
-                <div style={{ width: 24, height: 24, borderRadius: '8px', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800 }}>
+                <div style={{ width: 28, height: 28, borderRadius: '10px', background: 'rgba(var(--primary-rgb), 0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, marginBottom: 16 }}>
                   0{i + 1}
                 </div>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>{step.t}</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-3)', lineHeight: 1.5 }}>{step.d}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 8 }}>{step.t}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-3)', lineHeight: 1.6, fontWeight: 500 }}>{step.d}</div>
                 </div>
               </div>
             ))}
@@ -187,9 +186,9 @@ export default function SmartPlanner() {
         </div>
 
         {/* Action Row */}
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <button className="pd-btn pd-btn-primary" onClick={pushIntent} style={{ padding: '20px 60px', borderRadius: '30px', fontSize: 16 }}>
-            Deploy Auto Plan <ArrowRight size={20} />
+        <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 80 }}>
+          <button className="dark-btn" onClick={pushIntent} style={{ padding: '20px 80px', borderRadius: '25px', fontSize: 18 }}>
+            Deploy Autonomous Plan <ArrowRight size={20} />
           </button>
         </div>
 

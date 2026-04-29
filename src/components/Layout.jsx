@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import NotificationPanel from './NotificationPanel';
-import PillNav from './ui/PillNav';
+import { SlideTabs } from './ui/slide-tabs';
 import PredictiveBanner from './ui/PredictiveBanner';
 import { useUser } from '../hooks/useUser';
 import { useWallet } from '../hooks/useWallet';
@@ -28,30 +28,11 @@ export default function Layout() {
 
   const short = (a) => a ? `${a.slice(0,6)}…${a.slice(-4)}` : '';
 
-  const pillItems = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Payments', href: '/subscriptions' },
-    { label: 'Planner', href: '/planner' },
-    { label: 'Vault', href: '/vault' },
-    { label: 'Activity', href: '/activity' },
-    { label: 'Metrics', href: '/metrics' },
-    { label: 'Contract', href: '/contract-view' }
-  ];
-
-  let baseColor = 'var(--primary)'; // default
-  let pillColor = 'var(--bg)';
-  const hoverText = '#ffffff';
-
   const gen = gender ? gender.toLowerCase() : '';
-  if (gen === 'male') {
-    baseColor = '#2F4BA2';
-  } else if (gen === 'female' || !gen) {
-    baseColor = '#E947F5';
-  } else {
-    baseColor = '#10B981';
-  }
-
-  pillColor = themeMode === 'light' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(22, 22, 28, 0.6)';
+  
+  let baseColor = '#E947F5';
+  if (gen === 'male') baseColor = '#2F4BA2';
+  else if (gen === 'other' || gen === 'others') baseColor = '#10B981';
 
   let logoGradient = ['#E947F5', '#FF8AFB'];
   if (gen === 'male') {
@@ -60,119 +41,157 @@ export default function Layout() {
     logoGradient = ['#10B981', '#34D399'];
   }
 
+  const themeGradients = {
+    male: {
+      start: '#94b9ff',
+      end: '#5c8eff',
+      glow: 'rgba(92, 142, 255, 0.15)'
+    },
+    female: {
+      start: '#ff9eb5',
+      end: '#f472b6',
+      glow: 'rgba(244, 114, 182, 0.15)'
+    },
+    other: {
+      start: '#86efac',
+      end: '#10b981',
+      glow: 'rgba(16, 185, 129, 0.15)'
+    },
+    others: {
+      start: '#86efac',
+      end: '#10b981',
+      glow: 'rgba(16, 185, 129, 0.15)'
+    },
+    default: {
+      start: '#F1F5F9',
+      end: '#94A3B8',
+      glow: 'rgba(255, 255, 255, 0.05)'
+    }
+  };
+
+  const curGrad = themeGradients[gen] || themeGradients.default;
+
+  const headerBlur = scrollY > 20;
+
   return (
     <>
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100vw', position: 'relative' }}>
-        <main className="main-content" style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: 0 }}>
+      {/* Ambient Background — always visible */}
+      <div className="ambient-bg" />
+
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        minHeight: '100vh', 
+        width: '100vw', 
+        position: 'relative', 
+        zIndex: 1,
+        '--h-grad-start': curGrad.start,
+        '--h-grad-end': curGrad.end,
+        '--h-glow': curGrad.glow
+      }}>
+        <main style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: 0 }}>
           
-          {/* PayDrip Dynamic Logo mapped to natural doc flow */}
-          <div style={{ 
-            position: 'absolute', 
-            left: '29px', 
-            top: '20px', 
-            zIndex: 100,
-            width: '140px', 
-            height: '40px',
-            backgroundColor: logoGradient[0],
-            backgroundImage: `linear-gradient(135deg, ${logoGradient[0]}, ${logoGradient[1]})`,
-            maskImage: 'url(/logo.png)',
-            WebkitMaskImage: 'url(/logo.png)',
-            maskSize: 'contain',
-            WebkitMaskSize: 'contain',
-            maskRepeat: 'no-repeat',
-            WebkitMaskRepeat: 'no-repeat',
-            maskPosition: 'left center',
-            WebkitMaskPosition: 'left center',
-            transition: 'background 0.8s ease, filter 0.8s ease',
-            filter: `drop-shadow(0 4px 16px ${logoGradient[0]}88)`
-          }} />
-          
+          {/* Header */}
           <header style={{ 
-            padding: '40px 40px 24px', 
+            padding: '20px 48px', 
             display: 'flex', 
             justifyContent: 'space-between',
             alignItems: 'center',
             width: '100%',
-            position: 'relative',
-            zIndex: 10
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 100,
+            background: headerBlur ? 'rgba(5, 10, 24, 0.7)' : 'rgba(5, 10, 24, 0.3)',
+            backdropFilter: 'blur(40px) saturate(140%)',
+            WebkitBackdropFilter: 'blur(40px) saturate(140%)',
+            borderBottom: '1px solid rgba(255,255,255,0.04)',
+            transition: 'background 0.4s ease'
           }}>
-            {/* Left side: PillNav mapped smoothly natively into DOM flow */}
-            <div style={{
-              transform: `scale(${Math.max(0.85, 1 - scrollY * 0.001)}) translateY(${Math.max(-20, -scrollY * 0.5)}px)`,
-              opacity: Math.max(0.6, 1 - scrollY * 0.002),
-              transformOrigin: 'top left',
-              transition: 'transform 0.1s ease-out, opacity 0.1s ease-out'
-            }}>
-              <PillNav
-                logo={null}
-                logoAlt="PayDrip"
-                items={pillItems}
-                activeHref={location.pathname}
-                baseColor={baseColor}
-                pillColor={pillColor}
-                hoveredPillTextColor={hoverText}
-                pillTextColor={themeMode === 'light' ? '#000' : '#fff'}
-                initialLoadAnimation={true}
-              />
+            {/* Left: Logo */}
+            <div style={{ 
+              width: '160px', 
+              height: '36px',
+              backgroundColor: logoGradient[0],
+              backgroundImage: `linear-gradient(135deg, ${logoGradient[0]}, ${logoGradient[1]})`,
+              maskImage: 'url(/logo.png)',
+              WebkitMaskImage: 'url(/logo.png)',
+              maskSize: 'contain',
+              WebkitMaskSize: 'contain',
+              maskRepeat: 'no-repeat',
+              WebkitMaskRepeat: 'no-repeat',
+              maskPosition: 'left center',
+              WebkitMaskPosition: 'left center',
+              transition: 'background 0.8s ease, filter 0.8s ease',
+              filter: `drop-shadow(0 0 14px ${logoGradient[0]}44)`
+            }} />
+
+            {/* Center: SlideTabs */}
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+              <SlideTabs />
             </div>
 
-            {/* Right side controls, Wallet natively incorporated inside flow */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+            {/* Right: Controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 {address ? (
-                  <div style={{ background: themeMode === 'light' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(30, 30, 36, 0.7)', backdropFilter: 'blur(10px)', padding: '12px 20px', borderRadius: 24, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+                  <div style={{ 
+                    background: 'rgba(255, 255, 255, 0.04)', 
+                    backdropFilter: 'blur(12px)', 
+                    padding: '8px 16px', 
+                    borderRadius: 100, 
+                    border: '1px solid rgba(255,255,255,0.06)', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 12,
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.2)'
+                  }}>
                     <div>
-                      <div style={{ fontSize:10, color:'var(--text-3)', fontWeight: 600 }}>IDENTITY</div>
-                      <div style={{ fontSize:13, fontWeight:600, color:'var(--text)', fontFamily:'monospace' }}>{short(address)}</div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize:10, color:'var(--text-3)', fontWeight: 600 }}>EXTERNAL</div>
-                      <div style={{ fontSize:13, fontWeight:700, color:'var(--text)' }}>
-                        {parseFloat(balance||0).toFixed(2)} <span style={{fontSize:10}}>XLM</span>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: baseColor }}>
+                        {parseFloat(internalWalletBalance||0).toFixed(2)} <span style={{fontSize: 10, opacity: 0.5}}>XLM</span>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 16, borderLeft: '1px solid var(--border)' }}>
-                       <div>
-                         <div style={{ fontSize:10, color:'var(--text-3)', fontWeight: 600 }}>PAYDRIP ENGINE / INTERNAL</div>
-                         <div style={{ fontSize:13, fontWeight:700, color: baseColor }}>
-                           {parseFloat(internalWalletBalance||0).toFixed(2)} <span style={{fontSize:10}}>XLM</span>
-                         </div>
-                       </div>
-                       <button 
-                         onClick={() => addInternalFunds(500)}
-                         style={{ background: baseColor, border: 'none', borderRadius: '50%', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', marginLeft: 8 }}
-                       >
-                         <Plus size={14} />
-                       </button>
-                    </div>
+                    <button 
+                      onClick={() => addInternalFunds(500)}
+                      style={{ 
+                        background: 'rgba(255,255,255,0.08)', 
+                        border: 'none', 
+                        borderRadius: '50%', 
+                        width: 24, height: 24, 
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                        cursor: 'pointer', color: '#fff',
+                        transition: 'background 0.2s ease'
+                      }}
+                    >
+                      <Plus size={14} />
+                    </button>
                   </div>
                 ) : (
-                  <div style={{ padding: '8px 16px', borderRadius: 24, background: themeMode === 'light' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(30, 30, 36, 0.7)', backdropFilter: 'blur(10px)' }}>
-                    <span style={{fontSize: 12, color: 'var(--text-3)', fontWeight: 500}}>Identity Node Offline</span>
-                  </div>
+                  <button className="pd-btn pd-btn-primary" style={{ padding: '10px 24px', fontSize: 13 }}>
+                    Connect
+                  </button>
                 )}
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <button 
                   onClick={toggleTheme} 
                   style={{ 
-                    background: themeMode === 'light' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(30, 30, 36, 0.7)', 
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid var(--border)', 
+                    background: 'rgba(255,255,255,0.04)', 
+                    border: '1px solid rgba(255,255,255,0.06)', 
                     display: 'flex', 
                     alignItems: 'center', 
                     justifyContent: 'center', 
                     cursor: 'pointer',
-                    width: 48,
-                    height: 48,
+                    width: 36, height: 36,
                     borderRadius: '50%',
-                    color: 'var(--text)',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
+                    color: 'var(--text-3)',
+                    transition: 'all 0.2s ease'
                   }}
                 >
-                  {themeMode === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+                  {themeMode === 'light' ? <Moon size={16} /> : <Sun size={16} />}
                 </button>
                 
                 <NotificationPanel />
@@ -183,12 +202,11 @@ export default function Layout() {
 
           <PredictiveBanner />
 
-          <div className="content-grid" style={{ flex: 1, width: '100%', paddingTop: 32, paddingBottom: 40, paddingLeft: 40, paddingRight: 40, margin: '0 auto', maxWidth: 1400 }}>
+          <div style={{ flex: 1, width: '100%', paddingTop: 120, paddingBottom: 80, paddingLeft: 48, paddingRight: 48, margin: '0 auto', maxWidth: 1500 }}>
             <Outlet />
           </div>
         </main>
       </div>
-
     </>
   );
 }

@@ -1,14 +1,146 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
-import { Droplets, ShieldCheck, Zap, Globe, User, Check, Sparkles, UserCircle } from 'lucide-react';
+import { ShieldCheck, Zap, Globe, User, UserCircle } from 'lucide-react';
+import { Canvas, useFrame, extend } from '@react-three/fiber';
+import { shaderMaterial } from '@react-three/drei';
+import * as THREE from 'three';
 
+// ─── Inline Fluid Shader (the living blob) ──────────────────
+const FluidMaterial = shaderMaterial(
+  {
+    uTime: 0,
+    uMouse: new THREE.Vector2(0, 0),
+    uColorA: new THREE.Color("#8B5CF6"),
+    uColorB: new THREE.Color("#EC4899"),
+    uColorC: new THREE.Color("#3B82F6"),
+  },
+  // Vertex
+  `
+    uniform float uTime;
+    uniform vec2 uMouse;
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+
+    vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
+    vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
+    vec4 permute(vec4 x){return mod289(((x*34.0)+1.0)*x);}
+    vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}
+    float snoise(vec3 v){
+      const vec2 C=vec2(1.0/6.0,1.0/3.0);
+      const vec4 D=vec4(0.0,0.5,1.0,2.0);
+      vec3 i=floor(v+dot(v,C.yyy));
+      vec3 x0=v-i+dot(i,C.xxx);
+      vec3 g=step(x0.yzx,x0.xyz);
+      vec3 l=1.0-g;
+      vec3 i1=min(g.xyz,l.zxy);
+      vec3 i2=max(g.xyz,l.zxy);
+      vec3 x1=x0-i1+C.xxx;
+      vec3 x2=x0-i2+C.yyy;
+      vec3 x3=x0-D.yyy;
+      i=mod289(i);
+      vec4 p=permute(permute(permute(
+        i.z+vec4(0.0,i1.z,i2.z,1.0))
+        +i.y+vec4(0.0,i1.y,i2.y,1.0))
+        +i.x+vec4(0.0,i1.x,i2.x,1.0));
+      float n_=0.142857142857;
+      vec3 ns=n_*D.wyz-D.xzx;
+      vec4 j=p-49.0*floor(p*ns.z*ns.z);
+      vec4 x_=floor(j*ns.z);
+      vec4 y_=floor(j-7.0*x_);
+      vec4 x=x_*ns.x+ns.yyyy;
+      vec4 y=y_*ns.x+ns.yyyy;
+      vec4 h=1.0-abs(x)-abs(y);
+      vec4 b0=vec4(x.xy,y.xy);
+      vec4 b1=vec4(x.zw,y.zw);
+      vec4 s0=floor(b0)*2.0+1.0;
+      vec4 s1=floor(b1)*2.0+1.0;
+      vec4 sh=-step(h,vec4(0.0));
+      vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;
+      vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+      vec3 p0=vec3(a0.xy,h.x);
+      vec3 p1=vec3(a0.zw,h.y);
+      vec3 p2=vec3(a1.xy,h.z);
+      vec3 p3=vec3(a1.zw,h.w);
+      vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+      p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
+      vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0);
+      m=m*m;
+      return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+    }
+
+    void main(){
+      vNormal=normalize(normalMatrix*normal);
+      vPosition=position;
+      float mouseDist=distance(position.xy,uMouse*2.0);
+      float displacement=snoise(position*2.0+uTime*0.15)*0.35;
+      displacement-=smoothstep(0.0,1.5,mouseDist)*0.3;
+      vec3 newPosition=position+normal*displacement;
+      gl_Position=projectionMatrix*modelViewMatrix*vec4(newPosition,1.0);
+    }
+  `,
+  // Fragment
+  `
+    uniform vec3 uColorA;
+    uniform vec3 uColorB;
+    uniform vec3 uColorC;
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+    void main(){
+      float fresnel=pow(1.0+dot(vNormal,vec3(0.0,0.0,1.0)),2.5);
+      vec3 color=mix(uColorA,uColorB,vNormal.y*0.5+0.5);
+      color=mix(color,uColorC,vPosition.x*0.3+0.5);
+      gl_FragColor=vec4(color+fresnel*0.15,1.0);
+    }
+  `
+);
+
+extend({ FluidMaterial });
+
+function FluidBlob() {
+  const matRef = React.useRef();
+  const mouse = React.useRef(new THREE.Vector2(0, 0));
+
+  React.useEffect(() => {
+    const onMove = (e) => {
+      mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+    window.addEventListener('mousemove', onMove);
+    return () => window.removeEventListener('mousemove', onMove);
+  }, []);
+
+  useFrame(({ clock }) => {
+    if (matRef.current) {
+      matRef.current.uTime = clock.getElapsedTime();
+      matRef.current.uMouse.lerp(mouse.current, 0.05);
+    }
+  });
+
+  return (
+    <mesh>
+      <icosahedronGeometry args={[1.8, 64]} />
+      <fluidMaterial
+        ref={matRef}
+        key={FluidMaterial.key}
+        uColorA={new THREE.Color("#8B5CF6")}
+        uColorB={new THREE.Color("#EC4899")}
+        uColorC={new THREE.Color("#3B82F6")}
+        blending={THREE.AdditiveBlending}
+        transparent
+      />
+    </mesh>
+  );
+}
+
+// ─── Features Data ──────────────────────────────────────────
 const features = [
   { icon: ShieldCheck, title: 'Self-custodial', sub: 'Your keys, your funds via Freighter', color: '#B8A8FF' },
   { icon: Zap,         title: 'Instant & Low-fee', sub: 'Stellar Testnet transactions', color: '#FFB347' },
   { icon: Globe,       title: 'Schedule Payments', sub: 'Lock and release funds by date', color: '#F8BBD0' },
 ];
 
+// ─── Main Component ─────────────────────────────────────────
 export default function Onboarding() {
   const navigate = useNavigate();
   const { name, setName, gender, setGender } = useUser();
@@ -21,266 +153,222 @@ export default function Onboarding() {
     }
   };
 
+  const themeColors = {
+    male: {
+      accent: '#3b82f6',
+      glow: 'rgba(59, 130, 246, 0.25)',
+      bg: 'rgba(59, 130, 246, 0.03)'
+    },
+    female: {
+      accent: '#ec4899',
+      glow: 'rgba(236, 72, 153, 0.25)',
+      bg: 'rgba(236, 72, 153, 0.03)'
+    },
+    other: {
+      accent: '#10b981',
+      glow: 'rgba(16, 185, 129, 0.25)',
+      bg: 'rgba(16, 185, 129, 0.03)'
+    }
+  };
+
+  const themeGradients = {
+    male: {
+      start: '#94b9ff',
+      end: '#5c8eff',
+      glow: 'rgba(92, 142, 255, 0.15)'
+    },
+    female: {
+      start: '#ff9eb5',
+      end: '#f472b6',
+      glow: 'rgba(244, 114, 182, 0.15)'
+    },
+    other: {
+      start: '#86efac',
+      end: '#10b981',
+      glow: 'rgba(16, 185, 129, 0.15)'
+    },
+    default: {
+      start: '#F1F5F9',
+      end: '#94A3B8',
+      glow: 'rgba(255, 255, 255, 0.05)'
+    }
+  };
+
+  const curGrad = themeGradients[gender] || themeGradients.default;
+
+  const activeTheme = gender ? themeColors[gender] : {
+    accent: 'rgba(255, 255, 255, 0.05)',
+    glow: 'rgba(0, 0, 0, 0)',
+    bg: 'transparent'
+  };
+
+  const GenderButton = ({ value, label }) => {
+    const active = gender === value;
+    return (
+      <button 
+        type="button"
+        onClick={() => setGender(value)}
+        className="dark-btn"
+        style={{
+          width: '100%',
+          padding: '16px',
+          borderRadius: '25px',
+          backgroundColor: active ? '#222' : '#171717',
+          boxShadow: active ? `inset 2px 5px 15px rgb(0, 0, 0), 0 0 20px ${themeColors[value].glow}` : 'inset 2px 5px 10px rgb(5, 5, 5)',
+          border: active ? `1px solid ${themeColors[value].accent}` : '1px solid transparent',
+          color: active ? 'white' : '#d3d3d3',
+          transition: '.4s ease-in-out',
+          transform: active ? 'scale(1.05)' : 'scale(1)'
+        }}
+      >
+        {label}
+      </button>
+    );
+  };
+
+  // ─── Step 1: Landing ────────────────────────────────────
   if (step === 1) {
     return (
-      <div style={{ minHeight:'100vh', background:'transparent', display:'flex', alignItems:'center', justifyContent:'center', padding:32, position: 'relative', zIndex: 10 }}>
-        <div className="fade-up" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:64, maxWidth:960, width:'100%', alignItems:'center' }}>
-          <div>
-            <div style={{ display:'flex', alignItems:'center', marginBottom:32 }}>
-               <div style={{ 
-                width: '140px', 
-                height: '40px',
-                backgroundColor: gender === 'male' ? '#2F4BA2' : (gender === 'other' ? '#10B981' : '#E947F5'),
-                backgroundImage: `linear-gradient(135deg, ${gender === 'male' ? '#2F4BA2' : (gender === 'other' ? '#10B981' : '#E947F5')}, ${gender === 'male' ? '#4BA5FA' : (gender === 'other' ? '#34D399' : '#FF8AFB')})`,
-                maskImage: 'url(/logo.png)',
-                WebkitMaskImage: 'url(/logo.png)',
-                maskSize: 'contain',
-                WebkitMaskSize: 'contain',
-                maskRepeat: 'no-repeat',
-                WebkitMaskRepeat: 'no-repeat',
-                maskPosition: 'left center',
-                WebkitMaskPosition: 'left center',
-                transition: 'background 0.8s ease, filter 0.8s ease',
-                filter: `drop-shadow(0 4px 16px ${gender === 'male' ? '#2F4BA2' : (gender === 'other' ? '#10B981' : '#E947F5')}88)`
-              }} />
+      <div style={{ 
+        position: 'relative', 
+        zIndex: 1, 
+        minHeight: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        padding: 40,
+        '--h-grad-start': curGrad.start,
+        '--h-grad-end': curGrad.end,
+        '--h-glow': curGrad.glow
+      }}>
+          <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, maxWidth: 1100, width: '100%', alignItems: 'center' }}>
+            <div style={{ paddingRight: 40 }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: 56 }}>
+                <div style={{ 
+                  width: '180px', height: '50px',
+                  backgroundColor: 'white',
+                  backgroundImage: 'linear-gradient(135deg, white, rgba(255,255,255,0.5))',
+                  maskImage: 'url(/logo.png)', WebkitMaskImage: 'url(/logo.png)',
+                  maskSize: 'contain', WebkitMaskSize: 'contain',
+                  maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat',
+                  maskPosition: 'left center', WebkitMaskPosition: 'left center',
+                  filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.15))'
+                }} />
+              </div>
+              <h1 style={{ color: 'white', marginBottom: 32, fontSize: 52 }}>
+                Automate your<br />
+                <span style={{ 
+                  background: 'linear-gradient(135deg, var(--primary), var(--accent))',
+                  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'
+                }}>
+                  payments
+                </span><br />
+                effortlessly
+              </h1>
+              <p style={{ fontSize: 18, color: 'var(--text-3)', marginBottom: 48, maxWidth: 480, lineHeight: 1.7, fontWeight: 500 }}>
+                Liquid-first financial planning for the Stellar ecosystem. Securely lock, stream, and schedule XLM.
+              </p>
+              <button onClick={() => setStep(2)} className="pd-btn pd-btn-primary" style={{ padding: '18px 56px', fontSize: 16, borderRadius: '100px' }}>
+                Get Started
+              </button>
             </div>
-            <h1 style={{ fontSize:48, fontWeight:800, lineHeight:1.1, color:'var(--text)', marginBottom:20 }}>
-              Automate your<br />
-              <span style={{ background:'var(--logo-grad)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>
-                payments
-              </span><br />
-              effortlessly
-            </h1>
-            <p style={{ fontSize:16, color:'var(--text-2)', marginBottom:36, maxWidth:380 }}>
-              The next-generation fintech dashboard for Stellar. Send, lock, and schedule XLM with a beautiful interface.
-            </p>
-            <button onClick={() => setStep(2)} className="btn btn-primary" style={{ padding:'16px 32px', fontSize:16, borderRadius:99 }}>
-              Get Started →
-            </button>
-          </div>
-          <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
-            {features.map((f, i) => {
-              const Icon = f.icon;
-              return (
-                <div key={f.title} className={`card-glass ${i % 2 !== 0 ? 'offset-y-1' : ''}`} style={{ display:'flex', alignItems:'center', gap:18, padding:'24px 26px' }}>
-                  <div style={{ width:48, height:48, borderRadius:16, background:`${f.color}22`, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                    <Icon size={22} color={f.color} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              {features.map((f) => {
+                const Icon = f.icon;
+                return (
+                  <div key={f.title} className="glass-panel" style={{ display: 'flex', alignItems: 'center', gap: 24, padding: '28px 36px' }}>
+                    <div style={{ width: 56, height: 56, borderRadius: 'var(--radius-md)', background: `${f.color}0D`, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${f.color}1A` }}>
+                      <Icon size={24} color={f.color} />
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 18, color: 'white', marginBottom: 4 }}>{f.title}</div>
+                      <div style={{ fontSize: 14, color: 'var(--text-3)', fontWeight: 500 }}>{f.sub}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div style={{ fontWeight:700, fontSize:15 }}>{f.title}</div>
-                    <div style={{ fontSize:13, color:'var(--text-2)' }}>{f.sub}</div>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>
     );
   }
 
+  // ─── Step 2: Identity Form ──────────────────────────────
   return (
-    <div className="onboarding-container fade-up">
-      <form className="form" onSubmit={handleFinish}>
-        <p id="heading">Initialize Identity</p>
-        
-        <div className="field">
-          <User className="input-icon" />
-          <input 
-            autoComplete="off" 
-            placeholder="Legal Name" 
-            className="input-field" 
-            type="text" 
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-
-        <div style={{ marginTop: '20px' }}>
-          <p style={{ color: 'white', fontSize: '13px', textAlign: 'center', marginBottom: '15px', opacity: 0.7 }}>SELECT GENDER</p>
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-            <button 
-              type="button"
-              className="button1" 
-              style={{ background: gender === 'male' ? 'var(--primary)' : '#252525', border: gender === 'male' ? '1px solid white' : 'none' }}
-              onClick={() => setGender('male')}
-            >
-              Male
-            </button>
-            <button 
-              type="button"
-              className="button2" 
-              style={{ background: gender === 'female' ? 'var(--primary)' : '#252525', border: gender === 'female' ? '1px solid white' : 'none' }}
-              onClick={() => setGender('female')}
-            >
-              Female
-            </button>
-          </div>
-        </div>
-
-        <button 
-          type="button"
-          className="button3" 
+    <div style={{ 
+      position: 'relative', 
+      zIndex: 1, 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      '--h-grad-start': curGrad.start,
+      '--h-grad-end': curGrad.end,
+      '--h-glow': curGrad.glow
+    }}>
+        <form 
+          className="dark-form" 
+          onSubmit={handleFinish} 
           style={{ 
-            marginTop: '15px',
-            background: gender === 'other' ? 'var(--primary)' : '#252525', 
-            border: gender === 'other' ? '1px solid white' : 'none',
-            marginBottom: '10px'
+            width: '440px', 
+            borderColor: activeTheme.accent,
+            boxShadow: `0 0 40px ${activeTheme.glow}`,
+            background: gender ? `${activeTheme.bg}` : '#171717',
+            transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
           }}
-          onClick={() => setGender('other')}
         >
-          Non-Binary / Others
-        </button>
+          <div style={{ textAlign: 'center', marginBottom: 40 }}>
+            <div style={{ width: 64, height: 64, borderRadius: 'var(--radius-lg)', background: 'rgba(255, 255, 255, 0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <UserCircle size={32} color="#d3d3d3" />
+            </div>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: 'white' }}>Initialize Identity</h2>
+            <p style={{ color: 'var(--text-3)', fontSize: 14, marginTop: 8, fontWeight: 500 }}>Create your decentralized profile.</p>
+          </div>
+          
+          <div style={{ marginBottom: 32 }}>
+            <label className="pd-field-label" style={{ marginBottom: 12, display: 'block', marginLeft: '12px' }}>Display Name</label>
+            <div 
+              className="dark-field" 
+              style={{ 
+                borderColor: activeTheme.accent, 
+                borderWidth: '1px', 
+                borderStyle: 'solid',
+                transition: 'all 0.5s ease-in-out'
+              }}
+            >
+              <div style={{ paddingLeft: '4px', display: 'flex', alignItems: 'center' }}>
+                <User size={18} color={gender ? activeTheme.accent : "#666"} style={{ transition: 'color 0.5s ease' }} />
+              </div>
+              <input autoComplete="off" placeholder="How should we call you?" className="dark-input" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+            </div>
+          </div>
 
-        <div className="btn">
+          <div style={{ marginBottom: 40 }}>
+            <label className="pd-field-label" style={{ marginBottom: 16, display: 'block', marginLeft: '12px' }}>Identification</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+              <GenderButton value="male" label="Male" />
+              <GenderButton value="female" label="Female" />
+            </div>
+            <GenderButton value="other" label="Non-Binary / Other" />
+          </div>
+
           <button 
-            type="submit" 
-            className="button2" 
-            style={{ width: '100%', padding: '12px', background: 'var(--primary)', color: 'white', opacity: (name.trim() && gender) ? 1 : 0.5 }}
+            type="submit" className="dark-btn" 
+            style={{ 
+              width: '100%', 
+              padding: '18px', 
+              borderRadius: '25px', 
+              fontSize: 15, 
+              opacity: (name.trim() && gender) ? 1 : 0.4,
+              background: gender ? activeTheme.accent : '#252525',
+              color: gender ? 'white' : '#d3d3d3',
+              transition: 'all 0.5s ease'
+            }}
             disabled={!name.trim() || !gender}
           >
             Finalize Profile
           </button>
-        </div>
-      </form>
-
-      <style jsx="true">{`
-        .onboarding-container {
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 20px;
-          background: transparent;
-          position: relative;
-          z-index: 10;
-        }
-
-        /* From Uiverse.io by Praashoo7 */ 
-        .form {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          padding-left: 2em;
-          padding-right: 2em;
-          padding-bottom: 2em;
-          background-color: #171717;
-          border-radius: 25px;
-          transition: .4s ease-in-out;
-          width: 1000px;
-          max-width: 400px;
-          box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-          border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .form:hover {
-          transform: scale(1.02);
-          border-color: var(--primary);
-        }
-
-        #heading {
-          text-align: center;
-          margin: 2em;
-          color: rgb(255, 255, 255);
-          font-size: 1.5em;
-          font-weight: 700;
-          letter-spacing: 1px;
-          text-transform: uppercase;
-        }
-
-        .field {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.8em;
-          border-radius: 25px;
-          padding: 1em;
-          border: none;
-          outline: none;
-          color: white;
-          background-color: #171717;
-          box-shadow: inset 2px 5px 10px rgb(5, 5, 5);
-          border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .input-icon {
-          height: 1.3em;
-          width: 1.3em;
-          color: var(--primary);
-        }
-
-        .input-field {
-          background: none;
-          border: none;
-          outline: none;
-          width: 100%;
-          color: #d3d3d3;
-          font-family: inherit;
-        }
-
-        .form .btn {
-          display: flex;
-          justify-content: center;
-          flex-direction: row;
-          margin-top: 1em;
-        }
-
-        .button1, .button2, .button3 {
-          font-family: inherit;
-          cursor: pointer;
-        }
-
-        .button1 {
-          padding: 0.8em;
-          padding-left: 1.5em;
-          padding-right: 1.5em;
-          border-radius: 12px;
-          border: none;
-          outline: none;
-          transition: .4s ease-in-out;
-          background-color: #252525;
-          color: white;
-        }
-
-        .button1:hover {
-          background-color: black;
-          color: var(--primary);
-        }
-
-        .button2 {
-          padding: 0.8em;
-          padding-left: 1.5em;
-          padding-right: 1.5em;
-          border-radius: 12px;
-          border: none;
-          outline: none;
-          transition: .4s ease-in-out;
-          background-color: #252525;
-          color: white;
-        }
-
-        .button2:hover {
-          background-color: black;
-          color: var(--primary);
-        }
-
-        .button3 {
-          padding: 0.8em;
-          border-radius: 12px;
-          border: none;
-          outline: none;
-          transition: .4s ease-in-out;
-          background-color: #252525;
-          color: white;
-          width: 100%;
-        }
-
-        .button3:hover {
-          background-color: #2e2e2e;
-          border-color: var(--primary);
-        }
-      `}</style>
-    </div>
+        </form>
+      </div>
   );
 }

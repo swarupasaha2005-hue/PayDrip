@@ -134,24 +134,24 @@ export default function ManageSubscriptions() {
   };
 
   return (
-    <div className="spatial-spread fade-up">
-      <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:32 }}>
-        <button onClick={() => navigate(-1)} className="btn-icon"><ArrowLeft size={18} /></button>
+    <div className="fade-up" style={{ maxWidth: '1200px', margin: '0 auto', paddingTop: '40px' }}>
+      <div style={{ marginBottom: 64 }}>
+        <button onClick={() => navigate(-1)} className="pd-btn pd-btn-ghost" style={{ width: 48, height: 48, padding: 0, borderRadius: '50%', marginBottom: 32 }}><ArrowLeft size={20} /></button>
         <div>
-          <h1 style={{ fontSize:32, fontWeight:700, margin:'0 0 4px', letterSpacing:'-0.5px' }}>Construct Payment</h1>
-          <p style={{ color:'var(--text-3)', fontSize:16 }}>Schedule and lock funds for upcoming drips.</p>
+          <h1 style={{ color: 'white' }}>Construct Plan</h1>
+          <p style={{ color: 'var(--text-3)', fontSize: 20, fontWeight: 500 }}>Schedule and lock funds for upcoming drips.</p>
         </div>
       </div>
 
-      <div className="stitch-layout-grid">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 40 }}>
         <div style={{ gridColumn: 'span 8' }}>
-          <form onSubmit={(e) => e.preventDefault()} className="pd-card-v2" style={{ borderTop: '4px solid var(--primary)' }}>
-            <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 32, letterSpacing: '-0.5px' }}>Payment Configuration</h3>
+          <form onSubmit={(e) => e.preventDefault()} className="dark-form" style={{ padding: '48px' }}>
+            <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 40 }}>Payment Configuration</h3>
             
             {/* Service Target - Custom Row */}
-            <div style={{ marginBottom: 32 }}>
-              <label className="pd-field-label">Service Target</label>
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
+            <div style={{ marginBottom: 40 }}>
+              <label className="pd-field-label" style={{ marginBottom: 12, display: 'block' }}>Service Target</label>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                 {SERVICES.map(s => {
                   const Icon = s.icon;
                   const isSelected = selectedService.id === s.id;
@@ -160,20 +160,19 @@ export default function ManageSubscriptions() {
                       key={s.id}
                       onClick={() => setSelectedService(s)}
                       style={{
-                        padding: '12px 20px',
+                        padding: '14px 24px',
                         borderRadius: '20px',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 10,
-                        background: isSelected ? 'var(--primary)' : 'var(--surface-2)',
-                        color: isSelected ? '#FFFFFF' : 'var(--text-2)',
+                        gap: 12,
+                        background: isSelected ? 'white' : 'rgba(255,255,255,0.03)',
+                        color: isSelected ? 'black' : 'var(--text-3)',
                         cursor: 'pointer',
-                        fontWeight: 600,
+                        fontWeight: 700,
                         fontSize: 14,
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        boxShadow: isSelected ? '0 4px 12px rgba(var(--primary-rgb), 0.3)' : 'none',
-                        border: '1px solid transparent',
-                        borderColor: isSelected ? 'var(--primary-dark)' : 'var(--border)'
+                        border: '1px solid',
+                        borderColor: isSelected ? 'white' : 'var(--glass-border)'
                       }}
                     >
                       <Icon size={18} /> {s.label}
@@ -182,25 +181,24 @@ export default function ManageSubscriptions() {
                 })}
               </div>
               {selectedService.id === 'other' && (
-                <div className="pd-field" style={{ marginTop: 16 }}>
+                <div className="dark-field" style={{ marginTop: 20 }}>
                   <input 
                     value={customService} onChange={e => setCustomService(e.target.value)}
-                    placeholder="Enter service name..." className="pd-input" required
+                    placeholder="Enter service name..." className="dark-input" required
                   />
                 </div>
               )}
             </div>
 
             {/* Funding Source - Segmented Control */}
-            <div style={{ marginBottom: 32 }}>
-              <label className="pd-field-label">Funding Source</label>
+            <div style={{ marginBottom: 40 }}>
+              <label className="pd-field-label" style={{ marginBottom: 12, display: 'block' }}>Funding Source</label>
               <div style={{ 
                 display: 'flex', 
-                background: 'var(--surface-2)', 
-                borderRadius: '24px', 
+                background: 'rgba(255,255,255,0.03)', 
+                borderRadius: '100px', 
                 padding: '6px', 
-                marginTop: 12,
-                boxShadow: 'inset 1px 2px 5px rgba(0,0,0,0.1)'
+                border: '1px solid var(--glass-border)'
               }}>
                 {[
                   { id: 'Wallet', icon: Wallet },
@@ -215,123 +213,122 @@ export default function ManageSubscriptions() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: 8,
+                      gap: 10,
                       padding: '12px', 
-                      borderRadius: '18px', 
+                      borderRadius: '100px', 
                       cursor: 'pointer', 
-                      fontSize: 13, 
-                      fontWeight: 700,
-                      background: source === fs.id ? 'var(--surface)' : 'transparent', 
-                      color: source === fs.id ? 'var(--primary)' : 'var(--text-3)', 
-                      transition: 'all 0.2s ease',
-                      boxShadow: source === fs.id ? '0 2px 8px rgba(0,0,0,0.1)' : 'none'
+                      fontSize: 12, 
+                      fontWeight: 800,
+                      background: source === fs.id ? 'white' : 'transparent', 
+                      color: source === fs.id ? 'black' : 'var(--text-3)', 
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
                   >
-                    <fs.icon size={14} /> {fs.id}
+                    <fs.icon size={14} /> {fs.id.toUpperCase()}
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Double Field Row: Amounts */}
-            <div className="stitch-layout-grid" style={{ marginBottom: 32, gap: 24 }}>
-              <div style={{ gridColumn: 'span 6' }} className="pd-field-container">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 40 }}>
+              <div className="pd-field-container">
                 <label className="pd-field-label">Amount INR (Optional)</label>
-                <div className="pd-field">
-                  <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-3)' }}>₹</span>
-                  <input type="number" value={amountINR} onChange={e => handleInrChange(e.target.value)} placeholder="0.00" className="pd-input" />
+                <div className="dark-field">
+                  <span style={{ fontSize: 14, fontWeight: 700, color: '#666' }}>₹</span>
+                  <input type="number" value={amountINR} onChange={e => handleInrChange(e.target.value)} placeholder="0.00" className="dark-input" />
                 </div>
               </div>
-              <div style={{ gridColumn: 'span 6' }} className="pd-field-container">
+              <div className="pd-field-container">
                 <label className="pd-field-label">Amount XLM</label>
-                <div className="pd-field" style={{ borderColor: isInsufficient && source==='Wallet' ? 'var(--error)' : 'var(--border)' }}>
-                  <input type="number" value={amountXLM} onChange={e => handleXLMChange(e.target.value)} placeholder="0.00" required className="pd-input" />
+                <div className="dark-field" style={{ borderColor: isInsufficient && source==='Wallet' ? 'var(--error)' : 'transparent' }}>
+                  <input type="number" value={amountXLM} onChange={e => handleXLMChange(e.target.value)} placeholder="0.00" required className="dark-input" />
                   <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>XLM</span>
                 </div>
                 {isInsufficient && source === 'Wallet' && (
-                  <p style={{ color:'var(--error-text)', fontSize:11, paddingLeft: 12 }}>Insufficient Balance</p>
+                  <p style={{ color:'var(--error)', fontSize:11, paddingLeft: 12, marginTop: 4 }}>Insufficient Balance</p>
                 )}
               </div>
             </div>
 
             {/* Double Field Row: Schedule */}
-            <div className="stitch-layout-grid" style={{ marginBottom: 32, gap: 24 }}>
-              <div style={{ gridColumn: 'span 6' }} className="pd-field-container">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 40 }}>
+              <div className="pd-field-container">
                 <label className="pd-field-label">Frequency</label>
-                <div className="pd-field">
-                  <select value={frequency} onChange={e => setFrequency(e.target.value)} className="pd-input" style={{ appearance: 'none', cursor: 'pointer' }}>
+                <div className="dark-field">
+                  <select value={frequency} onChange={e => setFrequency(e.target.value)} className="dark-input" style={{ appearance: 'none', cursor: 'pointer' }}>
                     <option value="one-time">One-time</option>
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
                   </select>
                 </div>
               </div>
-              <div style={{ gridColumn: 'span 6' }} className="pd-field-container">
+              <div className="pd-field-container">
                 <label className="pd-field-label">Lock Release Date</label>
-                <div className="pd-field">
-                  <input type="date" value={releaseAt} onChange={e => setReleaseAt(e.target.value)} required className="pd-input" min={new Date().toISOString().split('T')[0]} />
+                <div className="dark-field">
+                  <input type="date" value={releaseAt} onChange={e => setReleaseAt(e.target.value)} required className="dark-input" min={new Date().toISOString().split('T')[0]} />
                 </div>
               </div>
             </div>
 
             {/* Note Field */}
-            <div className="pd-field-container" style={{ marginBottom: 40 }}>
+            <div className="pd-field-container" style={{ marginBottom: 48 }}>
               <label className="pd-field-label">Description Note</label>
-              <div className="pd-field">
-                <input value={note} onChange={e => setNote(e.target.value)} placeholder="Brief description..." maxLength={40} className="pd-input" />
+              <div className="dark-field">
+                <input value={note} onChange={e => setNote(e.target.value)} placeholder="Brief description..." maxLength={40} className="dark-input" />
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button type="button" onClick={() => handleExecute('upi')} disabled={isLocking || (source==='Wallet' && isInsufficient)} className="pd-btn" style={{ flex: 1, padding: '18px', borderRadius: '16px', background: '#3b82f6', color: 'white', border: 'none', fontWeight: 800 }}>
-                Pay Now via UPI
+            <div className="dark-btn-group">
+              <button type="button" onClick={() => handleExecute('upi')} disabled={isLocking || (source==='Wallet' && isInsufficient)} className="dark-btn" style={{ flex: 1, padding: '20px', borderRadius: '25px' }}>
+                Settle via UPI
               </button>
-              <button type="button" onClick={() => handleExecute('lock')} disabled={isLocking || (source==='Wallet' && isInsufficient)} className="pd-btn pd-btn-primary" style={{ flex: 1, padding: '18px', borderRadius: '16px' }}>
-                {isLocking ? <><Loader2 size={18} className="spinning" /> Processing...</> : <><CreditCard size={18} /> Continue & Lock in App</>}
+              <button type="button" onClick={() => handleExecute('lock')} disabled={isLocking || (source==='Wallet' && isInsufficient)} className="dark-btn dark-btn-primary" style={{ flex: 1, padding: '20px', borderRadius: '25px' }}>
+                {isLocking ? <><Loader2 size={18} className="spinning" /> Processing...</> : <><CreditCard size={18} /> Confirm & Lock</>}
               </button>
             </div>
           </form>
         </div>
 
         <div style={{ gridColumn: 'span 4' }}>
-          <div className="pd-card-v2" style={{ height: '100%', background: 'linear-gradient(135deg, var(--surface) 0%, var(--surface-2) 100%)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-              <div style={{ background: 'var(--primary-dark)', padding: '8px', borderRadius: '12px' }}>
-                <Info size={20} color="white" />
+          <div className="glass-panel" style={{ height: '100%', padding: '40px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
+              <div style={{ background: 'rgba(var(--primary-rgb), 0.1)', padding: '10px', borderRadius: '14px', border: '1px solid rgba(var(--primary-rgb), 0.2)' }}>
+                <Info size={20} color="var(--primary)" />
               </div>
-              <h3 style={{ fontSize: 18, fontWeight: 700 }}>Telemetry Insights</h3>
+              <h3 style={{ fontSize: 20, fontWeight: 700 }}>Insights</h3>
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-              <p style={{ color: 'var(--text-2)', fontSize: 14, lineHeight: 1.7 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+              <p style={{ color: 'var(--text-3)', fontSize: 15, lineHeight: 1.7, fontWeight: 500 }}>
                 By scheduling a Smart Drip, you are actively time-locking liquidity. This guarantees that your required funds are natively escrowed.
               </p>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                 {[
-                  { t: 'Guaranteed execution', d: 'Deterministic on-chain triggers' },
-                  { t: 'Immutable time-locks', d: 'Enhanced security layers' },
+                  { t: 'Guaranteed execution', d: 'Deterministic triggers' },
+                  { t: 'Immutable time-locks', d: 'Native network escrow' },
                   { t: 'Atomic Settlements', d: 'Trustless value transfer' }
                 ].map((item, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-                    <div style={{ background: 'var(--surface)', width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, border: '1px solid var(--border)', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                  <div key={i} style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, border: '1px solid var(--glass-border)', color: 'var(--primary)' }}>
                       {i+1}
                     </div>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>{item.t}</div>
-                      <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{item.d}</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>{item.t}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-3)', fontWeight: 500 }}>{item.d}</div>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div style={{ marginTop: 'auto', padding: '20px', borderRadius: '18px', background: 'rgba(var(--primary-rgb), 0.05)', border: '1px dashed var(--primary)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <Landmark size={14} color="var(--primary)" />
-                  <span style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', color: 'var(--primary)' }}>Protection Status</span>
+              <div style={{ marginTop: 'auto', padding: '24px', borderRadius: '20px', background: 'rgba(var(--primary-rgb), 0.05)', border: '1px solid rgba(var(--primary-rgb), 0.1)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                  <Landmark size={16} color="var(--primary)" />
+                  <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--primary)', letterSpacing: '1px' }}>System Status</span>
                 </div>
-                <div style={{ fontSize: 13, color: 'var(--text-2)' }}>
-                  Approval Rules: <span style={{ fontWeight: 700, color: 'var(--text)' }}>Active</span>
+                <div style={{ fontSize: 14, color: 'var(--text-2)', fontWeight: 500 }}>
+                  Escrow Protocol: <span style={{ fontWeight: 800, color: 'var(--success)' }}>ONLINE</span>
                 </div>
               </div>
             </div>
