@@ -16,7 +16,7 @@ jobs:
       - name: Rust Setup
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: 1.86.0
+          toolchain: 1.91.0
           targets: wasm32v1-none
 
       - name: Cache Cargo
