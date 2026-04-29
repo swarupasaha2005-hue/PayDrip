@@ -15,7 +15,7 @@ pub enum DataKey {
 }
 
 /// Reward tier thresholds (lock duration in seconds → multiplier).
-const TIER_BRONZE: u64 = 86_400;      // 1 day
+const _TIER_BRONZE: u64 = 86_400;      // 1 day
 const TIER_SILVER: u64 = 604_800;     // 1 week
 const TIER_GOLD: u64 = 2_592_000;     // 30 days
 const TIER_PLATINUM: u64 = 7_776_000; // 90 days

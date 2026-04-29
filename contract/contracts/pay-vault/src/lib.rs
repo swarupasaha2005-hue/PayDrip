@@ -83,7 +83,7 @@ impl VaultEntry {
 // ── Cross-contract import for rewards ──
 mod rewards {
     soroban_sdk::contractimport!(
-        file = "../../target/wasm32-unknown-unknown/release/drip_rewards.wasm"
+        file = "../../target/wasm32v1-none/release/drip_rewards.wasm"
     );
 }
 
